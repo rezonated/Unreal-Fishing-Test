@@ -14,5 +14,14 @@ public class StairwayFishingGameTarget : TargetRules
 			"VAAnyUnreal",
 			"VAGameplayMessaging"
 		} );
+		RegisterModulesCreatedByRider();
+	}
+
+	private void RegisterModulesCreatedByRider()
+	{
+		ExtraModuleNames.AddRange(new[]
+		{
+			"FishingFeature", "FishingGameplayTags", "FishingGameTypes", "FishingFeatureUI"
+		});
 	}
 }

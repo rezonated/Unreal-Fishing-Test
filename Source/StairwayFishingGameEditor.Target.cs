@@ -17,5 +17,14 @@ public class StairwayFishingGameEditorTarget : TargetRules
 			"VAAnyUnrealUncookedOnly",
 			"VAGameplayMessaging"
 		} );
+		RegisterModulesCreatedByRider();
+	}
+
+	private void RegisterModulesCreatedByRider()
+	{
+		ExtraModuleNames.AddRange(new[]
+		{
+			"FishingFeature", "FishingGameplayTags", "FishingGameTypes", "FishingFeatureUI"
+		});
 	}
 }
