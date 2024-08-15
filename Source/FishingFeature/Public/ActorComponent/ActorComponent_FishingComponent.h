@@ -27,12 +27,14 @@ protected:
 	void BindToPlayerActionInputDelegates();
 	
 	void OnCastAction(const float& InElapsedTime);
-	void OnCastActionEnded(const float&);
+	void OnCastActionEnded(const float&) const;
 	
 	void DetermineCastLocation(const float& InElapsedTime);
 	void AttemptToCast(const FVector& InCastStartPosition);
 
-	void BroadcastUIMessage(const float& InProgress);
+	void AttemptGetRandomCatchable() const;
+	
+	void BroadcastUIMessage(const float& InProgress) const;
 	float GetMappedElapsedTimeToMaximumCastTime(const float& InValue, const float DefaultValue = 0.f) const;
 
 	void ToggleDecalVisibility(const bool& bInShouldBeVisible) const;

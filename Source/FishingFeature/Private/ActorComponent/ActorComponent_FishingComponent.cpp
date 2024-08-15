@@ -7,7 +7,9 @@
 #include "FishingTags.h"
 #include "DataAsset/DataAsset_FishingComponentConfig.h"
 #include "GameInstanceSubsystem/VAGameplayMessagingSubsystem.h"
+#include "Interface/CatchableInterface.h"
 #include "Interface/PlayerActionInputInterface.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "Macros/TraceMacros.h"
 
 
@@ -116,12 +118,6 @@ void UActorComponent_FishingComponent::BindToPlayerActionInputDelegates()
 
 void UActorComponent_FishingComponent::OnCastAction(const float& InElapsedTime)
 {
-	if (!FishingComponentConfigData)
-	{
-		UE_LOG(LogFishingFeature, Error, TEXT("Fishing Component Config is not valid, have you set it up correctly in the component?"));
-		return;
-	}
-	
 	const float MappedElapsedTime = GetMappedElapsedTimeToMaximumCastTime(InElapsedTime);
 
 	BroadcastUIMessage(MappedElapsedTime);
@@ -131,11 +127,82 @@ void UActorComponent_FishingComponent::OnCastAction(const float& InElapsedTime)
 	DetermineCastLocation(InElapsedTime);
 }
 
-void UActorComponent_FishingComponent::OnCastActionEnded(const float&)
+void UActorComponent_FishingComponent::AttemptGetRandomCatchable() const
+{
+	if (!FishingComponentConfigData)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Fishing Component Config is not valid, have you set it up correctly in the component?"));
+		return;
+	}
+	
+	const FFishingComponentConfig FishingComponentConfig = FishingComponentConfigData->GetFishingComponentConfig();
+
+	const float CastRadius = FishingComponentConfig.CastRadius;
+
+	TArray<FHitResult> HitResult;
+		
+	const bool bSphereTraceForCatchables = UKismetSystemLibrary::SphereTraceMulti(this, CastLocation, CastLocation, CastRadius, UEngineTypes::ConvertToTraceType(ECC_Visibility), true, TArray<AActor*>{}, EDrawDebugTrace::Type::None, HitResult, true, FLinearColor::Yellow, FLinearColor::Red, 0.f);
+
+	if (!bSphereTraceForCatchables)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Failed to trace for catchables, won't continue..."));
+		return;
+	}
+	
+	TArray<AActor*> CatchableActors;
+	
+	for (const FHitResult& HitResultItem : HitResult)
+	{
+		AActor* HitActor = HitResultItem.Actor.Get();
+		if (!HitActor)
+		{
+			continue;
+		}
+
+		const bool bHitActorImplementsCatchable = HitActor->Implements<UCatchableInterface>();
+		if (!bHitActorImplementsCatchable)
+		{
+			continue;
+		}
+
+		CatchableActors.AddUnique(HitActor);
+	}
+
+	const bool bCatchableActorsAreValid = CatchableActors.Num() > 0;
+	if (!bCatchableActorsAreValid)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("No valid catchable actors found, won't continue..."));
+		return;
+	}
+
+	bool bRandomCatchableIndexIsValid = false;
+	int32 RandomCatchableIndex = 0;
+
+	while (!bRandomCatchableIndexIsValid)
+	{
+		const int32 MaxCatchableActors = CatchableActors.Num() - 1;
+		RandomCatchableIndex = FMath::RandRange(0, MaxCatchableActors);
+
+		bRandomCatchableIndexIsValid = CatchableActors.IsValidIndex(RandomCatchableIndex);
+	}
+
+	ICatchableInterface* RandomCatchable = Cast<ICatchableInterface>(CatchableActors[RandomCatchableIndex]);
+	if (!RandomCatchable)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Random Catchable is not valid, won't continue..."));
+		return;
+	}
+
+	RandomCatchable->ReeledIn(CastLocation);
+}
+
+void UActorComponent_FishingComponent::OnCastActionEnded(const float&) const
 {
 	BroadcastUIMessage(0.f);
 
 	ToggleDecalVisibility(false);
+
+	AttemptGetRandomCatchable();
 }
 
 void UActorComponent_FishingComponent::DetermineCastLocation(const float& InElapsedTime)
@@ -207,7 +274,7 @@ void UActorComponent_FishingComponent::AttemptToCast(const FVector& InCastStartP
 	SetDecalActorLocation(CastLocation);
 }
 
-void UActorComponent_FishingComponent::BroadcastUIMessage(const float& InProgress)
+void UActorComponent_FishingComponent::BroadcastUIMessage(const float& InProgress) const
 {
 	 UVAGameplayMessagingSubsystem::Get(this).BroadcastMessage(this, FFishingTags::Get().Messaging_Fishing_UI_Cast_Update, InProgress);
 }

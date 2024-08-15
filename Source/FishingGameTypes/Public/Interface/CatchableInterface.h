@@ -20,5 +20,6 @@ class FISHINGGAMETYPES_API ICatchableInterface
 {
 	GENERATED_BODY()
 public:
+	virtual void ReeledIn(const FVector& RodLocation) = 0;
 	virtual void Catch() = 0;
 };

@@ -17,6 +17,7 @@ class FISHINGFEATURE_API AFish : public AActor, public ICatchableInterface
 public:
 	AFish();
 
+	virtual void ReeledIn(const FVector& RodLocation) override;
 	virtual void Catch() override {}
 	
 protected:

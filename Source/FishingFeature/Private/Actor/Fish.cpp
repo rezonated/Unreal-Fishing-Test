@@ -16,3 +16,10 @@ AFish::AFish()
 	FishMesh->SetupAttachment(FishSphereCollision);
 	FishMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
+
+void AFish::ReeledIn(const FVector& RodLocation)
+{
+	const FString FishName = GetNameSafe(this);
+
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Reeled in %s"), *FishName));
+}
