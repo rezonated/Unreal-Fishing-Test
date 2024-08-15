@@ -19,4 +19,6 @@ public:
 	FGameplayTag Messaging_Fishing_Cast_Started;
 	FGameplayTag Messaging_Fishing_Cast_Held;
 	FGameplayTag Messaging_Fishing_Cast_Finished;
+
+	FGameplayTag Messaging_Fishing_UI_Cast_Update;
 };

@@ -20,7 +20,9 @@ public class StairwayFishingGameCore : ModuleRules
 			"VAGameplayMessaging",
 			"FishingGameplayTags",
 			"GameplayTags",
-			"VAAnyUnreal"
+			"VAAnyUnreal", 
+			"FishingGameTypes",
+			"FishingFeature"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

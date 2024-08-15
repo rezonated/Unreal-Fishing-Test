@@ -6,6 +6,7 @@
 #include "GameFramework/Pawn.h"
 #include "Pawn_StairwayFishingGamePawn.generated.h"
 
+class UActorComponent_FishingComponent;
 class UWidgetComponent;
 class UCameraComponent;
 class USpringArmComponent;
@@ -38,4 +39,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Stairway Fishing Game Pawn")
 	UWidgetComponent* CastMeterBarWidget = nullptr;
+
+	UPROPERTY(VisibleAnywhere, Category = "Stairway Fishing Game Pawn")
+	UActorComponent_FishingComponent* FishingComponent = nullptr;
 };

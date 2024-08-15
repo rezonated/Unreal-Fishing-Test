@@ -1,8 +1,8 @@
 ﻿using UnrealBuildTool;
 
-public class FishingFeature : ModuleRules
+public class FishingFeatureUI : ModuleRules
 {
-    public FishingFeature(ReadOnlyTargetRules Target) : base(Target)
+    public FishingFeatureUI(ReadOnlyTargetRules Target) : base(Target)
     {
         PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 
@@ -10,22 +10,24 @@ public class FishingFeature : ModuleRules
             new string[]
             {
                 "Core",
+                "UMG",
+                "VAAnyUnreal",
                 "VAGameplayMessaging",
-                "FishingGameTypes",
-                "VAAnyUnreal"
+                "GameplayTags",
+                "FishingGameplayTags"
             }
         );
 
         PrivateDependencyModuleNames.AddRange(
-            new[]
+            new string[]
             {
                 "CoreUObject",
                 "Engine",
                 "Slate",
-                "SlateCore", "FishingGameplayTags"
+                "SlateCore"
             }
         );
-        
+
         OptimizeCode = CodeOptimization.InShippingBuildsOnly;
     }
 }

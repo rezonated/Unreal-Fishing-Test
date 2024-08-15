@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
-#include "BlueprintAsyncActionBase/VACancellableAsyncAction.h"
+#include "VAGameplayMessaging/Public/BlueprintAsyncActionBase/VACancellableAsyncAction.h"
 #include "VAAnyUnreal/Public/Runtime/VAAnyUnreal.h"
 #include "VAGameplayMessaging_ListenForGameplayMessages.generated.h"
 

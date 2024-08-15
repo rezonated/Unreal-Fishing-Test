@@ -7,6 +7,7 @@
 #include "Components/ArrowComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/WidgetComponent.h"
+#include "FishingFeature/Public/ActorComponent/ActorComponent_FishingComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
 
@@ -39,4 +40,6 @@ APawn_StairwayFishingGamePawn::APawn_StairwayFishingGamePawn()
 	CastMeterBarWidget->SetupAttachment(GetRootComponent());
 	CastMeterBarWidget->SetWidgetSpace(EWidgetSpace::Screen);
 	CastMeterBarWidget->SetDrawAtDesiredSize(true);
+
+	FishingComponent = CreateDefaultSubobject<UActorComponent_FishingComponent>(TEXT("FishingComponent"));
 }

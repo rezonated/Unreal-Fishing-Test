@@ -1,4 +1,4 @@
-// Vanan Andreas - 2024
+﻿// Vanan Andreas - 2024
 
 #pragma once
 
@@ -10,7 +10,7 @@
  * 
  */
 UCLASS()
-class FISHINGFEATURE_API UUserWidget_MainOverlay : public UUserWidget
+class FISHINGFEATUREUI_API UUserWidget_MainOverlay : public UUserWidget
 {
 	GENERATED_BODY()
 };

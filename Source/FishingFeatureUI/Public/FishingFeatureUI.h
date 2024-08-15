@@ -3,11 +3,11 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 
-class FFishingFeatureModule final : public IModuleInterface
+class FFishingFeatureUIModule final : public IModuleInterface
 {
 public:
     virtual void StartupModule() override;
     virtual void ShutdownModule() override;
 };
 
-DECLARE_LOG_CATEGORY_EXTERN(LogFishingFeature, Log, All);
+DECLARE_LOG_CATEGORY_EXTERN(LogFishingFeatureUI, Log, All);

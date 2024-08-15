@@ -1,4 +1,4 @@
-// Vanan Andreas - 2024
+﻿// Vanan Andreas - 2024
 
 #pragma once
 
@@ -10,14 +10,14 @@ class UProgressBar;
 /**
  * 
  */
-UCLASS(Abstract)
-class FISHINGFEATURE_API UUserWidget_MeterBar : public UUserWidget
+UCLASS()
+class FISHINGFEATUREUI_API UUserWidget_MeterBar : public UUserWidget
 {
 	GENERATED_BODY()
 public:
 	virtual void SetProgress(const float InProgress);
 	
 protected:
-	UPROPERTY(VisibleAnywhere, Category = "Stairway Fishing Game Meter Bar", meta = (BindWidget))
-	UProgressBar* MeterBar = nullptr;
+	UPROPERTY(VisibleAnywhere, Category = "Meter Bar", meta = (BindWidget))
+	UProgressBar* ProgressBar_MeterBar = nullptr;
 };
