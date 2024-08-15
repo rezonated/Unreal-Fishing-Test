@@ -1,14 +1,16 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 using UnrealBuildTool;
-using System.Collections.Generic;
 
 public class StairwayFishingGameTarget : TargetRules
 {
 	public StairwayFishingGameTarget( TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Game;
-		DefaultBuildSettings = BuildSettingsVersion.V2;
-		ExtraModuleNames.AddRange( new string[] { "StairwayFishingGame" } );
+		DefaultBuildSettings = BuildSettingsVersion.Latest;
+		ExtraModuleNames.AddRange( new[]
+		{
+			"StairwayFishingGameCore"
+		} );
 	}
 }
