@@ -259,6 +259,8 @@ void UActorComponent_FishingComponent::OnCastActionEnded(const float&)
 		return;
 	}
 
+	// TODO: Do below but from anim notify!
+
 	AttemptGetRandomCatchable();
 
 	ReelInCurrentCatchable();
