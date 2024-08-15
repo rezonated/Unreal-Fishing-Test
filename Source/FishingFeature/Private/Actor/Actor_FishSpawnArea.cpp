@@ -7,6 +7,7 @@
 #include "Components/BoxComponent.h"
 #include "DataAsset/DataAsset_FishSpawnAreaConfig.h"
 #include "Engine/AssetManager.h"
+#include "Interface/CatchableInterface.h"
 #include "Kismet/KismetMathLibrary.h"
 
 
@@ -89,11 +90,28 @@ void AActor_FishSpawnArea::OnFishSpawnAssetLoaded()
 	{
 		const FVector RandomLocationInsideSpawnArea = UKismetMathLibrary::RandomPointInBoundingBox(CenterLocation, BoxExtent);
 
-		FActorSpawnParameters SpawnParameters;
-		SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
 		const FTransform SpawnTransform = FTransform(FRotator::ZeroRotator, RandomLocationInsideSpawnArea);
 
-		World->SpawnActor<AActor>(LoadedAssetAsClass, SpawnTransform, SpawnParameters);
+		AActor* SpawnedActor = World->SpawnActorDeferred<AActor>(LoadedAssetAsClass, SpawnTransform, this, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+		if (!SpawnedActor)
+		{
+			continue;
+		}
+
+		const bool bIsSpawnedActorImplementsCatchableInterface = SpawnedActor->Implements<UCatchableInterface>();
+		if (!bIsSpawnedActorImplementsCatchableInterface)
+		{
+			continue;
+		}
+
+		ICatchableInterface* SpawnedActorAsCatchableInterface = Cast<ICatchableInterface>(SpawnedActor);
+		if (!SpawnedActorAsCatchableInterface)
+		{
+			continue;
+		}
+		
+		SpawnedActorAsCatchableInterface->SetSpawnAreaCenterAndExtent(CenterLocation, BoxExtent);
+		
+		SpawnedActor->FinishSpawning(SpawnTransform);
 	}
 }

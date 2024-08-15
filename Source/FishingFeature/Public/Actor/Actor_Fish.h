@@ -15,21 +15,21 @@ UCLASS()
 class FISHINGFEATURE_API AActor_Fish : public AActor, public ICatchableInterface
 {
 	GENERATED_BODY()
-
-	template<class UserClass, typename RetValType, typename... ParamTypes>
-	class TFunctionAddressResolver
-	{
-	public:
-		typedef RetValType (UserClass::*FMethodPtr)(ParamTypes... Params);
-	};
-
 public:
 	AActor_Fish();
 	
 	virtual void ReeledIn(const FVector& RodLocation) override;
 	virtual void Escape() override;
+	void SetupFishMovementValues();
 	virtual void Catch() override {}
-	
+
+	FORCEINLINE virtual void
+	SetSpawnAreaCenterAndExtent(const FVector& InCenter, const FVector& InContainingSpawnAreaBoxExtent) override
+	{
+		ContainingSpawnAreaCenter = InCenter;
+		ContainingSpawnAreaBoxExtent = InContainingSpawnAreaBoxExtent;
+	}
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -49,6 +49,21 @@ private:
 	FVector InitialActorLocation = FVector::ZeroVector;
 
 	UPROPERTY(Transient)
+	FVector ContainingSpawnAreaCenter = FVector::ZeroVector;
+
+	UPROPERTY(Transient)
+	FVector ContainingSpawnAreaBoxExtent = FVector::ZeroVector;
+
+	UPROPERTY(Transient)
+	float FishRotationSpeed = 0.f;
+
+	UPROPERTY(Transient)
+	float FishMoveSpeed = 0.f;
+
+	UPROPERTY(Transient)
+	float FishWanderTargetRadius = 0.f;
+
+	UPROPERTY(Transient)
 	FRotator EscapeRotation = FRotator::ZeroRotator;
 
 	UPROPERTY(Transient)
@@ -60,8 +75,19 @@ private:
 	UPROPERTY(Transient)
 	FTimeline ReelInTimeline;
 
+	UPROPERTY(Transient)
+	bool bBeingTargeted = false;
+
+	UPROPERTY(Transient)
+	FVector WanderTargetLocation = FVector::ZeroVector;
+
+	UPROPERTY(Transient)
+	FRotator WanderLookAtTargetRotation = FRotator::ZeroRotator;
+
 	void SetupTimelines();
-	
+	void WanderWithinBoundingBox(float DeltaSeconds);
+	void TickTimelines(float DeltaSeconds);
+
 	FOnTimelineFloat ReelInFloatUpdate;
 	UFUNCTION()
 	void OnReelInUpdate(float InAlpha);

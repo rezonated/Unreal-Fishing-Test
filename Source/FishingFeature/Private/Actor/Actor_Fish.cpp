@@ -24,6 +24,8 @@ AActor_Fish::AActor_Fish()
 
 void AActor_Fish::ReeledIn(const FVector& RodLocation)
 {
+	bBeingTargeted = true;
+	
 	ReelInLocation = RodLocation;
 
 	LookAtReelInRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), ReelInLocation);
@@ -40,6 +42,21 @@ void AActor_Fish::Escape()
 	EscapeTimeline.Play();
 }
 
+void AActor_Fish::SetupFishMovementValues()
+{
+	if (!ActorFishConfigData)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Actor Fish Config is not valid, have you set it up correctly in the component?"));
+		return;
+	}
+
+	const FActorFishConfig FishConfig = ActorFishConfigData->GetActorFishConfig();
+
+	FishRotationSpeed = FishConfig.FishRotationSpeed;
+	FishMoveSpeed = FishConfig.FishMoveSpeed;
+	FishWanderTargetRadius = FishConfig.FishWanderTargetRadius;
+}
+
 void AActor_Fish::BeginPlay()
 {
 	Super::BeginPlay();
@@ -47,6 +64,8 @@ void AActor_Fish::BeginPlay()
 	InitialActorLocation = GetActorLocation();
 	
 	SetupTimelines();
+
+	SetupFishMovementValues();
 }
 
 void AActor_Fish::SetupTimelines()
@@ -76,10 +95,32 @@ void AActor_Fish::SetupTimelines()
 	}
 }
 
-void AActor_Fish::Tick(float DeltaSeconds)
+void AActor_Fish::WanderWithinBoundingBox(float DeltaSeconds)
 {
-	Super::Tick(DeltaSeconds);
+	if (bBeingTargeted)
+	{
+		return;
+	}
 
+	const bool bIsWithinTargetRadius = UKismetMathLibrary::Vector_Distance(GetActorLocation(), WanderTargetLocation) <= FishWanderTargetRadius;
+
+	const bool bIsWanderTargetLocationHasNotBeenSet = WanderTargetLocation == FVector::ZeroVector;
+	
+	if (bIsWithinTargetRadius || bIsWanderTargetLocationHasNotBeenSet) // Attempt to find a new target location if the current one has reached the target radius or have not been set yet
+	{
+		WanderTargetLocation = UKismetMathLibrary::RandomPointInBoundingBox(ContainingSpawnAreaCenter, ContainingSpawnAreaBoxExtent);
+		
+		WanderLookAtTargetRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), WanderTargetLocation);	
+	}
+		
+	const FVector InterpolatedLocationToWander = FMath::VInterpTo(GetActorLocation(), WanderTargetLocation, DeltaSeconds, FishMoveSpeed);
+	const FRotator InterpolatedRotationToWander = FMath::RInterpTo(GetActorRotation(), WanderLookAtTargetRotation, DeltaSeconds, FishRotationSpeed);
+
+	SetActorLocationAndRotation(InterpolatedLocationToWander, InterpolatedRotationToWander);
+}
+
+void AActor_Fish::TickTimelines(float DeltaSeconds)
+{
 	if (ReelInTimeline.IsPlaying())
 	{
 		ReelInTimeline.TickTimeline(DeltaSeconds);
@@ -89,6 +130,15 @@ void AActor_Fish::Tick(float DeltaSeconds)
 	{
 		EscapeTimeline.TickTimeline(DeltaSeconds);
 	}
+}
+
+void AActor_Fish::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	WanderWithinBoundingBox(DeltaSeconds);
+
+	TickTimelines(DeltaSeconds);
 }
 
 void AActor_Fish::SetupTimelineDataAndCallbacks(FTimeline* InTimeline, const FOnTimelineFloat& InOnTimelineFloat, const FOnTimelineEvent& InOnTimelineEvent, UCurveFloat* InCurveFloat) const
@@ -138,7 +188,7 @@ void AActor_Fish::OnReelInFinished()
 {
 	ClearTimeline(&ReelInFloatUpdate, &ReelInFinishedEvent);
 	
-	// TODO: Send event, somehow!
+	// TODO: Send event to play the animation for reeling the pole, somehow!
 }
 
 void AActor_Fish::OnEscapeUpdate(float InAlpha)
@@ -149,4 +199,6 @@ void AActor_Fish::OnEscapeUpdate(float InAlpha)
 void AActor_Fish::OnEscapeFinished()
 {
 	ClearTimeline(&EscapeFloatUpdate, &EscapeFinishedEvent);
+
+	bBeingTargeted = false;
 }
