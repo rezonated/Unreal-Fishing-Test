@@ -13,4 +13,6 @@ UCLASS()
 class STAIRWAYFISHINGGAMECORE_API AStairwayFishingGameGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
+public:
+	AStairwayFishingGameGameModeBase();
 };

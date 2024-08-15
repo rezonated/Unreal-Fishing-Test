@@ -10,7 +10,6 @@ public class VAGameplayMessaging : ModuleRules
             new string[]
             {
                 "Core",
-                "VALogging",
                 "VAAnyUnreal",
                 "GameplayTags",
             }

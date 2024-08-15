@@ -36,11 +36,6 @@
 			]
 		},
 		{
-			"Name": "VALogging",
-			"Type": "Runtime",
-			"LoadingPhase": "Default"
-		},
-		{
 			"Name": "VAGameplayMessaging",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"

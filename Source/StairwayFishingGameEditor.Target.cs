@@ -15,7 +15,6 @@ public class StairwayFishingGameEditorTarget : TargetRules
 			"VAAnyUnrealEditor",
 			"VAAnyUnrealTests",
 			"VAAnyUnrealUncookedOnly",
-			"VALogging",
 			"VAGameplayMessaging"
 		} );
 	}

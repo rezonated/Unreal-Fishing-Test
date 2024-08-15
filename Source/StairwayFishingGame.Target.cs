@@ -12,7 +12,6 @@ public class StairwayFishingGameTarget : TargetRules
 		{
 			"StairwayFishingGameCore",
 			"VAAnyUnreal",
-			"VALogging",
 			"VAGameplayMessaging"
 		} );
 	}

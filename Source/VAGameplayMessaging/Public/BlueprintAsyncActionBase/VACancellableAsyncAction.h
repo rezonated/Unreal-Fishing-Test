@@ -11,7 +11,7 @@
  * It is used to create cancellable asynchronous action.
  * Since the submission explicitly prohibits Blueprint usage, I won't be backporting the blueprint node (UK2Node_AsyncAction) to UE 4.27, and instead will be using it purely from C++.
  */
-UCLASS()
+UCLASS(Abstract, BlueprintType, meta = (ExposedAsyncProxy = AsyncAction))
 class VAGAMEPLAYMESSAGING_API UVACancellableAsyncAction : public UBlueprintAsyncActionBase
 {
 	GENERATED_BODY()
