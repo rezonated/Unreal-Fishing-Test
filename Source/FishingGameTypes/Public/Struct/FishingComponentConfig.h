@@ -12,5 +12,11 @@ struct FISHINGGAMETYPES_API FFishingComponentConfig
 	float MaximumTimeToCast = 3.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Casting")
-	float MaximumCastDistance = 100.f;
+	float MinimumCastDistance = 100.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Casting")
+	float MaximumCastDistance = 500.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Decals")
+	TSubclassOf<AActor> TargetActorDecalClass;
 };
