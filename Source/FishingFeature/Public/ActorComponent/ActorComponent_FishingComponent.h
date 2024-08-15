@@ -7,6 +7,7 @@
 #include "ActorComponent_FishingComponent.generated.h"
 
 
+class ICatchableInterface;
 class UDataAsset_FishingComponentConfig;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -27,13 +28,18 @@ protected:
 	void BindToPlayerActionInputDelegates();
 	
 	void OnCastAction(const float& InElapsedTime);
-	void OnCastActionEnded(const float&) const;
+
+	void ResetCastFlagAndTimer();
+	
+	void OnCastActionEnded(const float&);
 	
 	void DetermineCastLocation(const float& InElapsedTime);
 	void AttemptToCast(const FVector& InCastStartPosition);
 
-	void AttemptGetRandomCatchable() const;
-	
+	void AttemptGetRandomCatchable();
+	void ReelInCurrentCatchable();
+	void StartCastingTimer();
+
 	void BroadcastUIMessage(const float& InProgress) const;
 	float GetMappedElapsedTimeToMaximumCastTime(const float& InValue, const float DefaultValue = 0.f) const;
 
@@ -55,4 +61,11 @@ private:
 
 	UPROPERTY(Transient)
 	AActor* TargetActorDecalInstance = nullptr;
+
+	UPROPERTY(Transient)
+	bool bIsCurrentlyCasting = false;
+
+	ICatchableInterface* CurrentCatchable = nullptr;
+
+	mutable FTimerHandle CastTimerHandle;
 };

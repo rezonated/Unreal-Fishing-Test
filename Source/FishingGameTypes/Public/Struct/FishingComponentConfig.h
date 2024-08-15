@@ -1,3 +1,5 @@
+// Vanan Andreas - 2024
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -12,13 +14,16 @@ struct FISHINGGAMETYPES_API FFishingComponentConfig
 	float MaximumTimeToCast = 3.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Casting")
-	float MinimumCastDistance = 100.f;
+	float MinimumCastDistance = 150.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Casting")
-	float MaximumCastDistance = 500.f;
+	float MaximumCastDistance = 600.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Decals")
-	float CastRadius = 50.f;
+	float CastRadius = 75.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Decals")
+	float TimeToFish = 3.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Decals")
 	TSubclassOf<AActor> TargetActorDecalClass = nullptr;

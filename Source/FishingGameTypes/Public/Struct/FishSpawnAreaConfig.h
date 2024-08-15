@@ -1,4 +1,6 @@
-﻿#pragma once
+﻿// Vanan Andreas - 2024
+
+#pragma once
 
 #include "CoreMinimal.h"
 #include "FishSpawnAreaConfig.generated.h"

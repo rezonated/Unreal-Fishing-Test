@@ -3,6 +3,7 @@
 
 #include "ActorComponent/ActorComponent_FishingComponent.h"
 
+#include "DrawDebugHelpers.h"
 #include "FishingFeature.h"
 #include "FishingTags.h"
 #include "DataAsset/DataAsset_FishingComponentConfig.h"
@@ -10,7 +11,7 @@
 #include "Interface/CatchableInterface.h"
 #include "Interface/PlayerActionInputInterface.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "Macros/TraceMacros.h"
+#include "Macros/TraceMacro.h"
 
 
 UActorComponent_FishingComponent::UActorComponent_FishingComponent()
@@ -118,6 +119,19 @@ void UActorComponent_FishingComponent::BindToPlayerActionInputDelegates()
 
 void UActorComponent_FishingComponent::OnCastAction(const float& InElapsedTime)
 {
+	if (bIsCurrentlyCasting)
+	{
+		if (CurrentCatchable)
+		{
+			UE_LOG(LogFishingFeature, Warning, TEXT("Cast is already in progress, failing..."));
+			
+			CurrentCatchable->Escape();
+			CurrentCatchable = nullptr;
+		}
+		
+		return;
+	}
+	
 	const float MappedElapsedTime = GetMappedElapsedTimeToMaximumCastTime(InElapsedTime);
 
 	BroadcastUIMessage(MappedElapsedTime);
@@ -127,7 +141,14 @@ void UActorComponent_FishingComponent::OnCastAction(const float& InElapsedTime)
 	DetermineCastLocation(InElapsedTime);
 }
 
-void UActorComponent_FishingComponent::AttemptGetRandomCatchable() const
+void UActorComponent_FishingComponent::ResetCastFlagAndTimer()
+{
+	bIsCurrentlyCasting = false;
+
+	GetWorld()->GetTimerManager().ClearTimer(CastTimerHandle);
+}
+
+void UActorComponent_FishingComponent::AttemptGetRandomCatchable()
 {
 	if (!FishingComponentConfigData)
 	{
@@ -148,6 +169,8 @@ void UActorComponent_FishingComponent::AttemptGetRandomCatchable() const
 		UE_LOG(LogFishingFeature, Error, TEXT("Failed to trace for catchables, won't continue..."));
 		return;
 	}
+
+	DrawDebugSphere(GetWorld(), CastLocation, CastRadius, 16, FColor::Yellow, false, 3.f);
 	
 	TArray<AActor*> CatchableActors;
 	
@@ -186,23 +209,61 @@ void UActorComponent_FishingComponent::AttemptGetRandomCatchable() const
 		bRandomCatchableIndexIsValid = CatchableActors.IsValidIndex(RandomCatchableIndex);
 	}
 
-	ICatchableInterface* RandomCatchable = Cast<ICatchableInterface>(CatchableActors[RandomCatchableIndex]);
-	if (!RandomCatchable)
+	CurrentCatchable = Cast<ICatchableInterface>(CatchableActors[RandomCatchableIndex]);
+	if (!CurrentCatchable)
 	{
 		UE_LOG(LogFishingFeature, Error, TEXT("Random Catchable is not valid, won't continue..."));
+
+		CurrentCatchable = nullptr;
+	}
+}
+
+void UActorComponent_FishingComponent::ReelInCurrentCatchable()
+{
+	if (!CurrentCatchable)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Current Catchable is not valid, won't continue..."));
 		return;
 	}
 
-	RandomCatchable->ReeledIn(CastLocation);
+	CurrentCatchable->ReeledIn(CastLocation);
 }
 
-void UActorComponent_FishingComponent::OnCastActionEnded(const float&) const
+void UActorComponent_FishingComponent::StartCastingTimer()
+{
+	if (!FishingComponentConfigData)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Fishing Component Config is not valid, have you set it up correctly in the component?"));
+		return;
+	}
+
+	const FFishingComponentConfig FishingComponentConfig = FishingComponentConfigData->GetFishingComponentConfig();
+
+	bIsCurrentlyCasting = true;
+
+	const float TimeToFish = FishingComponentConfig.TimeToFish;
+	
+	GetWorld()->GetTimerManager().SetTimer(CastTimerHandle, this, &ThisClass::ResetCastFlagAndTimer, TimeToFish, false);
+}
+
+void UActorComponent_FishingComponent::OnCastActionEnded(const float&)
 {
 	BroadcastUIMessage(0.f);
 
 	ToggleDecalVisibility(false);
 
+	const bool bIsCastTimerActive = GetWorld()->GetTimerManager().IsTimerActive(CastTimerHandle);
+	if (bIsCastTimerActive) // Exit early if cast timer is still active, means we're still casting. Fail it, reset cast flag and timer then return.
+	{
+		ResetCastFlagAndTimer();
+		return;
+	}
+
 	AttemptGetRandomCatchable();
+
+	ReelInCurrentCatchable();
+
+	StartCastingTimer();
 }
 
 void UActorComponent_FishingComponent::DetermineCastLocation(const float& InElapsedTime)
@@ -271,7 +332,7 @@ void UActorComponent_FishingComponent::AttemptToCast(const FVector& InCastStartP
 
 	CastLocation = HitResult.Location;
 
-	SetDecalActorLocation(CastLocation);
+	SetDecalActorLocation(InCastStartPosition);
 }
 
 void UActorComponent_FishingComponent::BroadcastUIMessage(const float& InProgress) const
