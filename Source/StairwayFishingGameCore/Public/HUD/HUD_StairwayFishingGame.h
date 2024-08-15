@@ -21,5 +21,5 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Stairway Fishing Game HUD")
 	TSubclassOf<UUserWidget> MainOverlayWidgetClass = nullptr;
 	
-	TWeakObjectPtr<UUserWidget> MainOverlayWidget;
+	TWeakObjectPtr<UUserWidget> MainOverlayWidget = nullptr;
 };

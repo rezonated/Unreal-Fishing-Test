@@ -18,5 +18,5 @@ struct FISHINGGAMETYPES_API FFishingComponentConfig
 	float MaximumCastDistance = 500.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Decals")
-	TSubclassOf<AActor> TargetActorDecalClass;
+	TSubclassOf<AActor> TargetActorDecalClass = nullptr;
 };

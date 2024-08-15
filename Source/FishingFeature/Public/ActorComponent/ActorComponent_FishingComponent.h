@@ -43,13 +43,13 @@ protected:
 
 private:
 	UPROPERTY(Transient)
-	FVector InitialActorLocation;
+	FVector InitialActorLocation = FVector::ZeroVector;
 	
 	UPROPERTY(Transient)
-	FVector InitialActorForwardVector;
+	FVector InitialActorForwardVector = FVector::ZeroVector;
 
 	UPROPERTY(Transient)
-	FVector CastLocation;
+	FVector CastLocation = FVector::ZeroVector;
 
 	UPROPERTY(Transient)
 	AActor* TargetActorDecalInstance = nullptr;
