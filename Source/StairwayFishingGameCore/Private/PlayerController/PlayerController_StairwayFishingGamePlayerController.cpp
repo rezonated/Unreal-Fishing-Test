@@ -1,22 +1,29 @@
 ﻿// Vanan Andreas - 2024
 
 
-#include "PlayerController/StairwayFishingGamePlayerController.h"
+#include "PlayerController/PlayerController_StairwayFishingGamePlayerController.h"
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "FishingTags.h"
 #include "StairwayFishingGameCore.h"
+#include "GameInstanceSubsystem/VAGameplayMessagingSubsystem.h"
+#include "Runtime/VAAnyUnreal.h"
 
-void AStairwayFishingGamePlayerController::BeginPlay()
+void APlayerController_StairwayFishingGamePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	SetInputMode(FInputModeGameOnly());
+
+	FSlateApplication::Get().SetAllUserFocusToGameViewport();
 
 	MapInputContext(DefaultInputMappingContext);
 
 	MapInputActions();
 }
 
-void AStairwayFishingGamePlayerController::MapInputContext(const UInputMappingContext* InMappingContext, const int32& InPriority, const bool& bInClearExistingMappings) const
+void APlayerController_StairwayFishingGamePlayerController::MapInputContext(const UInputMappingContext* InMappingContext, const int32& InPriority, const bool& bInClearExistingMappings) const
 {
 	if (!InMappingContext)
 	{
@@ -39,7 +46,7 @@ void AStairwayFishingGamePlayerController::MapInputContext(const UInputMappingCo
 	EnhancedInputLocalPlayerSubsystem->AddMappingContext(DefaultInputMappingContext, InPriority);
 }
 
-void AStairwayFishingGamePlayerController::MapInputActions()
+void APlayerController_StairwayFishingGamePlayerController::MapInputActions()
 {
 	UEnhancedInputComponent* EnhancedInputComponent = nullptr;
 	if(!GetEnhancedInputComponent(EnhancedInputComponent))
@@ -60,36 +67,40 @@ void AStairwayFishingGamePlayerController::MapInputActions()
 	EnhancedInputComponent->BindAction(CastingInputAction, ETriggerEvent::Completed, this, &ThisClass::OnCastFinished);
 }
 
-void AStairwayFishingGamePlayerController::OnCastStarted(const FInputActionInstance& InInputActionInstance)
+void APlayerController_StairwayFishingGamePlayerController::OnCastStarted(const FInputActionInstance& InInputActionInstance)
 {
-	BroadcastCastEventsAndValues(OnCastStartedDelegate, InInputActionInstance);
+	BroadcastCastMessage(FFishingTags::Get().Messaging_Fishing_Cast_Started, InInputActionInstance);
 }
 
-void AStairwayFishingGamePlayerController::OnCastTriggered(const FInputActionInstance& InInputActionInstance)
+void APlayerController_StairwayFishingGamePlayerController::OnCastTriggered(const FInputActionInstance& InInputActionInstance)
 {
-	 BroadcastCastEventsAndValues(OnTriggeredDelegate, InInputActionInstance);
+	BroadcastCastMessage(FFishingTags::Get().Messaging_Fishing_Cast_Held, InInputActionInstance);
 }
 
-void AStairwayFishingGamePlayerController::OnCastFinished(const FInputActionInstance& InInputActionInstance)
+void APlayerController_StairwayFishingGamePlayerController::OnCastFinished(const FInputActionInstance& InInputActionInstance)
 {
-	 BroadcastCastEventsAndValues(OnCastFinishedDelegate, InInputActionInstance);
+	 BroadcastCastMessage(FFishingTags::Get().Messaging_Fishing_Cast_Finished, InInputActionInstance);
 }
 
-void AStairwayFishingGamePlayerController::BroadcastCastEventsAndValues(const FPlayerActionDelegate& InDelegate, const FInputActionInstance& InInputActionInstance)
+void APlayerController_StairwayFishingGamePlayerController::BroadcastCastMessage(const FGameplayTag& InChannelTag, const FInputActionInstance& InInputActionInstance) const
 {
-	const float TriggeredTime = InInputActionInstance.GetTriggeredTime();
-
-	GEngine->AddOnScreenDebugMessage(-1, TriggeredTime, FColor::Red, FString::Printf(TEXT("Triggered Time: %f"), TriggeredTime));
-
-	if (!InDelegate.IsBound())
+	if (!InChannelTag.IsValid())
 	{
+		UE_LOG(LogStairwayFishingGameCore, Error, TEXT("Channel Tag is not valid, won't continue broadcasting message!"));
 		return;
 	}
-	
-	InDelegate.Execute(TriggeredTime);
+
+	const FString ChannelTagString = InChannelTag.ToString();
+	GEngine->AddOnScreenDebugMessage(1, .1f, FColor::Cyan, FString::Printf(TEXT("Broadcasting Message: %s"), *ChannelTagString));
+
+	UVAGameplayMessagingSubsystem& GameplayMessagingSubsystem = UVAGameplayMessagingSubsystem::Get(this);
+
+	const float TriggeredTime = InInputActionInstance.GetTriggeredTime();
+
+	GameplayMessagingSubsystem.BroadcastMessage(this, InChannelTag, TriggeredTime);
 }
 
-bool AStairwayFishingGamePlayerController::GetEnhancedInputLocalPlayerSubsystem(UEnhancedInputLocalPlayerSubsystem*& OutEnhancedInputLocalPlayerSubsystem) const
+bool APlayerController_StairwayFishingGamePlayerController::GetEnhancedInputLocalPlayerSubsystem(UEnhancedInputLocalPlayerSubsystem*& OutEnhancedInputLocalPlayerSubsystem) const
 {
 	bool bReturnValue = false;
 
@@ -112,7 +123,7 @@ bool AStairwayFishingGamePlayerController::GetEnhancedInputLocalPlayerSubsystem(
 	return bReturnValue;
 }
 
-bool AStairwayFishingGamePlayerController::GetEnhancedInputComponent(UEnhancedInputComponent*& OutEnhancedInputComponent) const
+bool APlayerController_StairwayFishingGamePlayerController::GetEnhancedInputComponent(UEnhancedInputComponent*& OutEnhancedInputComponent) const
 {
 	bool bReturnValue = false;
 

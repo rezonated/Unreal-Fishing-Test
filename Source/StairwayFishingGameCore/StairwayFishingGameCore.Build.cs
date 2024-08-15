@@ -14,7 +14,13 @@ public class StairwayFishingGameCore : ModuleRules
 			"CoreUObject", 
 			"Engine", 
 			"InputCore",
-			"EnhancedInput"
+			"EnhancedInput",
+			"Slate",
+			"UMG",
+			"VAGameplayMessaging",
+			"FishingGameplayTags",
+			"GameplayTags",
+			"VAAnyUnreal"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

@@ -4,20 +4,21 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
-#include "StairwayFishingGamePawn.generated.h"
+#include "Pawn_StairwayFishingGamePawn.generated.h"
 
+class UWidgetComponent;
 class UCameraComponent;
 class USpringArmComponent;
 class UArrowComponent;
 class UCapsuleComponent;
 
 UCLASS()
-class STAIRWAYFISHINGGAMECORE_API AStairwayFishingGamePawn : public APawn
+class STAIRWAYFISHINGGAMECORE_API APawn_StairwayFishingGamePawn : public APawn
 {
 	GENERATED_BODY()
 
 public:
-	AStairwayFishingGamePawn();
+	APawn_StairwayFishingGamePawn();
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Stairway Fishing Game Pawn")
@@ -34,4 +35,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Stairway Fishing Game Pawn")
 	UCameraComponent* Camera = nullptr;
+
+	UPROPERTY(VisibleAnywhere, Category = "Stairway Fishing Game Pawn")
+	UWidgetComponent* CastMeterBarWidget = nullptr;
 };

@@ -1,15 +1,16 @@
 ﻿// Vanan Andreas - 2024
 
 
-#include "Pawn/StairwayFishingGamePawn.h"
+#include "Pawn/Pawn_StairwayFishingGamePawn.h"
 
 #include "Camera/CameraComponent.h"
 #include "Components/ArrowComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/WidgetComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
 
-AStairwayFishingGamePawn::AStairwayFishingGamePawn()
+APawn_StairwayFishingGamePawn::APawn_StairwayFishingGamePawn()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
@@ -33,4 +34,9 @@ AStairwayFishingGamePawn::AStairwayFishingGamePawn()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
+
+	CastMeterBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("CastMeterBarWidget"));
+	CastMeterBarWidget->SetupAttachment(GetRootComponent());
+	CastMeterBarWidget->SetWidgetSpace(EWidgetSpace::Screen);
+	CastMeterBarWidget->SetDrawAtDesiredSize(true);
 }
