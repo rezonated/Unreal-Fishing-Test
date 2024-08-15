@@ -8,6 +8,48 @@
 			"Name": "StairwayFishingGameCore",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "VAAnyUnreal",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "VAAnyUnrealEditor",
+			"Type": "EditorNoCommandlet",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "VAAnyUnrealTests",
+			"Type": "Editor",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine"
+			]
+		},
+		{
+			"Name": "VAAnyUnrealUncookedOnly",
+			"Type": "UncookedOnly",
+			"LoadingPhase": "PreDefault",
+			"AdditionalDependencies": [
+				"Engine"
+			]
+		},
+		{
+			"Name": "VALogging",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "VAGameplayMessaging",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "EnhancedInput",
+			"Enabled": true
 		}
 	]
 }

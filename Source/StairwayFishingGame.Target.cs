@@ -10,7 +10,10 @@ public class StairwayFishingGameTarget : TargetRules
 		DefaultBuildSettings = BuildSettingsVersion.Latest;
 		ExtraModuleNames.AddRange( new[]
 		{
-			"StairwayFishingGameCore"
+			"StairwayFishingGameCore",
+			"VAAnyUnreal",
+			"VALogging",
+			"VAGameplayMessaging"
 		} );
 	}
 }
