@@ -57,6 +57,17 @@ void AActor_Fish::SetupFishMovementValues()
 	FishWanderTargetRadius = FishConfig.FishWanderTargetRadius;
 }
 
+void AActor_Fish::Catch(USceneComponent* InCatchingRod)
+{
+	if (!InCatchingRod)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Catching Rod is not valid, won't continue catching..."));
+		return;
+	}
+
+	AttachToComponent(InCatchingRod, FAttachmentTransformRules::SnapToTargetNotIncludingScale, NAME_None);
+}
+
 void AActor_Fish::BeginPlay()
 {
 	Super::BeginPlay();

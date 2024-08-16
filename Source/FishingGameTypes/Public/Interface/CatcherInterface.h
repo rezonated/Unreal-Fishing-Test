@@ -23,4 +23,8 @@ public:
 	virtual void ReelBack() = 0;
 
 	virtual FSimpleDelegate& OnLandsOnWater() = 0;
+
+	virtual USceneComponent* GetCatchableAttachPoint() = 0;
+
+	virtual void ToggleBobberVisibility(const bool& bInShouldBeVisible) = 0;
 };

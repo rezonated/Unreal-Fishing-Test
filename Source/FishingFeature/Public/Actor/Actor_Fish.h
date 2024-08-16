@@ -21,7 +21,7 @@ public:
 	virtual void ReeledIn(const FVector& RodLocation) override;
 	virtual void Escape() override;
 	void SetupFishMovementValues();
-	virtual void Catch() override {}
+	virtual void Catch(USceneComponent* InCatchingRod) override;
 
 	FORCEINLINE virtual void
 	SetSpawnAreaCenterAndExtent(const FVector& InCenter, const FVector& InContainingSpawnAreaBoxExtent) override

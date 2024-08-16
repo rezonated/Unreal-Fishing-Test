@@ -235,23 +235,41 @@ void UActorComponent_FishingComponent::BindToPlayerActionInputDelegates()
 
 void UActorComponent_FishingComponent::OnCastAction(const float& InElapsedTime)
 {
-	if (CurrentFishingState != FFishingTags::Get().FishingComponent_State_Idling)
+	if (CurrentFishingState == FFishingTags::Get().FishingComponent_State_AbleToReel)
 	{
-		return;
+		if (CurrentCatchable && CurrentCatcher)
+		{
+			USceneComponent* AttachPoint = CurrentCatcher->GetCatchableAttachPoint();
+			if (!AttachPoint)
+			{
+				UE_LOG(LogFishingFeature, Error, TEXT("Catching Rod is not valid, won't continue catching..."));
+				return;
+			}
+			
+			CurrentCatchable->Catch(AttachPoint);
+			
+			CurrentCatcher->ToggleBobberVisibility(false);
+
+			ReelBack();
+		}
 	}
+
 	
-	const float MappedElapsedTime = GetMappedElapsedTimeToMaximumCastTime(InElapsedTime);
+	if (CurrentFishingState == FFishingTags::Get().FishingComponent_State_Idling)
+	{
+		const float MappedElapsedTime = GetMappedElapsedTimeToMaximumCastTime(InElapsedTime);
 
-	BroadcastUIMessage(MappedElapsedTime);
+		BroadcastUIMessage(MappedElapsedTime);
 
-	ToggleDecalVisibility(true);
+		ToggleDecalVisibility(true);
 
-	DetermineCastLocation(InElapsedTime);
+		DetermineCastLocation(InElapsedTime);
+	}
 }
 
 void UActorComponent_FishingComponent::ResetStateAndTimer()
 {
-	CurrentFishingState = FFishingTags::Get().FishingComponent_State_Reeling_In;
+	CurrentFishingState = FFishingTags::Get().FishingComponent_State_AbleToReel;
 
 	GetWorld()->GetTimerManager().ClearTimer(CastTimerHandle);
 }

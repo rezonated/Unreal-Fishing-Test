@@ -26,6 +26,10 @@ public:
 
 	FORCEINLINE virtual FSimpleDelegate& OnLandsOnWater() override { return CatchableLandsOnWaterDelegate; }
 
+	FORCEINLINE virtual USceneComponent* GetCatchableAttachPoint() override { return CatchableAttachPoint; }
+
+	virtual void ToggleBobberVisibility(const bool& bInShouldBeVisible) override;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -36,6 +40,9 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UStaticMeshComponent* BobberMeshComponent = nullptr;
+
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	USceneComponent* CatchableAttachPoint = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Curve")
 	UCurveFloat* BobberCurve = nullptr;

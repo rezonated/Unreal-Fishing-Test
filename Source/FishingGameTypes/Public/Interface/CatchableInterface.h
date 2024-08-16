@@ -22,7 +22,7 @@ class FISHINGGAMETYPES_API ICatchableInterface
 public:
 	virtual void ReeledIn(const FVector& RodLocation) = 0;
 	virtual void Escape() = 0;
-	virtual void Catch() = 0;
+	virtual void Catch(USceneComponent* InCatchingRod) = 0;
 
 	virtual void SetSpawnAreaCenterAndExtent(const FVector& InCenter, const FVector& InContainingSpawnAreaBoxExtent) = 0;
 };

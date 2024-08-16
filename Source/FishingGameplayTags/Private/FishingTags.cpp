@@ -24,5 +24,7 @@ void FFishingTags::Startup(UGameplayTagsManager& GameplayTagsManager)
 	FishingTags.FishingComponent_State_Idling = GameplayTagsManager.AddNativeGameplayTag(TEXT("FishingComponent.State.Idling"));
 	FishingTags.FishingComponent_State_Throwing = GameplayTagsManager.AddNativeGameplayTag(TEXT("FishingComponent.State.Throwing"));
 	FishingTags.FishingComponent_State_WaitingForFish = GameplayTagsManager.AddNativeGameplayTag(TEXT("FishingComponent.State.WaitingForFish"));
+	FishingTags.FishingComponent_State_AbleToReel = GameplayTagsManager.AddNativeGameplayTag(TEXT("FishingComponent.State.AbleToReel"));
 	FishingTags.FishingComponent_State_Reeling_In = GameplayTagsManager.AddNativeGameplayTag(TEXT("FishingComponent.State.Reeling.In"));
+	FishingTags.FishingComponent_State_Reeling_Out = GameplayTagsManager.AddNativeGameplayTag(TEXT("FishingComponent.State.Reeling.Out"));
 }

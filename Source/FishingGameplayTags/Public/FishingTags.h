@@ -31,6 +31,7 @@ public:
 	FGameplayTag FishingComponent_State_Idling;
 	FGameplayTag FishingComponent_State_Throwing;
 	FGameplayTag FishingComponent_State_WaitingForFish;
+	FGameplayTag FishingComponent_State_AbleToReel;
 	FGameplayTag FishingComponent_State_Reeling_In;
 	FGameplayTag FishingComponent_State_Reeling_Out;
 };

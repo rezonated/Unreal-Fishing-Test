@@ -3,7 +3,6 @@
 
 #include "Actor/Actor_FishingRod.h"
 
-#include "DrawDebugHelpers.h"
 #include "FishingFeature.h"
 #include "Macros/TimelineMacro.h"
 
@@ -17,6 +16,9 @@ AActor_FishingRod::AActor_FishingRod()
 
 	BobberMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BobberMeshComponent"));
 	BobberMeshComponent->SetupAttachment(FishingRodMeshComponent);
+
+	CatchableAttachPoint = CreateDefaultSubobject<USceneComponent>(TEXT("CatchableAttachPoint"));
+	CatchableAttachPoint->SetupAttachment(BobberMeshComponent);
 }
 
 void AActor_FishingRod::PrepareBobberTimeline()
@@ -53,6 +55,17 @@ void AActor_FishingRod::ReelBack()
 	BobberTargetLocation = BobberStartLocation;
 	
 	ThrowTimeline.ReverseFromEnd();
+}
+
+void AActor_FishingRod::ToggleBobberVisibility(const bool& bInShouldBeVisible)
+{
+	if (!BobberMeshComponent)
+	{
+		 UE_LOG(LogFishingFeature, Error, TEXT("Bobber Mesh Component is not valid, won't continue toggling visibility..."));
+		 return;
+	}
+
+	BobberMeshComponent->SetVisibility(bInShouldBeVisible);
 }
 
 void AActor_FishingRod::BeginPlay()
