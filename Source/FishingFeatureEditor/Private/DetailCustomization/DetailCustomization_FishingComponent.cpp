@@ -25,11 +25,11 @@ void FDetailCustomization_FishingComponent::OnSkeletalMeshChanged(TSharedRef<IPr
     SocketAndBoneNames.Reset();
 
     // Populate bone names
-    const int32 NumBones = SkeletalMesh->RefSkeleton.GetNum();
+    const int32 NumBones = SkeletalMesh->GetRefSkeleton().GetNum();
     SocketAndBoneNames.Reserve(NumBones);  // Pre-allocate memory for bones
     for (int32 i = 0; i < NumBones; ++i)
     {
-        SocketAndBoneNames.Add(MakeShared<FName>(SkeletalMesh->RefSkeleton.GetBoneName(i)));
+        SocketAndBoneNames.Add(MakeShared<FName>(SkeletalMesh->GetRefSkeleton().GetBoneName(i)));
     }
 
     // Populate socket names
