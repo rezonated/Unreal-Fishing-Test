@@ -16,15 +16,15 @@ class FISHINGGAMETYPES_API ICatcherInterface
 {
 	GENERATED_BODY()
 public:
-	virtual void SetStartLocation() = 0;
-	
 	virtual void Throw(const FVector& InCastLocation) = 0;
 
 	virtual void ReelBack() = 0;
 
 	virtual FSimpleDelegate& OnLandsOnWater() = 0;
-
+	
 	virtual USceneComponent* GetCatchableAttachPoint() = 0;
 
 	virtual void ToggleBobberVisibility(const bool& bInShouldBeVisible) = 0;
+
+	virtual void ToggleCatcherVisibility(const bool& bInShouldBeVisible) = 0;
 };

@@ -8,6 +8,8 @@
 #include "Interface/CatcherInterface.h"
 #include "Actor_FishingRod.generated.h"
 
+class UDataAsset_FishingRodConfig;
+
 UCLASS()
 class FISHINGFEATURE_API AActor_FishingRod : public AActor, public ICatcherInterface
 {
@@ -16,9 +18,7 @@ class FISHINGFEATURE_API AActor_FishingRod : public AActor, public ICatcherInter
 public:
 	AActor_FishingRod();
 
-	void PrepareBobberTimeline();
-
-	virtual void SetStartLocation() override;
+	void PrepareBobberTimeline(UCurveFloat* InReelCurve);
 	
 	virtual void Throw(const FVector& InCastLocation) override;
 	
@@ -29,6 +29,8 @@ public:
 	FORCEINLINE virtual USceneComponent* GetCatchableAttachPoint() override { return CatchableAttachPoint; }
 
 	virtual void ToggleBobberVisibility(const bool& bInShouldBeVisible) override;
+
+	virtual void ToggleCatcherVisibility(const bool& bInShouldBeVisible) override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -44,8 +46,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	USceneComponent* CatchableAttachPoint = nullptr;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Curve")
-	UCurveFloat* BobberCurve = nullptr;
+	UPROPERTY(EditDefaultsOnly, Category = "Bobber Curve")
+	UDataAsset_FishingRodConfig* FishingRodConfigData = nullptr;
 
 	UPROPERTY(Transient)
 	FVector BobberTargetLocation = FVector::ZeroVector;
@@ -53,16 +55,37 @@ protected:
 	UPROPERTY(Transient)
 	FVector BobberStartLocation = FVector::ZeroVector;
 	
+	void SetupTimelines();
+	void TickTimelines(float DeltaSeconds);
+
+	void SetupTimelineDataAndCallbacks(FTimeline* InTimeline, const FOnTimelineFloat& InOnTimelineFloat, const FOnTimelineEvent& InOnTimelineEvent, UCurveFloat* InCurveFloat) const;
+
+	static void ClearTimeline(FOnTimelineFloat* InTimelineFloat, FOnTimelineEvent* InTimelineEvent);
+
 	UPROPERTY(Transient)
-	FTimeline ThrowTimeline;
-
-	FOnTimelineFloat ThrowFloatUpdate;
+	FTimeline ThrowReelInTimeline;
+	
+	FOnTimelineFloat ThrowReelInFloatUpdate;
 	UFUNCTION()
-	void OnThrowUpdate(float InAlpha);
+	void OnThrowReelInUpdate(float InAlpha);
 
-	FOnTimelineEvent ThrowFinishedEvent;
+	FOnTimelineEvent ThrowReelInFinishedEvent;
 	UFUNCTION()
-	void OnThrowFinished();
+	void OnThrowReelInFinished();
+
+	UPROPERTY(Transient)
+	FTimeline PullReelOutTimeline;
+
+	FOnTimelineFloat PullReelOutFloatUpdate;
+	UFUNCTION()
+	void OnPullReelOutUpdate(float InAlpha);
+
+	FOnTimelineEvent PullReelOutFinishedEvent;
+	UFUNCTION()
+	void OnPullReelOutFinished();
+	
+	void InterpolateBobberLocation
+	(const float& InAlpha) const;
 
 	FSimpleDelegate CatchableLandsOnWaterDelegate;
 };

@@ -18,7 +18,10 @@ class FISHINGFEATUREUI_API UUserWidgetMeterBar_CastMeterBar : public UUserWidget
 {
 	GENERATED_BODY()
 protected:
+	void ListenForUICastUpdateMessage();
+	void InitializeMeterBar();
 	virtual void NativeConstruct() override;
+	void CleanupUICastUpdateListener() const;
 	virtual void NativeDestruct() override;
 
 	FLinearColor GetColorForProgress(const float& InProgress, const FLinearColor& DefaultColor = FLinearColor::White) const;

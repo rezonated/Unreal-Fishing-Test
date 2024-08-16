@@ -3,11 +3,11 @@
 
 #include "ActorComponent/ActorComponent_FishingComponent.h"
 
-#include "DrawDebugHelpers.h"
 #include "FishingFeature.h"
 #include "FishingTags.h"
 #include "DataAsset/DataAsset_FishingComponentConfig.h"
 #include "Engine/AssetManager.h"
+#include "Enum/FishingGameLoopState.h"
 #include "GameInstanceSubsystem/VAGameplayMessagingSubsystem.h"
 #include "Interface/CatchableInterface.h"
 #include "Interface/CatcherInterface.h"
@@ -48,6 +48,15 @@ void UActorComponent_FishingComponent::ListenForThrowNotify()
 	ListenForThrowNotifyMessage->Activate();
 }
 
+void UActorComponent_FishingComponent::ListenForGameModeStateChangeFinish()
+{
+	UVAGameplayMessaging_ListenForGameplayMessages* ListenForGameModeStateChangeFinishMessage = UVAGameplayMessaging_ListenForGameplayMessages::ListenForGameplayMessagesViaChannel(this, FFishingTags::Get().Messaging_GameMode_StateChangeFinish);
+	
+	ListenForGameModeStateChangeFinishMessage->OnGameplayMessageReceived.AddUniqueDynamic(this, &ThisClass::OnGameModeStateChangeFinishMessageReceived);
+
+	ListenForGameModeStateChangeFinishMessage->Activate();
+}
+
 void UActorComponent_FishingComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -63,6 +72,8 @@ void UActorComponent_FishingComponent::BeginPlay()
 	ListenForThrowNotify();
 
 	ListenForReelDoneNotify();
+
+	ListenForGameModeStateChangeFinish();
 }
 
 void UActorComponent_FishingComponent::SetupInitialVectors()
@@ -270,7 +281,7 @@ void UActorComponent_FishingComponent::OnCastAction(const float& InElapsedTime)
 void UActorComponent_FishingComponent::ResetStateAndTimer()
 {
 	CurrentFishingState = FFishingTags::Get().FishingComponent_State_AbleToReel;
-
+	
 	GetWorld()->GetTimerManager().ClearTimer(CastTimerHandle);
 }
 
@@ -406,6 +417,7 @@ void UActorComponent_FishingComponent::OnCastActionEnded(const float&)
 		ResetStateAndTimer();
 
 		ReelBack();
+		
 		return;
 	}
 
@@ -433,11 +445,6 @@ void UActorComponent_FishingComponent::OnCastActionEnded(const float&)
 	UVAGameplayMessagingSubsystem::Get(this).BroadcastMessage(this, FFishingTags::Get().Messaging_Fishing_AnimInstance_StateChange, FFishingTags::Get().AnimInstance_Fishing_State_Throwing);
 
 	CurrentFishingState = FFishingTags::Get().FishingComponent_State_Throwing;
-
-	if (CurrentCatcher)
-	{
-		CurrentCatcher->SetStartLocation();
-	}
 }
 
 void UActorComponent_FishingComponent::OnBobberLandsOnWater()
@@ -615,4 +622,99 @@ void UActorComponent_FishingComponent::OnReelDoneNotifyMessageReceived(const FGa
 	UVAGameplayMessagingSubsystem::Get(this).BroadcastMessage(this, FFishingTags::Get().Messaging_Fishing_AnimInstance_StateChange, FFishingTags::Get().AnimInstance_Fishing_State_Idling);
 
 	CurrentFishingState = FFishingTags::Get().FishingComponent_State_Idling;
+
+	if (!CurrentCatchable)
+	{
+		// Fail to catch any fish, don't transition to show fish state
+		return;
+	}
+
+	const FVAAnyUnreal Payload = static_cast<uint8>(EFishingGameLoopState::ShowFish);
+
+	UVAGameplayMessagingSubsystem::Get(this).BroadcastMessage(this, FFishingTags::Get().Messaging_GameState_StateChange, Payload);
+}
+
+void UActorComponent_FishingComponent::OnGameModeStateChangeFinishMessageReceived(const FGameplayTag& Channel,
+	const FVAAnyUnreal& MessagePayload)
+{
+	if (!MessagePayload.Get<uint8>())
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Message payload is not valid, have you correctly send an enum value? Won't continue..."));
+		return;
+	}
+	
+	const uint8 Payload = MessagePayload.Get<uint8>();
+	const EFishingGameLoopState FishingGameLoopState = static_cast<EFishingGameLoopState>(Payload);
+
+	if (!CurrentCatchable)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Current Catchable is not valid, won't continue..."));
+		return;
+	}
+
+	UObject* CatchableObject = CurrentCatchable->_getUObject();
+	if (!CatchableObject)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Catchable Object is not valid, won't continue..."));
+		return;
+	}
+
+	if (!CurrentCatcher)
+	{
+		 UE_LOG(LogFishingFeature, Error, TEXT("Current Catcher is not valid, won't continue..."));
+		 return;
+	}
+
+	switch (FishingGameLoopState)
+	{
+		case EFishingGameLoopState::Fishing:
+			CurrentCatcher->ToggleCatcherVisibility(true);
+		
+			CatchableObject->ConditionalBeginDestroy();
+			CurrentCatchable = nullptr;
+
+			UVAGameplayMessagingSubsystem::Get(this).BroadcastMessage(this, FFishingTags::Get().Messaging_Fishing_AnimInstance_StateChange, FFishingTags::Get().AnimInstance_Fishing_State_Idling);
+			break;
+		
+		case EFishingGameLoopState::ShowFish:
+			CurrentCatcher->ToggleCatcherVisibility(false);
+		
+			AActor* CatchableActor = Cast<AActor>(CatchableObject);
+			if (!CatchableActor)
+			{
+				UE_LOG(LogFishingFeature, Error, TEXT("Catchable Actor is not valid, won't continue..."));
+				return;
+			}
+
+			if (!FishingComponentConfigData)
+			{
+				UE_LOG(LogFishingFeature, Error, TEXT("Fishing Component Config is not valid, have you set it up correctly in the component?"));
+				return;
+			}
+
+			const FFishingComponentConfig FishingComponentConfig = FishingComponentConfigData->GetFishingComponentConfig();
+			const FName CarryFishSocketName = FishingComponentConfig.CarryFishSocketName;
+
+			if (CarryFishSocketName == NAME_None)
+			{
+				UE_LOG(LogFishingFeature, Error, TEXT("Carry Fish Socket Name is not valid, have you set it up correctly in the data asset?"));
+				return;
+			}
+
+			UVAGameplayMessagingSubsystem::Get(this).BroadcastMessage(this, FFishingTags::Get().Messaging_Fishing_AnimInstance_StateChange, FFishingTags::Get().AnimInstance_Fishing_State_ShowFish);
+
+			USkeletalMeshComponent* OwnerSkeletalMeshComponent = nullptr;
+			if (!GetOwnerSkeletalMeshComponent(OwnerSkeletalMeshComponent))
+			{
+				UE_LOG(LogFishingFeature, Error, TEXT("Owner Skeletal Mesh Component is not valid, won't continue..."));
+				return;
+			}
+
+			CatchableActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+
+			CatchableActor->SetActorTransform(FTransform::Identity);
+
+			CatchableActor->AttachToComponent(OwnerSkeletalMeshComponent, FAttachmentTransformRules::SnapToTargetIncludingScale, CarryFishSocketName);
+			break;
+	}
 }

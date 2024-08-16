@@ -11,8 +11,6 @@ void APlayerController_StairwayFishingGamePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	SetInputMode(FInputModeGameOnly());
-
 	FSlateApplication::Get().SetAllUserFocusToGameViewport();
 
 	MapInputContext(DefaultInputMappingContext);
