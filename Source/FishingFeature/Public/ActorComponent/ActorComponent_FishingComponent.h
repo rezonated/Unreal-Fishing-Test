@@ -22,7 +22,6 @@ class FISHINGFEATURE_API UActorComponent_FishingComponent : public UActorCompone
 public:
 	UActorComponent_FishingComponent();
 	void RequestLoadFishingRodSoftClass();
-	void ListenForThrowNotify();
 
 protected:
 	virtual void BeginPlay() override;
@@ -38,16 +37,23 @@ protected:
 	
 	void OnCastAction(const float& InElapsedTime);
 
-	void ResetCastFlagAndTimer();
+	void ResetStateAndTimer();
 	
 	void OnCastActionEnded(const float&);
+
+	void OnBobberLandsOnWater();
+	void ListenForThrowNotify();
 	
 	void DetermineCastLocation(const float& InElapsedTime);
 	void AttemptToCast(const FVector& InCastStartPosition);
 
-	void AttemptGetRandomCatchable();
+	void AttemptGetNearestCatchable();
 	void ReelInCurrentCatchable();
-	void StartCastingTimer();
+	void StartWaitingForFishTimer();
+	void LetCatchableEscape();
+	void ReelBack();
+
+	void ListenForReelDoneNotify();
 
 	void BroadcastUIMessage(const float& InProgress) const;
 	float GetMappedElapsedTimeToMaximumCastTime(const float& InValue, const float DefaultValue = 0.f) const;
@@ -59,6 +65,9 @@ protected:
 
 	UFUNCTION()
 	void OnThrowNotifyMessageReceived(const FGameplayTag& Channel, const FVAAnyUnreal& MessagePayload);
+	
+	UFUNCTION()
+	void OnReelDoneNotifyMessageReceived(const FGameplayTag& Channel, const FVAAnyUnreal& MessagePayload);
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Fishing Component | Config")
 	UDataAsset_FishingComponentConfig* FishingComponentConfigData = nullptr;
@@ -77,7 +86,7 @@ private:
 	AActor* TargetActorDecalInstance = nullptr;
 
 	UPROPERTY(Transient)
-	bool bIsCurrentlyCasting = false;
+	FGameplayTag CurrentFishingState;
 
 	ICatchableInterface* CurrentCatchable = nullptr;
 	

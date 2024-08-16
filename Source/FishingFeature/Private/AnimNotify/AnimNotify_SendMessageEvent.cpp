@@ -1,12 +1,12 @@
 ﻿// Vanan Andreas - 2024
 
 
-#include "AnimNotify/AnimNotify_ThrowCast.h"
+#include "AnimNotify/AnimNotify_SendMessageEvent.h"
 
 #include "FishingTags.h"
 #include "GameInstanceSubsystem/VAGameplayMessagingSubsystem.h"
 
-void UAnimNotify_ThrowCast::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
+void UAnimNotify_SendMessageEvent::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
 	Super::Notify(MeshComp, Animation);
 
@@ -21,5 +21,5 @@ void UAnimNotify_ThrowCast::Notify(USkeletalMeshComponent* MeshComp, UAnimSequen
 		return;
 	}
 
-	UVAGameplayMessagingSubsystem::Get(Owner).BroadcastMessage(Owner, FFishingTags::Get().Messaging_Fishing_Notify_Throw, {});
+	UVAGameplayMessagingSubsystem::Get(Owner).BroadcastMessage(Owner, MessageTag, {});
 }

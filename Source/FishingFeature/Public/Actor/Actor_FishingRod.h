@@ -18,7 +18,13 @@ public:
 
 	void PrepareBobberTimeline();
 
-	virtual void Throw(const FVector& CastLocation) override;
+	virtual void SetStartLocation() override;
+	
+	virtual void Throw(const FVector& InCastLocation) override;
+	
+	virtual void ReelBack() override;
+
+	FORCEINLINE virtual FSimpleDelegate& OnLandsOnWater() override { return CatchableLandsOnWaterDelegate; }
 
 protected:
 	virtual void BeginPlay() override;
@@ -36,6 +42,9 @@ protected:
 
 	UPROPERTY(Transient)
 	FVector BobberTargetLocation = FVector::ZeroVector;
+
+	UPROPERTY(Transient)
+	FVector BobberStartLocation = FVector::ZeroVector;
 	
 	UPROPERTY(Transient)
 	FTimeline ThrowTimeline;
@@ -47,4 +56,6 @@ protected:
 	FOnTimelineEvent ThrowFinishedEvent;
 	UFUNCTION()
 	void OnThrowFinished();
+
+	FSimpleDelegate CatchableLandsOnWaterDelegate;
 };

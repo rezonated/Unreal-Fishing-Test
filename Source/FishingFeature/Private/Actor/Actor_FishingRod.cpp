@@ -36,11 +36,23 @@ void AActor_FishingRod::PrepareBobberTimeline()
 	ThrowTimeline.SetTimelineFinishedFunc(ThrowFinishedEvent);
 }
 
-void AActor_FishingRod::Throw(const FVector& CastLocation)
+void AActor_FishingRod::SetStartLocation()
 {
-	BobberTargetLocation = CastLocation;
+	BobberStartLocation = BobberMeshComponent->GetComponentLocation();
+}
+
+void AActor_FishingRod::Throw(const FVector& InCastLocation)
+{
+	BobberTargetLocation = InCastLocation;
 	
 	ThrowTimeline.PlayFromStart();
+}
+
+void AActor_FishingRod::ReelBack()
+{
+	BobberTargetLocation = BobberStartLocation;
+	
+	ThrowTimeline.ReverseFromEnd();
 }
 
 void AActor_FishingRod::BeginPlay()
@@ -74,5 +86,5 @@ void AActor_FishingRod::OnThrowFinished()
 	ThrowFloatUpdate.Clear();
 	ThrowFinishedEvent.Clear();
 
-	// TODO: Send event to reel in the fish, somehow!
+	bool bExecuteDelegate = CatchableLandsOnWaterDelegate.ExecuteIfBound();
 }

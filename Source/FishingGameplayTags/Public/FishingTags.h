@@ -19,10 +19,18 @@ public:
 	FGameplayTag Messaging_Fishing_UI_Cast_Update;
 
 	FGameplayTag Messaging_Fishing_Notify_Throw;
+	FGameplayTag Messaging_Fishing_Notify_ReelDone;
 
 	FGameplayTag Messaging_Fishing_AnimInstance_StateChange;
 
 	FGameplayTag AnimInstance_Fishing_State_Idling;
 	FGameplayTag AnimInstance_Fishing_State_Throwing;
-	FGameplayTag AnimInstance_Fishing_State_Reeling;
+	FGameplayTag AnimInstance_Fishing_State_Reeling_In;
+	FGameplayTag AnimInstance_Fishing_State_Reeling_Out;
+
+	FGameplayTag FishingComponent_State_Idling;
+	FGameplayTag FishingComponent_State_Throwing;
+	FGameplayTag FishingComponent_State_WaitingForFish;
+	FGameplayTag FishingComponent_State_Reeling_In;
+	FGameplayTag FishingComponent_State_Reeling_Out;
 };

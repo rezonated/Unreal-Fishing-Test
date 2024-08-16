@@ -20,6 +20,8 @@
 UActorComponent_FishingComponent::UActorComponent_FishingComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+
+	CurrentFishingState = FFishingTags::Get().FishingComponent_State_Idling;
 }
 
 void UActorComponent_FishingComponent::RequestLoadFishingRodSoftClass()
@@ -59,6 +61,8 @@ void UActorComponent_FishingComponent::BeginPlay()
 	RequestLoadFishingRodSoftClass();
 
 	ListenForThrowNotify();
+
+	ListenForReelDoneNotify();
 }
 
 void UActorComponent_FishingComponent::SetupInitialVectors()
@@ -183,6 +187,8 @@ void UActorComponent_FishingComponent::SpawnFishingRod(const FName& InFishingPol
 	}
 
 	FishingRodActor->AttachToComponent(InSkeletalMeshComponent, FAttachmentTransformRules::SnapToTargetNotIncludingScale, InFishingPoleSocketName);
+
+	CurrentCatcher->OnLandsOnWater().BindUObject(this, &ThisClass::OnBobberLandsOnWater);
 }
 
 void UActorComponent_FishingComponent::BindToPlayerActionInputDelegates()
@@ -229,16 +235,8 @@ void UActorComponent_FishingComponent::BindToPlayerActionInputDelegates()
 
 void UActorComponent_FishingComponent::OnCastAction(const float& InElapsedTime)
 {
-	if (bIsCurrentlyCasting)
+	if (CurrentFishingState != FFishingTags::Get().FishingComponent_State_Idling)
 	{
-		if (CurrentCatchable)
-		{
-			UE_LOG(LogFishingFeature, Warning, TEXT("Cast is already in progress, failing..."));
-			
-			CurrentCatchable->Escape();
-			CurrentCatchable = nullptr;
-		}
-		
 		return;
 	}
 	
@@ -251,14 +249,14 @@ void UActorComponent_FishingComponent::OnCastAction(const float& InElapsedTime)
 	DetermineCastLocation(InElapsedTime);
 }
 
-void UActorComponent_FishingComponent::ResetCastFlagAndTimer()
+void UActorComponent_FishingComponent::ResetStateAndTimer()
 {
-	bIsCurrentlyCasting = false;
+	CurrentFishingState = FFishingTags::Get().FishingComponent_State_Reeling_In;
 
 	GetWorld()->GetTimerManager().ClearTimer(CastTimerHandle);
 }
 
-void UActorComponent_FishingComponent::AttemptGetRandomCatchable()
+void UActorComponent_FishingComponent::AttemptGetNearestCatchable()
 {
 	if (!FishingComponentConfigData)
 	{
@@ -279,8 +277,6 @@ void UActorComponent_FishingComponent::AttemptGetRandomCatchable()
 		UE_LOG(LogFishingFeature, Error, TEXT("Failed to trace for catchables, won't continue..."));
 		return;
 	}
-
-	DrawDebugSphere(GetWorld(), CastLocation, CastRadius, 16, FColor::Yellow, false, 3.f);
 	
 	TArray<AActor*> CatchableActors;
 	
@@ -308,18 +304,18 @@ void UActorComponent_FishingComponent::AttemptGetRandomCatchable()
 		return;
 	}
 
-	bool bRandomCatchableIndexIsValid = false;
-	int32 RandomCatchableIndex = 0;
+	FVector LocationReference = CastLocation;
+	CatchableActors.Sort([LocationReference](const AActor& A, const AActor& B) {
+		// Calculate the squared distance to avoid the cost of square root calculations
+		const float DistanceA = FVector::DistSquared(A.GetActorLocation(), LocationReference);
+		const float DistanceB = FVector::DistSquared(B.GetActorLocation(), LocationReference);
 
-	while (!bRandomCatchableIndexIsValid)
-	{
-		const int32 MaxCatchableActors = CatchableActors.Num() - 1;
-		RandomCatchableIndex = FMath::RandRange(0, MaxCatchableActors);
+		// Sort in ascending order (nearest first)
+		return DistanceA < DistanceB;
+	});
 
-		bRandomCatchableIndexIsValid = CatchableActors.IsValidIndex(RandomCatchableIndex);
-	}
 
-	CurrentCatchable = Cast<ICatchableInterface>(CatchableActors[RandomCatchableIndex]);
+	CurrentCatchable = Cast<ICatchableInterface>(CatchableActors[0]);
 	if (!CurrentCatchable)
 	{
 		UE_LOG(LogFishingFeature, Error, TEXT("Random Catchable is not valid, won't continue..."));
@@ -339,7 +335,7 @@ void UActorComponent_FishingComponent::ReelInCurrentCatchable()
 	CurrentCatchable->ReeledIn(CastLocation);
 }
 
-void UActorComponent_FishingComponent::StartCastingTimer()
+void UActorComponent_FishingComponent::StartWaitingForFishTimer()
 {
 	if (!FishingComponentConfigData)
 	{
@@ -349,15 +345,57 @@ void UActorComponent_FishingComponent::StartCastingTimer()
 
 	const FFishingComponentConfig FishingComponentConfig = FishingComponentConfigData->GetFishingComponentConfig();
 
-	bIsCurrentlyCasting = true;
+	CurrentFishingState = FFishingTags::Get().FishingComponent_State_WaitingForFish;
 
 	const float TimeToFish = FishingComponentConfig.TimeToFish;
 	
-	GetWorld()->GetTimerManager().SetTimer(CastTimerHandle, this, &ThisClass::ResetCastFlagAndTimer, TimeToFish, false);
+	GetWorld()->GetTimerManager().SetTimer(CastTimerHandle, this, &ThisClass::ResetStateAndTimer, TimeToFish, false);
+}
+
+void UActorComponent_FishingComponent::LetCatchableEscape()
+{
+	if (CurrentCatchable)
+	{
+		CurrentCatchable->Escape();
+		CurrentCatchable = nullptr;
+	}
+}
+
+void UActorComponent_FishingComponent::ReelBack()
+{
+	UVAGameplayMessagingSubsystem::Get(this).BroadcastMessage(this, FFishingTags::Get().Messaging_Fishing_AnimInstance_StateChange, FFishingTags::Get().AnimInstance_Fishing_State_Reeling_In);
+
+	CurrentFishingState = FFishingTags::Get().FishingComponent_State_Reeling_Out;
+
+	CurrentCatcher->ReelBack();
+}
+
+void UActorComponent_FishingComponent::ListenForReelDoneNotify()
+{
+	UVAGameplayMessaging_ListenForGameplayMessages* ListenForReelDoneNotifyMessage = UVAGameplayMessaging_ListenForGameplayMessages::ListenForGameplayMessagesViaChannel(this, FFishingTags::Get().Messaging_Fishing_Notify_ReelDone);
+	
+	ListenForReelDoneNotifyMessage->OnGameplayMessageReceived.AddUniqueDynamic(this, &ThisClass::OnReelDoneNotifyMessageReceived);
+
+	ListenForReelDoneNotifyMessage->Activate();
 }
 
 void UActorComponent_FishingComponent::OnCastActionEnded(const float&)
 {
+	if (CurrentFishingState == FFishingTags::Get().FishingComponent_State_WaitingForFish)
+	{
+		LetCatchableEscape();
+		
+		ResetStateAndTimer();
+
+		ReelBack();
+		return;
+	}
+
+	if (CurrentFishingState == FFishingTags::Get().FishingComponent_State_Throwing || CurrentFishingState == FFishingTags::Get().FishingComponent_State_Reeling_In || CurrentFishingState == FFishingTags::Get().FishingComponent_State_Reeling_Out)
+	{
+		return;
+	}
+	
 	BroadcastUIMessage(0.f);
 
 	ToggleDecalVisibility(false);
@@ -365,19 +403,32 @@ void UActorComponent_FishingComponent::OnCastActionEnded(const float&)
 	const bool bIsCastTimerActive = GetWorld()->GetTimerManager().IsTimerActive(CastTimerHandle);
 	if (bIsCastTimerActive) // Exit early if cast timer is still active, means we're still casting. Fail it, reset cast flag and timer then return.
 	{
-		ResetCastFlagAndTimer();
+		ResetStateAndTimer();
+		return;
+	}
+
+	if (CurrentCatchable)
+	{
 		return;
 	}
 	
 	UVAGameplayMessagingSubsystem::Get(this).BroadcastMessage(this, FFishingTags::Get().Messaging_Fishing_AnimInstance_StateChange, FFishingTags::Get().AnimInstance_Fishing_State_Throwing);
 
-	// TODO: Do below but from anim notify!
+	CurrentFishingState = FFishingTags::Get().FishingComponent_State_Throwing;
 
-	/*AttemptGetRandomCatchable();
+	if (CurrentCatcher)
+	{
+		CurrentCatcher->SetStartLocation();
+	}
+}
 
+void UActorComponent_FishingComponent::OnBobberLandsOnWater()
+{
+	AttemptGetNearestCatchable();
+
+	StartWaitingForFishTimer();
+	
 	ReelInCurrentCatchable();
-
-	StartCastingTimer();*/
 }
 
 void UActorComponent_FishingComponent::DetermineCastLocation(const float& InElapsedTime)
@@ -538,4 +589,12 @@ void UActorComponent_FishingComponent::OnThrowNotifyMessageReceived(const FGamep
 	}
 
 	CurrentCatcher->Throw(CastLocation);
+}
+
+void UActorComponent_FishingComponent::OnReelDoneNotifyMessageReceived(const FGameplayTag& Channel,
+	const FVAAnyUnreal& MessagePayload)
+{
+	UVAGameplayMessagingSubsystem::Get(this).BroadcastMessage(this, FFishingTags::Get().Messaging_Fishing_AnimInstance_StateChange, FFishingTags::Get().AnimInstance_Fishing_State_Idling);
+
+	CurrentFishingState = FFishingTags::Get().FishingComponent_State_Idling;
 }
