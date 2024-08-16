@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/TimelineComponent.h"
 #include "Enum/FishingGameLoopState.h"
 #include "GameFramework/GameModeBase.h"
 #include "GameModeBase_StairwayFishingGame.generated.h"
@@ -21,6 +20,9 @@ public:
 	AGameModeBase_StairwayFishingGame();
 	
 protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Game Mode Transition")
+	UDataAsset_GameModeTransitionConfig* GameModeTransitionConfigAsset = nullptr;
+	
 	virtual void BeginPlay() override;
 
 	void OnFishingGameLoopStateChanged(const EFishingGameLoopState& FishingGameLoopState);

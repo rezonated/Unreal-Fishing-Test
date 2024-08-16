@@ -49,3 +49,18 @@ APawn_StairwayFishingGame::APawn_StairwayFishingGame()
 	ShowFishCamera->SetupAttachment(GetRootComponent());
 	ShowFishCamera->SetAutoActivate(false);
 }
+
+void APawn_StairwayFishingGame::SetFishingView(const EFishingGameLoopState& InFishingGameLoopState)
+{
+	switch (InFishingGameLoopState)
+	{
+		case EFishingGameLoopState::Fishing:
+			Camera->SetActive(true);
+			ShowFishCamera->SetActive(false);
+			break;
+		case EFishingGameLoopState::ShowFish:
+			Camera->SetActive(false);
+			ShowFishCamera->SetActive(true);
+			break;
+	}
+}

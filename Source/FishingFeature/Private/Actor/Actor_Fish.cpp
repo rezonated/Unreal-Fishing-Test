@@ -6,6 +6,7 @@
 #include "FishingFeature.h"
 #include "Components/SphereComponent.h"
 #include "DataAsset/DataAsset_ActorFishConfig.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Macros/TimelineMacro.h"
 #include "Struct/ActorFishConfig.h"
@@ -65,7 +66,7 @@ void AActor_Fish::Catch(USceneComponent* InCatchingRod)
 		return;
 	}
 
-	AttachToComponent(InCatchingRod, FAttachmentTransformRules::SnapToTargetNotIncludingScale, NAME_None);
+	AttachToComponent(InCatchingRod, FAttachmentTransformRules::SnapToTargetIncludingScale, NAME_None);
 }
 
 void AActor_Fish::BeginPlay()
@@ -195,9 +196,30 @@ void AActor_Fish::InterpolateLocationAndRotation(const FVector& InTargetLocation
 	SetActorLocationAndRotation(InterpolatedLocationToReelIn, InterpolatedRotationToReelIn);
 }
 
+void AActor_Fish::PlayBiteSound() const
+{
+	if (!ActorFishConfigData)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Actor Fish Config is not valid, have you set it up correctly in the component?"));
+		return;
+	}
+
+	const FActorFishConfig FishConfig = ActorFishConfigData->GetActorFishConfig();
+	USoundBase* FishBiteSound = FishConfig.FishBiteSound;
+	if (!FishBiteSound)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Fish Bite Sound is not valid, have you set it up correctly in the data asset?"));
+		return;
+	}
+
+	UGameplayStatics::PlaySound2D(this, FishBiteSound, 1.f);
+}
+
 void AActor_Fish::OnReelInFinished()
 {
 	ClearTimeline(&ReeledInFloatUpdate, &ReeledInFinishedEvent);
+
+	PlayBiteSound();
 }
 
 void AActor_Fish::OnEscapeUpdate(float InAlpha)

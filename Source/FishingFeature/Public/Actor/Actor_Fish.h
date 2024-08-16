@@ -112,4 +112,5 @@ private:
 	static void ClearTimeline(FOnTimelineFloat* InTimelineFloat, FOnTimelineEvent* InTimelineEvent);
 
 	void InterpolateLocationAndRotation(const FVector& InTargetLocation, const FRotator& InTargetRotation, const float& InAlpha);
+	void PlayBiteSound() const;
 };

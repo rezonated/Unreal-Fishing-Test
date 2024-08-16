@@ -30,6 +30,8 @@ public:
 
 	virtual void ToggleBobberVisibility(const bool& bInShouldBeVisible) override;
 
+	virtual void ToggleCatcherVisibility(const bool& bInShouldBeVisible) override;
+
 protected:
 	virtual void BeginPlay() override;
 

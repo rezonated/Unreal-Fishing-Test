@@ -25,10 +25,13 @@ public:
 
 	FGameplayTag Messaging_GameState_StateChange;
 
+	FGameplayTag Messaging_GameMode_StateChangeFinish;
+
 	FGameplayTag AnimInstance_Fishing_State_Idling;
 	FGameplayTag AnimInstance_Fishing_State_Throwing;
 	FGameplayTag AnimInstance_Fishing_State_Reeling_In;
 	FGameplayTag AnimInstance_Fishing_State_Reeling_Out;
+	FGameplayTag AnimInstance_Fishing_State_ShowFish;
 
 	FGameplayTag FishingComponent_State_Idling;
 	FGameplayTag FishingComponent_State_Throwing;

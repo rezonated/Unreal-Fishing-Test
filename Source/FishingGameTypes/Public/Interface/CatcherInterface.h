@@ -25,4 +25,6 @@ public:
 	virtual USceneComponent* GetCatchableAttachPoint() = 0;
 
 	virtual void ToggleBobberVisibility(const bool& bInShouldBeVisible) = 0;
+
+	virtual void ToggleCatcherVisibility(const bool& bInShouldBeVisible) = 0;
 };

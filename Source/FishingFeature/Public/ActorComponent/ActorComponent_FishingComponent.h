@@ -44,7 +44,10 @@ protected:
 
 	void OnBobberLandsOnWater();
 	
+	void ListenForReelDoneNotify();
 	void ListenForThrowNotify();
+	
+	void ListenForGameModeStateChangeFinish();
 	
 	void DetermineCastLocation(const float& InElapsedTime);
 	void AttemptToCast(const FVector& InCastStartPosition);
@@ -55,7 +58,6 @@ protected:
 	void LetCatchableEscape();
 	void ReelBack();
 
-	void ListenForReelDoneNotify();
 
 	void BroadcastUIMessage(const float& InProgress) const;
 	float GetMappedElapsedTimeToMaximumCastTime(const float& InValue, const float DefaultValue = 0.f) const;
@@ -70,6 +72,9 @@ protected:
 	
 	UFUNCTION()
 	void OnReelDoneNotifyMessageReceived(const FGameplayTag& Channel, const FVAAnyUnreal& MessagePayload);
+
+	UFUNCTION()
+	void OnGameModeStateChangeFinishMessageReceived(const FGameplayTag& Channel, const FVAAnyUnreal& MessagePayload);
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Fishing Component | Config")
 	UDataAsset_FishingComponentConfig* FishingComponentConfigData = nullptr;

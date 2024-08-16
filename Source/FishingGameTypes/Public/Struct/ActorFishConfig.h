@@ -24,4 +24,7 @@ struct FISHINGGAMETYPES_API FActorFishConfig
 
 	UPROPERTY(EditAnywhere, Category = "Fish")
 	float FishWanderTargetRadius = 10.f;
+
+	UPROPERTY(EditAnywhere, Category = "Fish")
+	USoundBase* FishBiteSound = nullptr;
 };

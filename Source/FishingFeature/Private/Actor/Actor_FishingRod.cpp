@@ -65,6 +65,11 @@ void AActor_FishingRod::ToggleBobberVisibility(const bool& bInShouldBeVisible)
 	BobberMeshComponent->SetVisibility(bInShouldBeVisible);
 }
 
+void AActor_FishingRod::ToggleCatcherVisibility(const bool& bInShouldBeVisible)
+{
+	SetActorHiddenInGame(!bInShouldBeVisible);
+}
+
 void AActor_FishingRod::BeginPlay()
 {
 	Super::BeginPlay();
