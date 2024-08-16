@@ -17,12 +17,12 @@ class FISHINGFEATURE_API AActor_FishSpawnArea : public AActor
 
 public:
 	AActor_FishSpawnArea();
-	void RequestLoadFishAssetSoftClass();
-
+	
 protected:
 	virtual void BeginPlay() override;
 	virtual void BeginDestroy() override;
 
+	void RequestLoadFishAssetSoftClass();
 	void OnFishSpawnAssetLoaded();
 
 	void SpawnFishes(const int32& InFishSpawnAmount, const FVector& InCenterLocation, const FVector& InBoxExtent, UClass* InFishActorClass);

@@ -73,9 +73,6 @@ private:
 	FRotator LookAtReelInRotation = FRotator::ZeroRotator;
 
 	UPROPERTY(Transient)
-	FTimeline ReelInTimeline;
-
-	UPROPERTY(Transient)
 	bool bBeingTargeted = false;
 
 	UPROPERTY(Transient)
@@ -88,11 +85,14 @@ private:
 	void WanderWithinBoundingBox(float DeltaSeconds);
 	void TickTimelines(float DeltaSeconds);
 
-	FOnTimelineFloat ReelInFloatUpdate;
+	UPROPERTY(Transient)
+	FTimeline ReeledInTimeline;
+
+	FOnTimelineFloat ReeledInFloatUpdate;
 	UFUNCTION()
 	void OnReelInUpdate(float InAlpha);
 
-	FOnTimelineEvent ReelInFinishedEvent;
+	FOnTimelineEvent ReeledInFinishedEvent;
 	UFUNCTION()
 	void OnReelInFinished();
 

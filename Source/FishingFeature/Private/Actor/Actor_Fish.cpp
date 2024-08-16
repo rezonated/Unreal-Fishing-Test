@@ -30,16 +30,16 @@ void AActor_Fish::ReeledIn(const FVector& RodLocation)
 
 	LookAtReelInRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), ReelInLocation);
 
-	ReelInTimeline.PlayFromStart();
+	ReeledInTimeline.PlayFromStart();
 }
 
 void AActor_Fish::Escape()
 {
-	ReelInTimeline.Stop();
+	ReeledInTimeline.Stop();
 		
 	EscapeRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), InitialActorLocation);
 		
-	EscapeTimeline.Play();
+	EscapeTimeline.PlayFromStart();
 }
 
 void AActor_Fish::SetupFishMovementValues()
@@ -81,9 +81,9 @@ void AActor_Fish::SetupTimelines()
 	UCurveFloat* FishReelingInCurve = FishConfig.FishReelingInCurve;
 	if (FishReelingInCurve)
 	{
-		BIND_TIMELINE(ReelInFloatUpdate, &ThisClass::OnReelInUpdate, ReelInFinishedEvent, &ThisClass::OnReelInFinished)
+		BIND_TIMELINE(ReeledInFloatUpdate, &ThisClass::OnReelInUpdate, ReeledInFinishedEvent, &ThisClass::OnReelInFinished)
 		
-		SetupTimelineDataAndCallbacks(&ReelInTimeline, ReelInFloatUpdate, ReelInFinishedEvent, FishReelingInCurve);
+		SetupTimelineDataAndCallbacks(&ReeledInTimeline, ReeledInFloatUpdate, ReeledInFinishedEvent, FishReelingInCurve);
 	}
 
 	UCurveFloat* FishEscapeCurve = FishConfig.FishEscapedCurve;
@@ -121,9 +121,9 @@ void AActor_Fish::WanderWithinBoundingBox(float DeltaSeconds)
 
 void AActor_Fish::TickTimelines(float DeltaSeconds)
 {
-	if (ReelInTimeline.IsPlaying())
+	if (ReeledInTimeline.IsPlaying())
 	{
-		ReelInTimeline.TickTimeline(DeltaSeconds);
+		ReeledInTimeline.TickTimeline(DeltaSeconds);
 	}
 
 	if (EscapeTimeline.IsPlaying())
@@ -186,7 +186,7 @@ void AActor_Fish::InterpolateLocationAndRotation(const FVector& InTargetLocation
 
 void AActor_Fish::OnReelInFinished()
 {
-	ClearTimeline(&ReelInFloatUpdate, &ReelInFinishedEvent);
+	ClearTimeline(&ReeledInFloatUpdate, &ReeledInFinishedEvent);
 	
 	// TODO: Send event to play the animation for reeling the pole, somehow!
 }

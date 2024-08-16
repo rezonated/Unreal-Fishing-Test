@@ -32,6 +32,7 @@ APawn_StairwayFishingGamePawn::APawn_StairwayFishingGamePawn()
 	SpringArm->SetRelativeRotation(FRotator(-45.f, -180.f, 0.f));
 	SpringArm->TargetArmLength = 750.f;
 	SpringArm->TargetOffset = FVector(-350.f, 0.f, 0.f);
+	SpringArm->bDoCollisionTest = false;
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);

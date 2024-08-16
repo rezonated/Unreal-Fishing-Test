@@ -13,7 +13,7 @@
 
 AActor_FishSpawnArea::AActor_FishSpawnArea()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	SpawnAreaRoot = CreateDefaultSubobject<USceneComponent>(TEXT("Spawn Area Root"));
 	SetRootComponent(SpawnAreaRoot);
