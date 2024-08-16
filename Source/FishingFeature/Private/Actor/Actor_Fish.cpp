@@ -198,8 +198,6 @@ void AActor_Fish::InterpolateLocationAndRotation(const FVector& InTargetLocation
 void AActor_Fish::OnReelInFinished()
 {
 	ClearTimeline(&ReeledInFloatUpdate, &ReeledInFinishedEvent);
-	
-	// TODO: Send event to play the animation for reeling the pole, somehow!
 }
 
 void AActor_Fish::OnEscapeUpdate(float InAlpha)

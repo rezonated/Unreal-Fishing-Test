@@ -40,11 +40,6 @@ void AActor_FishingRod::PrepareBobberTimeline(UCurveFloat* InReelCurve)
 	ThrowReelInTimeline.SetTimelineFinishedFunc(ThrowReelInFinishedEvent);
 }
 
-void AActor_FishingRod::SetStartLocation()
-{
-	/*BobberStartLocation = BobberMeshComponent->GetComponentLocation();*/
-}
-
 void AActor_FishingRod::Throw(const FVector& InCastLocation)
 {
 	BobberTargetLocation = InCastLocation;

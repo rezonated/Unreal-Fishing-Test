@@ -16,8 +16,6 @@ class FISHINGGAMETYPES_API ICatcherInterface
 {
 	GENERATED_BODY()
 public:
-	virtual void SetStartLocation() = 0;
-	
 	virtual void Throw(const FVector& InCastLocation) = 0;
 
 	virtual void ReelBack() = 0;

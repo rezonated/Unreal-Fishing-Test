@@ -19,8 +19,6 @@ public:
 	AActor_FishingRod();
 
 	void PrepareBobberTimeline(UCurveFloat* InReelCurve);
-
-	virtual void SetStartLocation() override;
 	
 	virtual void Throw(const FVector& InCastLocation) override;
 	

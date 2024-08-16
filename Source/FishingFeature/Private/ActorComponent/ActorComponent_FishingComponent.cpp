@@ -433,11 +433,6 @@ void UActorComponent_FishingComponent::OnCastActionEnded(const float&)
 	UVAGameplayMessagingSubsystem::Get(this).BroadcastMessage(this, FFishingTags::Get().Messaging_Fishing_AnimInstance_StateChange, FFishingTags::Get().AnimInstance_Fishing_State_Throwing);
 
 	CurrentFishingState = FFishingTags::Get().FishingComponent_State_Throwing;
-
-	if (CurrentCatcher)
-	{
-		CurrentCatcher->SetStartLocation();
-	}
 }
 
 void UActorComponent_FishingComponent::OnBobberLandsOnWater()
