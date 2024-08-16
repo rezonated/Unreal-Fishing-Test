@@ -52,6 +52,8 @@ void UActorComponent_FishingComponent::InitializeDecalActor()
 
 	const FFishingComponentConfig FishingComponentConfig = FishingComponentConfigData->GetFishingComponentConfig();
 
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("FishingComponentConfig FishingPoleSocketName and CarryFishSocketName are %s and %s"), *FishingComponentConfig.FishingPoleSocketName.ToString(), *FishingComponentConfig.CarryFishSocketName.ToString()));
+
 	if (!FishingComponentConfig.TargetActorDecalClass)
 	{
 		UE_LOG(LogFishingFeature, Error, TEXT("Target Actor Decal Class is not valid, have you set it up correctly in the data asset?"));

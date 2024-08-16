@@ -27,4 +27,13 @@ struct FISHINGGAMETYPES_API FFishingComponentConfig
 
 	UPROPERTY(EditDefaultsOnly, Category = "Decals")
 	TSubclassOf<AActor> TargetActorDecalClass = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Mesh")
+	USkeletalMesh* OwnerSkeletalMesh = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Mesh")
+	FName FishingPoleSocketName = "";
+
+	UPROPERTY(EditDefaultsOnly, Category = "Mesh")
+	FName CarryFishSocketName = "";
 };
