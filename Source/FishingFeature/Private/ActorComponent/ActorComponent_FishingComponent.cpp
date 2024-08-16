@@ -269,7 +269,7 @@ void UActorComponent_FishingComponent::OnCastAction(const float& InElapsedTime)
 void UActorComponent_FishingComponent::ResetStateAndTimer()
 {
 	CurrentFishingState = FFishingTags::Get().FishingComponent_State_AbleToReel;
-
+	
 	GetWorld()->GetTimerManager().ClearTimer(CastTimerHandle);
 }
 
@@ -405,6 +405,7 @@ void UActorComponent_FishingComponent::OnCastActionEnded(const float&)
 		ResetStateAndTimer();
 
 		ReelBack();
+		
 		return;
 	}
 

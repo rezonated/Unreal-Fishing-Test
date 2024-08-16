@@ -94,5 +94,5 @@ private:
 
 	TSharedPtr<FStreamableHandle> FishingRodAssetHandle = nullptr;
 
-	mutable FTimerHandle CastTimerHandle;
+	FTimerHandle CastTimerHandle;
 };
