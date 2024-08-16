@@ -1,0 +1,44 @@
+﻿// Vanan Andreas - 2024
+
+
+#include "AnimInstance_StairwayFishingGame.h"
+
+#include "FishingTags.h"
+#include "StairwayFishingGameCore.h"
+#include "VACancellableAsyncAction/VAGameplayMessaging_ListenForGameplayMessages.h"
+
+void UAnimInstance_StairwayFishingGame::NativeBeginPlay()
+{
+	Super::NativeBeginPlay();
+
+	StateTag = FFishingTags::Get().AnimInstance_Fishing_State_Idling;
+
+	UVAGameplayMessaging_ListenForGameplayMessages* ListenForStateChangeMessage = UVAGameplayMessaging_ListenForGameplayMessages::ListenForGameplayMessagesViaChannel(this, FFishingTags::Get().Messaging_Fishing_AnimInstance_StateChange);
+	
+	ListenForStateChangeMessage->OnGameplayMessageReceived.AddUniqueDynamic(this, &ThisClass::OnStateChangeMessageReceived);
+
+	ListenForStateChangeMessage->Activate();
+}
+
+void UAnimInstance_StairwayFishingGame::OnStateChangeMessageReceived(const FGameplayTag& Channel, const FVAAnyUnreal& MessagePayload)
+{
+	const bool bPayloadIsGameplayTag = MessagePayload.Is<FGameplayTag>();
+	if (!bPayloadIsGameplayTag)
+	{
+		UE_LOG(LogStairwayFishingGameCore, Error, TEXT("Message Payload is not a Gameplay Tag, won't continue..."));
+		return;
+	}
+
+	const FGameplayTag& ReceivedStateTag = MessagePayload.Get<FGameplayTag>();
+
+	StateTag = ReceivedStateTag;
+
+	StateTagChanged();
+}
+
+void UAnimInstance_StairwayFishingGame::StateTagChanged()
+{
+	UAnimMontage* MontageToPlay = TagToMontageMap.FindChecked(StateTag);
+
+	Montage_Play(MontageToPlay, 1.f);
+}

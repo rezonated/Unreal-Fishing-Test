@@ -3,17 +3,47 @@
 
 #include "ActorComponent/ActorComponent_FishingComponent.h"
 
+#include "DrawDebugHelpers.h"
 #include "FishingFeature.h"
 #include "FishingTags.h"
 #include "DataAsset/DataAsset_FishingComponentConfig.h"
+#include "Engine/AssetManager.h"
 #include "GameInstanceSubsystem/VAGameplayMessagingSubsystem.h"
+#include "Interface/CatchableInterface.h"
+#include "Interface/CatcherInterface.h"
 #include "Interface/PlayerActionInputInterface.h"
-#include "Macros/TraceMacros.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "Macros/TraceMacro.h"
+#include "VACancellableAsyncAction/VAGameplayMessaging_ListenForGameplayMessages.h"
 
 
 UActorComponent_FishingComponent::UActorComponent_FishingComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+}
+
+void UActorComponent_FishingComponent::RequestLoadFishingRodSoftClass()
+{
+	if (!FishingComponentConfigData)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Fishing Component Config is not valid, have you set it up correctly in the component?"));
+		return;
+	}
+
+	const FFishingComponentConfig FishingComponentConfig = FishingComponentConfigData->GetFishingComponentConfig();
+
+	const TSoftClassPtr<AActor> FishingRodActorClass = FishingComponentConfig.FishingRodActorClass;
+
+	FishingRodAssetHandle = UAssetManager::GetStreamableManager().RequestAsyncLoad(FishingRodActorClass.ToSoftObjectPath(), FStreamableDelegate::CreateUObject(this, &ThisClass::OnFishingRodAssetLoaded));
+}
+
+void UActorComponent_FishingComponent::ListenForThrowNotify()
+{
+	UVAGameplayMessaging_ListenForGameplayMessages* ListenForThrowNotifyMessage = UVAGameplayMessaging_ListenForGameplayMessages::ListenForGameplayMessagesViaChannel(this, FFishingTags::Get().Messaging_Fishing_Notify_Throw);
+	
+	ListenForThrowNotifyMessage->OnGameplayMessageReceived.AddUniqueDynamic(this, &ThisClass::OnThrowNotifyMessageReceived);
+
+	ListenForThrowNotifyMessage->Activate();
 }
 
 void UActorComponent_FishingComponent::BeginPlay()
@@ -25,6 +55,10 @@ void UActorComponent_FishingComponent::BeginPlay()
 	InitializeDecalActor();
 
 	BindToPlayerActionInputDelegates();
+
+	RequestLoadFishingRodSoftClass();
+
+	ListenForThrowNotify();
 }
 
 void UActorComponent_FishingComponent::SetupInitialVectors()
@@ -72,6 +106,85 @@ void UActorComponent_FishingComponent::InitializeDecalActor()
 	ToggleDecalVisibility(false);
 }
 
+void UActorComponent_FishingComponent::OnFishingRodAssetLoaded()
+{
+	UObject* LoadedAsset = FishingRodAssetHandle.Get()->GetLoadedAsset();
+
+	UClass* LoadedAssetAsClass = Cast<UClass>(LoadedAsset);
+	if (!LoadedAssetAsClass)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Failed to cast loaded asset to UClass, this should not happen. Won't continue spawning fish..."));
+		return;
+	}
+	
+	if (!FishingComponentConfigData)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Fishing Component Config is not valid, have you set it up correctly in the component?"));
+		return;
+	}
+
+	const FFishingComponentConfig FishingComponentConfig = FishingComponentConfigData->GetFishingComponentConfig();
+	
+	AActor* OwnerActor = GetOwner();
+	if (!OwnerActor)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Owner Actor is not valid, won't continue initializing fishing rod..."));
+		return;
+	}
+	
+	USkeletalMeshComponent* ComponentAsSkeletalMeshComponent = nullptr;
+	if (!GetOwnerSkeletalMeshComponent(ComponentAsSkeletalMeshComponent))
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Failed to get skeletal mesh component, won't continue initializing fishing rod..."));
+		return;
+	}
+	
+	const FName FishingPoleSocketName = FishingComponentConfig.FishingPoleSocketName;
+	if (FishingPoleSocketName == NAME_None)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Fishing Pole Socket Name is not valid, have you set it up correctly in the data asset?"));
+		return;
+	}
+
+	SpawnFishingRod(FishingPoleSocketName, ComponentAsSkeletalMeshComponent, LoadedAssetAsClass);
+}
+
+void UActorComponent_FishingComponent::SpawnFishingRod(const FName& InFishingPoleSocketName, USkeletalMeshComponent* InSkeletalMeshComponent, UClass* InFishingRodActorClass, ESpawnActorCollisionHandlingMethod InCollisionHandlingMethod)
+{
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("World is not valid, this should not happen. Won't continue spawning fish..."));
+		return;
+	}
+
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.SpawnCollisionHandlingOverride = InCollisionHandlingMethod;
+	
+	AActor* FishingRodActor = World->SpawnActor<AActor>(InFishingRodActorClass, SpawnParameters);
+	if (!FishingRodActor)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Failed to spawn fishing rod actor, won't continue spawning fish..."));
+		return;
+	}
+
+	const bool bFishingRodActorImplementsCatcherInterface = FishingRodActor->Implements<UCatcherInterface>();
+	if (!bFishingRodActorImplementsCatcherInterface)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Fishing Rod Actor does not implement ICatcherInterface, won't continue spawning fish..."));
+		return;
+	}
+
+	CurrentCatcher = Cast<ICatcherInterface>(FishingRodActor);
+	if (!CurrentCatcher)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Fishing Rod Actor does not implement ICatcherInterface, won't continue spawning fish..."));
+		return;
+	}
+
+	FishingRodActor->AttachToComponent(InSkeletalMeshComponent, FAttachmentTransformRules::SnapToTargetNotIncludingScale, InFishingPoleSocketName);
+}
+
 void UActorComponent_FishingComponent::BindToPlayerActionInputDelegates()
 {
 	AActor* OwnerActor = GetOwner();
@@ -116,9 +229,16 @@ void UActorComponent_FishingComponent::BindToPlayerActionInputDelegates()
 
 void UActorComponent_FishingComponent::OnCastAction(const float& InElapsedTime)
 {
-	if (!FishingComponentConfigData)
+	if (bIsCurrentlyCasting)
 	{
-		UE_LOG(LogFishingFeature, Error, TEXT("Fishing Component Config is not valid, have you set it up correctly in the component?"));
+		if (CurrentCatchable)
+		{
+			UE_LOG(LogFishingFeature, Warning, TEXT("Cast is already in progress, failing..."));
+			
+			CurrentCatchable->Escape();
+			CurrentCatchable = nullptr;
+		}
+		
 		return;
 	}
 	
@@ -131,11 +251,133 @@ void UActorComponent_FishingComponent::OnCastAction(const float& InElapsedTime)
 	DetermineCastLocation(InElapsedTime);
 }
 
+void UActorComponent_FishingComponent::ResetCastFlagAndTimer()
+{
+	bIsCurrentlyCasting = false;
+
+	GetWorld()->GetTimerManager().ClearTimer(CastTimerHandle);
+}
+
+void UActorComponent_FishingComponent::AttemptGetRandomCatchable()
+{
+	if (!FishingComponentConfigData)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Fishing Component Config is not valid, have you set it up correctly in the component?"));
+		return;
+	}
+	
+	const FFishingComponentConfig FishingComponentConfig = FishingComponentConfigData->GetFishingComponentConfig();
+
+	const float CastRadius = FishingComponentConfig.CastRadius;
+
+	TArray<FHitResult> HitResult;
+		
+	const bool bSphereTraceForCatchables = UKismetSystemLibrary::SphereTraceMulti(this, CastLocation, CastLocation, CastRadius, UEngineTypes::ConvertToTraceType(ECC_Visibility), true, TArray<AActor*>{}, EDrawDebugTrace::Type::None, HitResult, true, FLinearColor::Yellow, FLinearColor::Red, 0.f);
+
+	if (!bSphereTraceForCatchables)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Failed to trace for catchables, won't continue..."));
+		return;
+	}
+
+	DrawDebugSphere(GetWorld(), CastLocation, CastRadius, 16, FColor::Yellow, false, 3.f);
+	
+	TArray<AActor*> CatchableActors;
+	
+	for (const FHitResult& HitResultItem : HitResult)
+	{
+		AActor* HitActor = HitResultItem.Actor.Get();
+		if (!HitActor)
+		{
+			continue;
+		}
+
+		const bool bHitActorImplementsCatchable = HitActor->Implements<UCatchableInterface>();
+		if (!bHitActorImplementsCatchable)
+		{
+			continue;
+		}
+
+		CatchableActors.AddUnique(HitActor);
+	}
+
+	const bool bCatchableActorsAreValid = CatchableActors.Num() > 0;
+	if (!bCatchableActorsAreValid)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("No valid catchable actors found, won't continue..."));
+		return;
+	}
+
+	bool bRandomCatchableIndexIsValid = false;
+	int32 RandomCatchableIndex = 0;
+
+	while (!bRandomCatchableIndexIsValid)
+	{
+		const int32 MaxCatchableActors = CatchableActors.Num() - 1;
+		RandomCatchableIndex = FMath::RandRange(0, MaxCatchableActors);
+
+		bRandomCatchableIndexIsValid = CatchableActors.IsValidIndex(RandomCatchableIndex);
+	}
+
+	CurrentCatchable = Cast<ICatchableInterface>(CatchableActors[RandomCatchableIndex]);
+	if (!CurrentCatchable)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Random Catchable is not valid, won't continue..."));
+
+		CurrentCatchable = nullptr;
+	}
+}
+
+void UActorComponent_FishingComponent::ReelInCurrentCatchable()
+{
+	if (!CurrentCatchable)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Current Catchable is not valid, won't continue..."));
+		return;
+	}
+
+	CurrentCatchable->ReeledIn(CastLocation);
+}
+
+void UActorComponent_FishingComponent::StartCastingTimer()
+{
+	if (!FishingComponentConfigData)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Fishing Component Config is not valid, have you set it up correctly in the component?"));
+		return;
+	}
+
+	const FFishingComponentConfig FishingComponentConfig = FishingComponentConfigData->GetFishingComponentConfig();
+
+	bIsCurrentlyCasting = true;
+
+	const float TimeToFish = FishingComponentConfig.TimeToFish;
+	
+	GetWorld()->GetTimerManager().SetTimer(CastTimerHandle, this, &ThisClass::ResetCastFlagAndTimer, TimeToFish, false);
+}
+
 void UActorComponent_FishingComponent::OnCastActionEnded(const float&)
 {
 	BroadcastUIMessage(0.f);
 
 	ToggleDecalVisibility(false);
+
+	const bool bIsCastTimerActive = GetWorld()->GetTimerManager().IsTimerActive(CastTimerHandle);
+	if (bIsCastTimerActive) // Exit early if cast timer is still active, means we're still casting. Fail it, reset cast flag and timer then return.
+	{
+		ResetCastFlagAndTimer();
+		return;
+	}
+	
+	UVAGameplayMessagingSubsystem::Get(this).BroadcastMessage(this, FFishingTags::Get().Messaging_Fishing_AnimInstance_StateChange, FFishingTags::Get().AnimInstance_Fishing_State_Throwing);
+
+	// TODO: Do below but from anim notify!
+
+	/*AttemptGetRandomCatchable();
+
+	ReelInCurrentCatchable();
+
+	StartCastingTimer();*/
 }
 
 void UActorComponent_FishingComponent::DetermineCastLocation(const float& InElapsedTime)
@@ -204,10 +446,10 @@ void UActorComponent_FishingComponent::AttemptToCast(const FVector& InCastStartP
 
 	CastLocation = HitResult.Location;
 
-	SetDecalActorLocation(CastLocation);
+	SetDecalActorLocation(InCastStartPosition);
 }
 
-void UActorComponent_FishingComponent::BroadcastUIMessage(const float& InProgress)
+void UActorComponent_FishingComponent::BroadcastUIMessage(const float& InProgress) const
 {
 	 UVAGameplayMessagingSubsystem::Get(this).BroadcastMessage(this, FFishingTags::Get().Messaging_Fishing_UI_Cast_Update, InProgress);
 }
@@ -255,4 +497,45 @@ void UActorComponent_FishingComponent::SetDecalActorLocation(const FVector& InLo
 	}
 
 	TargetActorDecalInstance->SetActorLocation(InLocation);
+}
+
+bool UActorComponent_FishingComponent::GetOwnerSkeletalMeshComponent(
+	USkeletalMeshComponent*& OutSkeletalMeshComponent) const
+{
+	bool bReturnValue = false;
+
+	AActor* OwnerActor = GetOwner();
+	if (!OwnerActor)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Owner Actor is not valid, won't continue getting skeletal mesh component..."));
+		return bReturnValue;
+	}
+
+	UActorComponent* ActorComponent = OwnerActor->GetComponentByClass(USkeletalMeshComponent::StaticClass());
+	if (!ActorComponent)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Owner Actor does not have a SkeletalMeshComponent, won't continue getting skeletal mesh component..."));
+		return bReturnValue;
+	}
+
+	OutSkeletalMeshComponent = Cast<USkeletalMeshComponent>(ActorComponent);
+	if (!OutSkeletalMeshComponent)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Owner Actor does not have a SkeletalMeshComponent, won't continue getting skeletal mesh component..."));
+		return bReturnValue;
+	}
+
+	bReturnValue = true;
+	return bReturnValue;
+}
+
+void UActorComponent_FishingComponent::OnThrowNotifyMessageReceived(const FGameplayTag& Channel, const FVAAnyUnreal& MessagePayload)
+{
+	if (!CurrentCatcher)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Current Catcher is not valid, won't continue..."));
+		return;
+	}
+
+	CurrentCatcher->Throw(CastLocation);
 }

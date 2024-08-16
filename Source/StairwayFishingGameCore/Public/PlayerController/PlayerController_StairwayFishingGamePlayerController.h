@@ -48,8 +48,6 @@ protected:
 	void OnCastFinished(const FInputActionInstance& InInputActionInstance);
 
 	void BroadcastCastDelegateAndValue(const FOnPlayerActionInput& InDelegate, const FInputActionInstance& InInputActionInstance) const;
-
-	/*void BroadcastCastMessage(const FGameplayTag& InChannelTag, const FInputActionInstance& InInputActionInstance) const;*/
 	
 	void MapInputContext(const UInputMappingContext* InMappingContext, const int32& InPriority = 0, const bool& bInClearExistingMappings = true) const;
 	void MapInputActions();

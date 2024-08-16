@@ -26,12 +26,12 @@ protected:
 	void SetProgressBarColor(const FLinearColor& InColor) const;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Cast Meter Bar")
-	UCurveLinearColor* CastMeterBarColorCurve;
+	UCurveLinearColor* CastMeterBarColorCurve = nullptr;
 private:
 	UFUNCTION()
 	void OnFishingMessageReceived(const FGameplayTag& Channel, const FVAAnyUnreal& MessagePayload);
 
 	UPROPERTY()
-	UVAGameplayMessaging_ListenForGameplayMessages* FishingMessageListenerAsync;
+	UVAGameplayMessaging_ListenForGameplayMessages* FishingMessageListenerAsync = nullptr;
 
 };

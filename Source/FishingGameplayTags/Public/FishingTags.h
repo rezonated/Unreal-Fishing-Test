@@ -16,9 +16,13 @@ public:
 		return FishingTags;
 	}
 
-	FGameplayTag Messaging_Fishing_Cast_Started;
-	FGameplayTag Messaging_Fishing_Cast_Held;
-	FGameplayTag Messaging_Fishing_Cast_Finished;
-
 	FGameplayTag Messaging_Fishing_UI_Cast_Update;
+
+	FGameplayTag Messaging_Fishing_Notify_Throw;
+
+	FGameplayTag Messaging_Fishing_AnimInstance_StateChange;
+
+	FGameplayTag AnimInstance_Fishing_State_Idling;
+	FGameplayTag AnimInstance_Fishing_State_Throwing;
+	FGameplayTag AnimInstance_Fishing_State_Reeling;
 };

@@ -12,7 +12,8 @@ public class FishingFeature : ModuleRules
                 "Core",
                 "VAGameplayMessaging",
                 "FishingGameTypes",
-                "VAAnyUnreal"
+                "VAAnyUnreal",
+                "GameplayTags",
             }
         );
 
