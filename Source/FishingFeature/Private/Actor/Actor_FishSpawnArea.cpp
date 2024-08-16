@@ -22,10 +22,8 @@ AActor_FishSpawnArea::AActor_FishSpawnArea()
 	SpawnAreaBox->SetupAttachment(SpawnAreaRoot);
 }
 
-void AActor_FishSpawnArea::BeginPlay()
+void AActor_FishSpawnArea::RequestLoadFishAssetSoftClass()
 {
-	Super::BeginPlay();
-
 	if (!FishSpawnAreaConfigData)
 	{
 		UE_LOG(LogFishingFeature, Error, TEXT("Fish Spawn Area Config Data is not set, are you sure you have a valid data asset set? Won't continue spawning fish..."));
@@ -36,7 +34,14 @@ void AActor_FishSpawnArea::BeginPlay()
 
 	const TSoftClassPtr<AActor> FishActorClass = FishSpawnAreaConfig.FishActorClass;
 	
-	FishSpawnAssetHandle = UAssetManager::GetStreamableManager().RequestAsyncLoad(FishActorClass.ToSoftObjectPath(), FStreamableDelegate::CreateUObject(this, &AActor_FishSpawnArea::OnFishSpawnAssetLoaded));
+	FishSpawnAssetHandle = UAssetManager::GetStreamableManager().RequestAsyncLoad(FishActorClass.ToSoftObjectPath(), FStreamableDelegate::CreateUObject(this, &ThisClass::OnFishSpawnAssetLoaded));
+}
+
+void AActor_FishSpawnArea::BeginPlay()
+{
+	Super::BeginPlay();
+
+	RequestLoadFishAssetSoftClass();
 }
 
 void AActor_FishSpawnArea::BeginDestroy()
@@ -54,12 +59,7 @@ void AActor_FishSpawnArea::OnFishSpawnAssetLoaded()
 	UObject* LoadedAsset = FishSpawnAssetHandle.Get()->GetLoadedAsset();
 
 	UClass* LoadedAssetAsClass = Cast<UClass>(LoadedAsset);
-	if (!LoadedAssetAsClass)
-	{
-		UE_LOG(LogFishingFeature, Error, TEXT("Failed to cast loaded asset to UClass, this should not happen. Won't continue spawning fish..."));
-		return;
-	}
-
+	
 	if (!SpawnAreaBox)
 	{
 		UE_LOG(LogFishingFeature, Error, TEXT("Spawn Area Box is not valid, this should not happen. Won't continue spawning fish..."));
@@ -72,27 +72,39 @@ void AActor_FishSpawnArea::OnFishSpawnAssetLoaded()
 		return;
 	}
 
+	const FFishSpawnAreaConfig FishSpawnAreaConfig = FishSpawnAreaConfigData->GetFishSpawnAreaConfig();
+
+	const int32 FishSpawnAmount = FishSpawnAreaConfig.FishSpawnAmount;
+	
+	const FVector CenterLocation = GetRootComponent()->GetComponentLocation();
+	const FVector BoxExtent = SpawnAreaBox->GetScaledBoxExtent();
+	
+	SpawnFishes(FishSpawnAmount, CenterLocation, BoxExtent, LoadedAssetAsClass);
+}
+
+void AActor_FishSpawnArea::SpawnFishes(const int32& InFishSpawnAmount, const FVector& InCenterLocation,
+	const FVector& InBoxExtent, UClass* InFishActorClass)
+{
+	if (!InFishActorClass)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Failed to cast loaded asset to UClass, this should not happen. Won't continue spawning fish..."));
+		return;
+	}
+	
 	UWorld* World = GetWorld();
 	if (!World)
 	{
 		UE_LOG(LogFishingFeature, Error, TEXT("World is not valid, this should not happen. Won't continue spawning fish..."));
 		return;
 	}
-	
-	const FVector CenterLocation = GetRootComponent()->GetComponentLocation();
-	const FVector BoxExtent = SpawnAreaBox->GetScaledBoxExtent();
 
-	const FFishSpawnAreaConfig FishSpawnAreaConfig = FishSpawnAreaConfigData->GetFishSpawnAreaConfig();
-
-	const int32 FishSpawnAmount = FishSpawnAreaConfig.FishSpawnAmount;
-
-	for (int i = 0; i < FishSpawnAmount; i++)
+	for (int i = 0; i < InFishSpawnAmount; i++)
 	{
-		const FVector RandomLocationInsideSpawnArea = UKismetMathLibrary::RandomPointInBoundingBox(CenterLocation, BoxExtent);
+		const FVector RandomLocationInsideSpawnArea = UKismetMathLibrary::RandomPointInBoundingBox(InCenterLocation, InBoxExtent);
 
 		const FTransform SpawnTransform = FTransform(FRotator::ZeroRotator, RandomLocationInsideSpawnArea);
 
-		AActor* SpawnedActor = World->SpawnActorDeferred<AActor>(LoadedAssetAsClass, SpawnTransform, this, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+		AActor* SpawnedActor = World->SpawnActorDeferred<AActor>(InFishActorClass, SpawnTransform, this, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 		if (!SpawnedActor)
 		{
 			continue;
@@ -110,7 +122,7 @@ void AActor_FishSpawnArea::OnFishSpawnAssetLoaded()
 			continue;
 		}
 		
-		SpawnedActorAsCatchableInterface->SetSpawnAreaCenterAndExtent(CenterLocation, BoxExtent);
+		SpawnedActorAsCatchableInterface->SetSpawnAreaCenterAndExtent(InCenterLocation, InBoxExtent);
 		
 		SpawnedActor->FinishSpawning(SpawnTransform);
 	}

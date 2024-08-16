@@ -7,8 +7,10 @@
 #include "FishingFeature.h"
 #include "FishingTags.h"
 #include "DataAsset/DataAsset_FishingComponentConfig.h"
+#include "Engine/AssetManager.h"
 #include "GameInstanceSubsystem/VAGameplayMessagingSubsystem.h"
 #include "Interface/CatchableInterface.h"
+#include "Interface/CatcherInterface.h"
 #include "Interface/PlayerActionInputInterface.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Macros/TraceMacro.h"
@@ -17,6 +19,27 @@
 UActorComponent_FishingComponent::UActorComponent_FishingComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+}
+
+void UActorComponent_FishingComponent::RequestLoadFishingRodSoftClass()
+{
+	if (!FishingComponentConfigData)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Fishing Component Config is not valid, have you set it up correctly in the component?"));
+		return;
+	}
+
+	const FFishingComponentConfig FishingComponentConfig = FishingComponentConfigData->GetFishingComponentConfig();
+
+	const TSoftClassPtr<AActor> FishingRodActorClass = FishingComponentConfig.FishingRodActorClass;
+
+	if (!FishingComponentConfig.FishingRodActorClass)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Fishing Rod Actor Class is not valid, have you set it up correctly in the data asset?"));
+		return;
+	}
+
+	FishingRodAssetHandle = UAssetManager::GetStreamableManager().RequestAsyncLoad(FishingRodActorClass.ToSoftObjectPath(), FStreamableDelegate::CreateUObject(this, &ThisClass::OnFishingRodAssetLoaded));
 }
 
 void UActorComponent_FishingComponent::BeginPlay()
@@ -28,6 +51,8 @@ void UActorComponent_FishingComponent::BeginPlay()
 	InitializeDecalActor();
 
 	BindToPlayerActionInputDelegates();
+
+	RequestLoadFishingRodSoftClass();
 }
 
 void UActorComponent_FishingComponent::SetupInitialVectors()
@@ -75,6 +100,85 @@ void UActorComponent_FishingComponent::InitializeDecalActor()
 	}
 
 	ToggleDecalVisibility(false);
+}
+
+void UActorComponent_FishingComponent::OnFishingRodAssetLoaded()
+{
+	UObject* LoadedAsset = FishingRodAssetHandle.Get()->GetLoadedAsset();
+
+	UClass* LoadedAssetAsClass = Cast<UClass>(LoadedAsset);
+	if (!LoadedAssetAsClass)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Failed to cast loaded asset to UClass, this should not happen. Won't continue spawning fish..."));
+		return;
+	}
+	
+	if (!FishingComponentConfigData)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Fishing Component Config is not valid, have you set it up correctly in the component?"));
+		return;
+	}
+
+	const FFishingComponentConfig FishingComponentConfig = FishingComponentConfigData->GetFishingComponentConfig();
+	
+	AActor* OwnerActor = GetOwner();
+	if (!OwnerActor)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Owner Actor is not valid, won't continue initializing fishing rod..."));
+		return;
+	}
+	
+	USkeletalMeshComponent* ComponentAsSkeletalMeshComponent = nullptr;
+	if (!GetOwnerSkeletalMeshComponent(ComponentAsSkeletalMeshComponent))
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Failed to get skeletal mesh component, won't continue initializing fishing rod..."));
+		return;
+	}
+	
+	const FName FishingPoleSocketName = FishingComponentConfig.FishingPoleSocketName;
+	if (FishingPoleSocketName == NAME_None)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Fishing Pole Socket Name is not valid, have you set it up correctly in the data asset?"));
+		return;
+	}
+
+	SpawnFishingRod(FishingPoleSocketName, ComponentAsSkeletalMeshComponent, LoadedAssetAsClass);
+}
+
+void UActorComponent_FishingComponent::SpawnFishingRod(const FName& InFishingPoleSocketName, USkeletalMeshComponent* InSkeletalMeshComponent, UClass* InFishingRodActorClass, ESpawnActorCollisionHandlingMethod InCollisionHandlingMethod)
+{
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("World is not valid, this should not happen. Won't continue spawning fish..."));
+		return;
+	}
+
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.SpawnCollisionHandlingOverride = InCollisionHandlingMethod;
+	
+	AActor* FishingRodActor = World->SpawnActor<AActor>(InFishingRodActorClass, SpawnParameters);
+	if (!FishingRodActor)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Failed to spawn fishing rod actor, won't continue spawning fish..."));
+		return;
+	}
+
+	const bool bFishingRodActorImplementsCatcherInterface = FishingRodActor->Implements<UCatcherInterface>();
+	if (!bFishingRodActorImplementsCatcherInterface)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Fishing Rod Actor does not implement ICatcherInterface, won't continue spawning fish..."));
+		return;
+	}
+
+	FishingRodActorAsCatcherInterface = Cast<ICatcherInterface>(FishingRodActor);
+	if (!FishingRodActorAsCatcherInterface)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Fishing Rod Actor does not implement ICatcherInterface, won't continue spawning fish..."));
+		return;
+	}
+
+	FishingRodActor->AttachToComponent(InSkeletalMeshComponent, FAttachmentTransformRules::SnapToTargetNotIncludingScale, InFishingPoleSocketName);
 }
 
 void UActorComponent_FishingComponent::BindToPlayerActionInputDelegates()
@@ -387,4 +491,34 @@ void UActorComponent_FishingComponent::SetDecalActorLocation(const FVector& InLo
 	}
 
 	TargetActorDecalInstance->SetActorLocation(InLocation);
+}
+
+bool UActorComponent_FishingComponent::GetOwnerSkeletalMeshComponent(
+	USkeletalMeshComponent*& OutSkeletalMeshComponent) const
+{
+	bool bReturnValue = false;
+
+	AActor* OwnerActor = GetOwner();
+	if (!OwnerActor)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Owner Actor is not valid, won't continue getting skeletal mesh component..."));
+		return bReturnValue;
+	}
+
+	UActorComponent* ActorComponent = OwnerActor->GetComponentByClass(USkeletalMeshComponent::StaticClass());
+	if (!ActorComponent)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Owner Actor does not have a SkeletalMeshComponent, won't continue getting skeletal mesh component..."));
+		return bReturnValue;
+	}
+
+	OutSkeletalMeshComponent = Cast<USkeletalMeshComponent>(ActorComponent);
+	if (!OutSkeletalMeshComponent)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Owner Actor does not have a SkeletalMeshComponent, won't continue getting skeletal mesh component..."));
+		return bReturnValue;
+	}
+
+	bReturnValue = true;
+	return bReturnValue;
 }

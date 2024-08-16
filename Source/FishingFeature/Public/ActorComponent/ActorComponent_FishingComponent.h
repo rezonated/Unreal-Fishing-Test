@@ -4,9 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Engine/StreamableManager.h"
 #include "ActorComponent_FishingComponent.generated.h"
 
 
+class ICatcherInterface;
 class ICatchableInterface;
 class UDataAsset_FishingComponentConfig;
 
@@ -17,6 +19,7 @@ class FISHINGFEATURE_API UActorComponent_FishingComponent : public UActorCompone
 
 public:
 	UActorComponent_FishingComponent();
+	void RequestLoadFishingRodSoftClass();
 
 protected:
 	virtual void BeginPlay() override;
@@ -24,6 +27,9 @@ protected:
 	void SetupInitialVectors();
 
 	void InitializeDecalActor();
+	
+	void OnFishingRodAssetLoaded();
+	void SpawnFishingRod(const FName& InFishingPoleSocketName, USkeletalMeshComponent* InSkeletalMeshComponent, UClass* InFishingRodActorClass, ESpawnActorCollisionHandlingMethod InCollisionHandlingMethod = ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 	
 	void BindToPlayerActionInputDelegates();
 	
@@ -46,6 +52,8 @@ protected:
 	void ToggleDecalVisibility(const bool& bInShouldBeVisible) const;
 	void SetDecalActorLocation(const FVector& InLocation) const;
 
+	bool GetOwnerSkeletalMeshComponent(USkeletalMeshComponent*& OutSkeletalMeshComponent) const;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Fishing Component | Config")
 	UDataAsset_FishingComponentConfig* FishingComponentConfigData = nullptr;
 
@@ -66,6 +74,10 @@ private:
 	bool bIsCurrentlyCasting = false;
 
 	ICatchableInterface* CurrentCatchable = nullptr;
+	
+	ICatcherInterface* FishingRodActorAsCatcherInterface = nullptr;
+
+	TSharedPtr<FStreamableHandle> FishingRodAssetHandle = nullptr;
 
 	mutable FTimerHandle CastTimerHandle;
 };

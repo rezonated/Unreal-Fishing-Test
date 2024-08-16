@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Interface/CatcherInterface.h"
 #include "Actor_FishingRod.generated.h"
 
 UCLASS()
-class FISHINGFEATURE_API AActor_FishingRod : public AActor
+class FISHINGFEATURE_API AActor_FishingRod : public AActor, public ICatcherInterface
 {
 	GENERATED_BODY()
 

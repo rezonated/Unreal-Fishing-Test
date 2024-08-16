@@ -10,7 +10,7 @@ struct FISHINGGAMETYPES_API FFishSpawnAreaConfig
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, Category = "Fish Spawn Area")
+	UPROPERTY(EditAnywhere, Category = "Fish Spawn Area", meta=(MustImplement="CatchableInterface"))
 	TSoftClassPtr<AActor> FishActorClass = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Fish Spawn Area")
