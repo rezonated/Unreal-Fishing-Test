@@ -32,7 +32,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	
+
 	virtual void Tick(float DeltaSeconds) override;
 	
 	UPROPERTY(VisibleAnywhere, Category = "Components")
@@ -54,6 +54,7 @@ protected:
 	FVector BobberStartLocation = FVector::ZeroVector;
 	
 	void SetupTimelines();
+	void TickTimelines(float DeltaSeconds);
 
 	void SetupTimelineDataAndCallbacks(FTimeline* InTimeline, const FOnTimelineFloat& InOnTimelineFloat, const FOnTimelineEvent& InOnTimelineEvent, UCurveFloat* InCurveFloat) const;
 

@@ -11,10 +11,8 @@
 #include "Engine/Engine.h"
 #include "VACancellableAsyncAction/VAGameplayMessaging_ListenForGameplayMessages.h"
 
-void UUserWidgetMeterBar_CastMeterBar::NativeConstruct()
+void UUserWidgetMeterBar_CastMeterBar::ListenForUICastUpdateMessage()
 {
-	Super::NativeConstruct();
-
 	FishingMessageListenerAsync =	 UVAGameplayMessaging_ListenForGameplayMessages::ListenForGameplayMessagesViaChannel(this, FFishingTags::Get().Messaging_Fishing_UI_Cast_Update);
 	
 	FishingMessageListenerAsync->OnGameplayMessageReceived.AddUniqueDynamic(this, &ThisClass::OnFishingMessageReceived);
@@ -22,12 +20,32 @@ void UUserWidgetMeterBar_CastMeterBar::NativeConstruct()
 	FishingMessageListenerAsync->Activate();
 }
 
-void UUserWidgetMeterBar_CastMeterBar::NativeDestruct()
+void UUserWidgetMeterBar_CastMeterBar::InitializeMeterBar()
+{
+	SetProgress(0.f);
+	ToggleVisibility(false);
+}
+
+void UUserWidgetMeterBar_CastMeterBar::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	ListenForUICastUpdateMessage();
+
+	InitializeMeterBar();
+}
+
+void UUserWidgetMeterBar_CastMeterBar::CleanupUICastUpdateListener() const
 {
 	if (FishingMessageListenerAsync)
 	{
 		FishingMessageListenerAsync->Cancel();
 	}
+}
+
+void UUserWidgetMeterBar_CastMeterBar::NativeDestruct()
+{
+	CleanupUICastUpdateListener();
 
 	Super::NativeDestruct();
 }
@@ -68,6 +86,9 @@ void UUserWidgetMeterBar_CastMeterBar::OnFishingMessageReceived(const FGameplayT
 	
 	const float Progress = MessagePayload.Get<float>();
 	const FLinearColor Color = GetColorForProgress(Progress);
+
+	const bool bShouldBeVisible = Progress > 0.f;
+	ToggleVisibility(bShouldBeVisible);
 	
 	SetProgress(Progress);
 	SetProgressBarColor(Color);

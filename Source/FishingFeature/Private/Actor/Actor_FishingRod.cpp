@@ -78,10 +78,8 @@ void AActor_FishingRod::BeginPlay()
 }
 
 
-void AActor_FishingRod::Tick(float DeltaSeconds)
+void AActor_FishingRod::TickTimelines(float DeltaSeconds)
 {
-	Super::Tick(DeltaSeconds);
-
 	if (ThrowReelInTimeline.IsPlaying())
 	{
 		ThrowReelInTimeline.TickTimeline(DeltaSeconds);
@@ -91,6 +89,13 @@ void AActor_FishingRod::Tick(float DeltaSeconds)
 	{
 		PullReelOutTimeline.TickTimeline(DeltaSeconds);
 	}
+}
+
+void AActor_FishingRod::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	TickTimelines(DeltaSeconds);
 }
 
 void AActor_FishingRod::SetupTimelines()

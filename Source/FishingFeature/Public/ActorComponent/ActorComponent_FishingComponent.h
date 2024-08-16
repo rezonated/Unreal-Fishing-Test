@@ -31,6 +31,7 @@ protected:
 	void InitializeDecalActor();
 	
 	void OnFishingRodAssetLoaded();
+	
 	void SpawnFishingRod(const FName& InFishingPoleSocketName, USkeletalMeshComponent* InSkeletalMeshComponent, UClass* InFishingRodActorClass, ESpawnActorCollisionHandlingMethod InCollisionHandlingMethod = ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 	
 	void BindToPlayerActionInputDelegates();
@@ -42,6 +43,7 @@ protected:
 	void OnCastActionEnded(const float&);
 
 	void OnBobberLandsOnWater();
+	
 	void ListenForThrowNotify();
 	
 	void DetermineCastLocation(const float& InElapsedTime);

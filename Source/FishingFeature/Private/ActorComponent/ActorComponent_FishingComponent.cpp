@@ -7,6 +7,7 @@
 #include "FishingTags.h"
 #include "DataAsset/DataAsset_FishingComponentConfig.h"
 #include "Engine/AssetManager.h"
+#include "Enum/FishingGameLoopState.h"
 #include "GameInstanceSubsystem/VAGameplayMessagingSubsystem.h"
 #include "Interface/CatchableInterface.h"
 #include "Interface/CatcherInterface.h"
@@ -610,4 +611,16 @@ void UActorComponent_FishingComponent::OnReelDoneNotifyMessageReceived(const FGa
 	UVAGameplayMessagingSubsystem::Get(this).BroadcastMessage(this, FFishingTags::Get().Messaging_Fishing_AnimInstance_StateChange, FFishingTags::Get().AnimInstance_Fishing_State_Idling);
 
 	CurrentFishingState = FFishingTags::Get().FishingComponent_State_Idling;
+
+	if (!CurrentCatchable)
+	{
+		// Fail to catch any fish, don't transition to show fish state
+		return;
+	}
+
+	const FVAAnyUnreal Payload = static_cast<uint8>(EFishingGameLoopState::ShowFish);
+
+	UVAGameplayMessagingSubsystem::Get(this).BroadcastMessage(this, FFishingTags::Get().Messaging_GameState_StateChange, Payload);
+
+	CurrentCatchable = nullptr;
 }

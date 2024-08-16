@@ -23,6 +23,8 @@ public:
 
 	FGameplayTag Messaging_Fishing_AnimInstance_StateChange;
 
+	FGameplayTag Messaging_GameState_StateChange;
+
 	FGameplayTag AnimInstance_Fishing_State_Idling;
 	FGameplayTag AnimInstance_Fishing_State_Throwing;
 	FGameplayTag AnimInstance_Fishing_State_Reeling_In;
