@@ -14,6 +14,7 @@ class FISHINGFEATURE_API AActor_FishingRod : public AActor, public ICatcherInter
 
 public:
 	AActor_FishingRod();
+	virtual void Throw(const FVector& CastLocation) override;
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")

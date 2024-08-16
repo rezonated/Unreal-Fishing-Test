@@ -14,6 +14,7 @@
 #include "Interface/PlayerActionInputInterface.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Macros/TraceMacro.h"
+#include "VACancellableAsyncAction/VAGameplayMessaging_ListenForGameplayMessages.h"
 
 
 UActorComponent_FishingComponent::UActorComponent_FishingComponent()
@@ -33,13 +34,16 @@ void UActorComponent_FishingComponent::RequestLoadFishingRodSoftClass()
 
 	const TSoftClassPtr<AActor> FishingRodActorClass = FishingComponentConfig.FishingRodActorClass;
 
-	if (!FishingComponentConfig.FishingRodActorClass)
-	{
-		UE_LOG(LogFishingFeature, Error, TEXT("Fishing Rod Actor Class is not valid, have you set it up correctly in the data asset?"));
-		return;
-	}
-
 	FishingRodAssetHandle = UAssetManager::GetStreamableManager().RequestAsyncLoad(FishingRodActorClass.ToSoftObjectPath(), FStreamableDelegate::CreateUObject(this, &ThisClass::OnFishingRodAssetLoaded));
+}
+
+void UActorComponent_FishingComponent::ListenForThrowNotify()
+{
+	UVAGameplayMessaging_ListenForGameplayMessages* ListenForThrowNotifyMessage = UVAGameplayMessaging_ListenForGameplayMessages::ListenForGameplayMessagesViaChannel(this, FFishingTags::Get().Messaging_Fishing_Notify_Throw);
+	
+	ListenForThrowNotifyMessage->OnGameplayMessageReceived.AddUniqueDynamic(this, &ThisClass::OnThrowNotifyMessageReceived);
+
+	ListenForThrowNotifyMessage->Activate();
 }
 
 void UActorComponent_FishingComponent::BeginPlay()
@@ -53,6 +57,8 @@ void UActorComponent_FishingComponent::BeginPlay()
 	BindToPlayerActionInputDelegates();
 
 	RequestLoadFishingRodSoftClass();
+
+	ListenForThrowNotify();
 }
 
 void UActorComponent_FishingComponent::SetupInitialVectors()
@@ -76,8 +82,6 @@ void UActorComponent_FishingComponent::InitializeDecalActor()
 	}
 
 	const FFishingComponentConfig FishingComponentConfig = FishingComponentConfigData->GetFishingComponentConfig();
-
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("FishingComponentConfig FishingPoleSocketName and CarryFishSocketName are %s and %s"), *FishingComponentConfig.FishingPoleSocketName.ToString(), *FishingComponentConfig.CarryFishSocketName.ToString()));
 
 	if (!FishingComponentConfig.TargetActorDecalClass)
 	{
@@ -171,8 +175,8 @@ void UActorComponent_FishingComponent::SpawnFishingRod(const FName& InFishingPol
 		return;
 	}
 
-	FishingRodActorAsCatcherInterface = Cast<ICatcherInterface>(FishingRodActor);
-	if (!FishingRodActorAsCatcherInterface)
+	CurrentCatcher = Cast<ICatcherInterface>(FishingRodActor);
+	if (!CurrentCatcher)
 	{
 		UE_LOG(LogFishingFeature, Error, TEXT("Fishing Rod Actor does not implement ICatcherInterface, won't continue spawning fish..."));
 		return;
@@ -364,14 +368,16 @@ void UActorComponent_FishingComponent::OnCastActionEnded(const float&)
 		ResetCastFlagAndTimer();
 		return;
 	}
+	
+	UVAGameplayMessagingSubsystem::Get(this).BroadcastMessage(this, FFishingTags::Get().Messaging_Fishing_AnimInstance_StateChange, FFishingTags::Get().AnimInstance_Fishing_State_Throwing);
 
 	// TODO: Do below but from anim notify!
 
-	AttemptGetRandomCatchable();
+	/*AttemptGetRandomCatchable();
 
 	ReelInCurrentCatchable();
 
-	StartCastingTimer();
+	StartCastingTimer();*/
 }
 
 void UActorComponent_FishingComponent::DetermineCastLocation(const float& InElapsedTime)
@@ -521,4 +527,15 @@ bool UActorComponent_FishingComponent::GetOwnerSkeletalMeshComponent(
 
 	bReturnValue = true;
 	return bReturnValue;
+}
+
+void UActorComponent_FishingComponent::OnThrowNotifyMessageReceived(const FGameplayTag& Channel, const FVAAnyUnreal& MessagePayload)
+{
+	if (!CurrentCatcher)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Current Catcher is not valid, won't continue..."));
+		return;
+	}
+
+	CurrentCatcher->Throw(CastLocation);
 }

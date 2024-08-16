@@ -3,8 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "Components/ActorComponent.h"
 #include "Engine/StreamableManager.h"
+#include "Runtime/VAAnyUnreal.h"
 #include "ActorComponent_FishingComponent.generated.h"
 
 
@@ -20,6 +22,7 @@ class FISHINGFEATURE_API UActorComponent_FishingComponent : public UActorCompone
 public:
 	UActorComponent_FishingComponent();
 	void RequestLoadFishingRodSoftClass();
+	void ListenForThrowNotify();
 
 protected:
 	virtual void BeginPlay() override;
@@ -53,6 +56,9 @@ protected:
 	void SetDecalActorLocation(const FVector& InLocation) const;
 
 	bool GetOwnerSkeletalMeshComponent(USkeletalMeshComponent*& OutSkeletalMeshComponent) const;
+
+	UFUNCTION()
+	void OnThrowNotifyMessageReceived(const FGameplayTag& Channel, const FVAAnyUnreal& MessagePayload);
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Fishing Component | Config")
 	UDataAsset_FishingComponentConfig* FishingComponentConfigData = nullptr;
@@ -75,7 +81,7 @@ private:
 
 	ICatchableInterface* CurrentCatchable = nullptr;
 	
-	ICatcherInterface* FishingRodActorAsCatcherInterface = nullptr;
+	ICatcherInterface* CurrentCatcher = nullptr;
 
 	TSharedPtr<FStreamableHandle> FishingRodAssetHandle = nullptr;
 

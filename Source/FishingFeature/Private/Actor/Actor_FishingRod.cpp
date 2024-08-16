@@ -14,3 +14,8 @@ AActor_FishingRod::AActor_FishingRod()
 	BobberMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BobberMeshComponent"));
 	BobberMeshComponent->SetupAttachment(FishingRodMeshComponent);
 }
+
+void AActor_FishingRod::Throw(const FVector& CastLocation)
+{
+	// TODO: Implement
+}
