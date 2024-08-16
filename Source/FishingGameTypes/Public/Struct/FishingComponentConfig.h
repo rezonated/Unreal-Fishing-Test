@@ -36,4 +36,7 @@ struct FISHINGGAMETYPES_API FFishingComponentConfig
 
 	UPROPERTY(EditDefaultsOnly, Category = "Mesh")
 	FName CarryFishSocketName = "";
+
+	UPROPERTY(EditDefaultsOnly, Category = "Mesh")
+	TSoftClassPtr<AActor> FishingRodActorClass = nullptr;
 };
