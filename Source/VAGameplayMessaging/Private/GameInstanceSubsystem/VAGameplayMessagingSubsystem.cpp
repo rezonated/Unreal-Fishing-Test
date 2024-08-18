@@ -8,11 +8,11 @@
 UVAGameplayMessagingSubsystem& UVAGameplayMessagingSubsystem::Get(const UObject* WorldContextObject)
 {
 	UVAGameplayMessagingSubsystem* VAGameplayMessagingSubsystem = nullptr;
-	
+
 	GetInstance(WorldContextObject, VAGameplayMessagingSubsystem);
 
 	ensureAlwaysMsgf(IsValid(VAGameplayMessagingSubsystem), TEXT("VAGameplayMessagingSubsystem is not valid!"));
-	
+
 	return *VAGameplayMessagingSubsystem;
 }
 
@@ -20,7 +20,7 @@ bool UVAGameplayMessagingSubsystem::GetInstance(const UObject* WorldContextObjec
 {
 	bool bRetVal = false;
 	OutSubsystem = nullptr;
-	
+
 	const UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::Assert);
 	if (!IsValid(World))
 	{
@@ -45,18 +45,18 @@ bool UVAGameplayMessagingSubsystem::GetInstance(const UObject* WorldContextObjec
 }
 
 bool UVAGameplayMessagingSubsystem::BroadcastMessage(const UObject* WorldContextObject, const FGameplayTag InChannel,
-	const FVAAnyUnreal InMessagePayload)
+	const FVAAnyUnreal                                              InMessagePayload)
 {
 	bool bRetVal = false;
 	if (!IsValid(WorldContextObject))
 	{
 		return bRetVal;
 	}
-	
+
 	const UWorld* WorldContext = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::Assert);
 
 	UVAGameplayMessagingSubsystem* GameplayMessagingSubsystemInstance;
-	const bool bGetSubsystemInstance = GetInstance(WorldContext, GameplayMessagingSubsystemInstance);
+	const bool                     bGetSubsystemInstance = GetInstance(WorldContext, GameplayMessagingSubsystemInstance);
 	if (!bGetSubsystemInstance)
 	{
 		return bRetVal;
@@ -80,7 +80,7 @@ bool UVAGameplayMessagingSubsystem::BroadcastMessage_Internal(const FGameplayTag
 	{
 		MessagePayload = FVAAnyUnreal::GetEmpty();
 	}
-	
+
 	const bool bHasChannelTag = ChannelToMembersMap.Contains(InChannel);
 	if (!bHasChannelTag)
 	{
@@ -92,7 +92,7 @@ bool UVAGameplayMessagingSubsystem::BroadcastMessage_Internal(const FGameplayTag
 	{
 		return bRetVal;
 	}
-	
+
 	TArray<UVAGameplayMessaging_ListenForGameplayMessages*> ChannelMembersArray = CurrentChannelMembers.GetChannelMembers();
 	for (UVAGameplayMessaging_ListenForGameplayMessages* ChannelMember : ChannelMembersArray)
 	{
@@ -122,7 +122,7 @@ bool UVAGameplayMessagingSubsystem::BroadcastMessage_Internal(const FGameplayTag
 bool UVAGameplayMessagingSubsystem::RegisterNewMember(const FGameplayTagContainer& InChannels, UVAGameplayMessaging_ListenForGameplayMessages* InChannelMember)
 {
 	bool bRetVal = false;
-	
+
 	if (!InChannels.IsValid())
 	{
 		return bRetVal;
@@ -140,7 +140,7 @@ bool UVAGameplayMessagingSubsystem::RegisterNewMember(const FGameplayTagContaine
 	{
 		return bRetVal;
 	}
-	
+
 	for (const FGameplayTag& Channel : ChannelsToSubscribeTo)
 	{
 		const bool bChannelExistAlready = ChannelToMembersMap.Contains(Channel);
@@ -148,7 +148,7 @@ bool UVAGameplayMessagingSubsystem::RegisterNewMember(const FGameplayTagContaine
 		{
 			FChannelMembersData NewChannelMembersData;
 			NewChannelMembersData.AddMembership(InChannelMember);
-			
+
 			ChannelToMembersMap.Add(Channel, NewChannelMembersData);
 
 			continue;
@@ -160,7 +160,7 @@ bool UVAGameplayMessagingSubsystem::RegisterNewMember(const FGameplayTagContaine
 		{
 			continue;
 		}
-		
+
 		CurrentChannelMembersData->AddMembership(InChannelMember);
 	}
 
@@ -178,7 +178,7 @@ void UVAGameplayMessagingSubsystem::UnregisterMember(UVAGameplayMessaging_Listen
 		{
 			continue;
 		}
-		
+
 		CurrentMemberData.RemoveMembership(InChannelMember);
 	}
 }
@@ -186,6 +186,6 @@ void UVAGameplayMessagingSubsystem::UnregisterMember(UVAGameplayMessaging_Listen
 void UVAGameplayMessagingSubsystem::Deinitialize()
 {
 	ChannelToMembersMap.Reset();
-	
+
 	Super::Deinitialize();
 }

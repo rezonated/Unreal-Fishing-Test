@@ -14,7 +14,7 @@ void UAnimInstance_StairwayFishingGame::NativeBeginPlay()
 	StateTag = FFishingTags::Get().AnimInstance_Fishing_State_Idling;
 
 	UVAGameplayMessaging_ListenForGameplayMessages* ListenForStateChangeMessage = UVAGameplayMessaging_ListenForGameplayMessages::ListenForGameplayMessagesViaChannel(this, FFishingTags::Get().Messaging_Fishing_AnimInstance_StateChange);
-	
+
 	ListenForStateChangeMessage->OnGameplayMessageReceived.AddUniqueDynamic(this, &ThisClass::OnStateChangeMessageReceived);
 
 	ListenForStateChangeMessage->Activate();

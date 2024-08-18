@@ -12,7 +12,7 @@ namespace VAAnyUnreal
 	{
 		CurrentVer = 1,
 	};
-	
+
 }
 
 
@@ -24,9 +24,7 @@ const FVAAnyUnreal& FVAAnyUnreal::GetEmpty()
 
 // ctor.
 
-FVAAnyUnreal::FVAAnyUnreal()
-{
-}
+FVAAnyUnreal::FVAAnyUnreal() {}
 
 FVAAnyUnreal::FVAAnyUnreal(const UScriptStruct* InStruct)
 {
@@ -86,7 +84,7 @@ bool operator!=(const FVAAnyUnreal& Lhs, const FVAAnyUnreal& Rhs)
 
 bool FVAAnyUnreal::Identical(const FVAAnyUnreal* Other, uint32 PortFlags) const
 {
-	if(Other == nullptr) { return false; }
+	if (Other == nullptr) { return false; }
 
 	// Same instance..
 	if (this == Other)
@@ -139,9 +137,9 @@ void FVAAnyUnreal::Emplace(const UScriptStruct* InStruct)
 
 void FVAAnyUnreal::SetRaw(const UScriptStruct* InStruct, const void* InData)
 {
-	if(InStruct)
+	if (InStruct)
 	{
-		if(InData)
+		if (InData)
 		{
 			CopyStruct(InStruct, InData);
 		}
@@ -179,16 +177,16 @@ UObject* FVAAnyUnreal::GetObjectValue(const UClass* InObjectClass) const
 {
 	UObject* Object = GetObjectValue();
 
-	if(Object == nullptr)
+	if (Object == nullptr)
 	{
 		return nullptr;
 	}
-	
-	if(InObjectClass != nullptr && !Object->IsA(InObjectClass))
+
+	if (InObjectClass != nullptr && !Object->IsA(InObjectClass))
 	{
 		return nullptr;
 	}
-	
+
 	return Object;
 }
 
@@ -206,22 +204,22 @@ UClass* FVAAnyUnreal::GetClassValue(const UClass* InParentClass) const
 {
 	UClass* Class = GetClassValue();
 
-	if(Class == nullptr)
+	if (Class == nullptr)
 	{
 		return nullptr;
 	}
 
-	if(InParentClass != nullptr && !Class->IsChildOf(InParentClass))
+	if (InParentClass != nullptr && !Class->IsChildOf(InParentClass))
 	{
 		return nullptr;
 	}
-	
-	return Class; 
+
+	return Class;
 }
 
 TSoftClassPtr<UObject> FVAAnyUnreal::GetSoftClassPtrValue() const
 {
-	return GetRef<TSoftClassPtr<UObject> >();
+	return GetRef<TSoftClassPtr<UObject>>();
 }
 
 bool FVAAnyUnreal::IsAllocated() const
@@ -231,12 +229,12 @@ bool FVAAnyUnreal::IsAllocated() const
 
 int32 FVAAnyUnreal::GetCapacity() const
 {
-#if ENABLE_VAANYUNREAL_SMALL_OBJECT_OPTIMIZATION
+	#if ENABLE_VAANYUNREAL_SMALL_OBJECT_OPTIMIZATION
 	if (Capacity == 0)
 	{
 		return VAAnyUnrealConfigurations::SmallSize;
 	}
-#endif
+	#endif
 	return Capacity;
 }
 
@@ -263,7 +261,7 @@ const void* FVAAnyUnreal::GetData() const
 		return nullptr;
 	}
 
-#if ENABLE_VAANYUNREAL_SMALL_OBJECT_OPTIMIZATION
+	#if ENABLE_VAANYUNREAL_SMALL_OBJECT_OPTIMIZATION
 	if (IsAllocated())
 	{
 		return GetStorageAsPtr();
@@ -272,9 +270,9 @@ const void* FVAAnyUnreal::GetData() const
 	{
 		return RawDataStorage;
 	}
-#else
+	#else
 	return RawData;
-#endif
+	#endif
 }
 
 bool FVAAnyUnreal::IsValidValueStruct(const UScriptStruct* InStruct)
@@ -293,14 +291,14 @@ bool FVAAnyUnreal::Serialize(FArchive& Ar)
 	}
 
 	constexpr uint8 CurrentSerializeVer = static_cast<uint8>(VAAnyUnreal::SerializeVer::CurrentVer);
-	uint8 SerializeVer = CurrentSerializeVer;
+	uint8           SerializeVer = CurrentSerializeVer;
 	Ar << SerializeVer;
-	
-	if(SerializeVer != CurrentSerializeVer)
+
+	if (SerializeVer != CurrentSerializeVer)
 	{
 		return false;
 	}
-	
+
 	auto* SerializedStruct = TSoftObjectPtr<UScriptStruct>(Struct).LoadSynchronous();
 	Ar << SerializedStruct;
 
@@ -326,14 +324,14 @@ bool FVAAnyUnreal::Serialize(FArchive& Ar)
 			SerializedStruct->SerializeItem(Ar, Data, nullptr);
 		}
 	}
-	
+
 	return true;
 }
 
 FString FVAAnyUnreal::ToString() const
 {
 	FString Str;
-	if(ExportTextItem(Str, *this, nullptr, 0, nullptr))
+	if (ExportTextItem(Str, *this, nullptr, 0, nullptr))
 	{
 		return Str;
 	}
@@ -368,16 +366,16 @@ bool FVAAnyUnreal::ImportTextItem(const TCHAR*& Buffer, int32 PortFlags, UObject
 		Buffer += 2;
 		return true;
 	}
-	
+
 	FVAAnyUnreal_TextSerialization LocalValue;
-	auto StructNameGetter = [&]() { return GetNameSafe(GetStruct()); };
+	auto                           StructNameGetter = [&]() { return GetNameSafe(GetStruct()); };
 	Buffer = FVAAnyUnreal_TextSerialization::StaticStruct()->ImportText(Buffer, &LocalValue, OwnerObject, PortFlags, ErrorText, StructNameGetter);
-	
+
 	const UScriptStruct* LoadedStruct = Cast<UScriptStruct>(LocalValue.Struct.TryLoad());
 	AllocateStruct(LoadedStruct);
 	if (Struct)
 	{
-		if(ensure(LocalValue.Value.ImportedValue))
+		if (ensure(LocalValue.Value.ImportedValue))
 		{
 			LoadedStruct->CopyScriptStruct(GetData(), LocalValue.Value.ImportedValue);
 		}
@@ -391,8 +389,7 @@ void FVAAnyUnreal::AddStructReferencedObjects(FReferenceCollector& Collector)
 	UScriptStruct* MutableStructObjectPtr = const_cast<UScriptStruct*>(Struct); // Bypass AddReferencedObject deprecated API to only take TObjectPtr instead of raw pointer.
 	Collector.AddReferencedObject(MutableStructObjectPtr);
 
-
-	if(Struct != nullptr && Struct->RefLink != nullptr)
+	if (Struct != nullptr && Struct->RefLink != nullptr)
 	{
 		Collector.AddReferencedObject(Struct);
 	}
@@ -427,9 +424,9 @@ bool FVAAnyUnreal::NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSucces
 
 		void* Data = GetData();
 		check(Data);
-		if(SerializedStruct->StructFlags & STRUCT_NetSerializeNative)
+		if (SerializedStruct->StructFlags & STRUCT_NetSerializeNative)
 		{
-			if(!SerializedStruct->GetCppStructOps()->NetSerialize(Ar, Map, bOutSuccess, Data))
+			if (!SerializedStruct->GetCppStructOps()->NetSerialize(Ar, Map, bOutSuccess, Data))
 			{
 				return false;
 			}
@@ -439,30 +436,30 @@ bool FVAAnyUnreal::NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSucces
 			SerializedStruct->SerializeItem(Ar, Data, nullptr);
 		}
 	}
-	
+
 	bOutSuccess = true;
 	return true;
 }
 
 void*& FVAAnyUnreal::GetDataRef()
 {
-#if ENABLE_VAANYUNREAL_SMALL_OBJECT_OPTIMIZATION
+	#if ENABLE_VAANYUNREAL_SMALL_OBJECT_OPTIMIZATION
 	return GetStorageAsPtr();
-#else
+	#else
 	return RawData;
-#endif
+	#endif
 }
 
 bool FVAAnyUnreal::CanAllocateInline(const UScriptStruct* InStruct)
 {
-#if ENABLE_VAANYUNREAL_SMALL_OBJECT_OPTIMIZATION
+	#if ENABLE_VAANYUNREAL_SMALL_OBJECT_OPTIMIZATION
 	return
 		InStruct &&
 		InStruct->GetStructureSize() <= VAAnyUnrealConfigurations::SmallSize &&
 		InStruct->GetMinAlignment() <= VAAnyUnrealConfigurations::MaxAlign;
-#else
+	#else
 	return false;
-#endif
+	#endif
 }
 
 void FVAAnyUnreal::ReserveMemory(const UScriptStruct* InStruct)

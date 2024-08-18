@@ -13,8 +13,8 @@
 
 void UUserWidgetMeterBar_CastMeterBar::ListenForUICastUpdateMessage()
 {
-	FishingMessageListenerAsync =	 UVAGameplayMessaging_ListenForGameplayMessages::ListenForGameplayMessagesViaChannel(this, FFishingTags::Get().Messaging_Fishing_UI_Cast_Update);
-	
+	FishingMessageListenerAsync = UVAGameplayMessaging_ListenForGameplayMessages::ListenForGameplayMessagesViaChannel(this, FFishingTags::Get().Messaging_Fishing_UI_Cast_Update);
+
 	FishingMessageListenerAsync->OnGameplayMessageReceived.AddUniqueDynamic(this, &ThisClass::OnFishingMessageReceived);
 
 	FishingMessageListenerAsync->Activate();
@@ -51,7 +51,7 @@ void UUserWidgetMeterBar_CastMeterBar::NativeDestruct()
 }
 
 FLinearColor UUserWidgetMeterBar_CastMeterBar::GetColorForProgress(const float& InProgress,
-	const FLinearColor& DefaultColor) const
+	const FLinearColor&                                                         DefaultColor) const
 {
 	if (!CastMeterBarColorCurve)
 	{
@@ -75,7 +75,7 @@ void UUserWidgetMeterBar_CastMeterBar::SetProgressBarColor(const FLinearColor& I
 }
 
 void UUserWidgetMeterBar_CastMeterBar::OnFishingMessageReceived(const FGameplayTag& Channel,
-	const FVAAnyUnreal& MessagePayload)
+	const FVAAnyUnreal&                                                             MessagePayload)
 {
 	const bool bPayloadIsFloat = MessagePayload.Is<float>();
 	if (!bPayloadIsFloat)
@@ -83,13 +83,13 @@ void UUserWidgetMeterBar_CastMeterBar::OnFishingMessageReceived(const FGameplayT
 		UE_LOG(LogFishingFeatureUI, Warning, TEXT("Expected payload for fishing is not a float! Ignoring message."));
 		return;
 	}
-	
-	const float Progress = MessagePayload.Get<float>();
+
+	const float        Progress = MessagePayload.Get<float>();
 	const FLinearColor Color = GetColorForProgress(Progress);
 
 	const bool bShouldBeVisible = Progress > 0.f;
 	ToggleVisibility(bShouldBeVisible);
-	
+
 	SetProgress(Progress);
 	SetProgressBarColor(Color);
 }

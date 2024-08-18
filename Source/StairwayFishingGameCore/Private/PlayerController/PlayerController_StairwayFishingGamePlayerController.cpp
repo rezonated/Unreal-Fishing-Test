@@ -10,7 +10,7 @@
 void APlayerController_StairwayFishingGamePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	FSlateApplication::Get().SetAllUserFocusToGameViewport();
 
 	MapInputContext(DefaultInputMappingContext);
@@ -25,14 +25,14 @@ void APlayerController_StairwayFishingGamePlayerController::MapInputContext(cons
 		UE_LOG(LogStairwayFishingGameCore, Error, TEXT("Input Mapping Context is not valid, won't continue mapping input..."));
 		return;
 	}
-	
+
 	UEnhancedInputLocalPlayerSubsystem* EnhancedInputLocalPlayerSubsystem = nullptr;
 	if (!GetEnhancedInputLocalPlayerSubsystem(EnhancedInputLocalPlayerSubsystem))
 	{
 		UE_LOG(LogStairwayFishingGameCore, Error, TEXT("Failed to cast Input Component to Enhanced Input Component, please make sure you have the Enhanced Input plugin enabled and that you set InputComponent field to EnhancedInputComponent in project settings!"));
 		return;
 	}
-	
+
 	if (bInClearExistingMappings)
 	{
 		EnhancedInputLocalPlayerSubsystem->ClearAllMappings();
@@ -44,7 +44,7 @@ void APlayerController_StairwayFishingGamePlayerController::MapInputContext(cons
 void APlayerController_StairwayFishingGamePlayerController::MapInputActions()
 {
 	UEnhancedInputComponent* EnhancedInputComponent = nullptr;
-	if(!GetEnhancedInputComponent(EnhancedInputComponent))
+	if (!GetEnhancedInputComponent(EnhancedInputComponent))
 	{
 		UE_LOG(LogStairwayFishingGameCore, Error, TEXT("Failed to get Enhanced Input Component, please make sure you have the Enhanced Input plugin enabled and that you set InputComponent field to EnhancedInputComponent in project settings!"));
 		return;
@@ -54,9 +54,9 @@ void APlayerController_StairwayFishingGamePlayerController::MapInputActions()
 		UE_LOG(LogStairwayFishingGameCore, Error, TEXT("Casting Input Action is not set, please make sure you have a valid Casting Input Action set in details tab!"));
 		return;
 	}
-	
+
 	EnhancedInputComponent->BindAction(CastingInputAction, ETriggerEvent::Started, this, &ThisClass::OnCastStarted);
-		
+
 	EnhancedInputComponent->BindAction(CastingInputAction, ETriggerEvent::Triggered, this, &ThisClass::OnCastTriggered);
 
 	EnhancedInputComponent->BindAction(CastingInputAction, ETriggerEvent::Completed, this, &ThisClass::OnCastFinished);
@@ -69,12 +69,12 @@ void APlayerController_StairwayFishingGamePlayerController::OnCastStarted(const 
 
 void APlayerController_StairwayFishingGamePlayerController::OnCastTriggered(const FInputActionInstance& InInputActionInstance)
 {
-	 BroadcastCastDelegateAndValue(OnCastTriggeredDelegate, InInputActionInstance);
+	BroadcastCastDelegateAndValue(OnCastTriggeredDelegate, InInputActionInstance);
 }
 
 void APlayerController_StairwayFishingGamePlayerController::OnCastFinished(const FInputActionInstance& InInputActionInstance)
 {
-	  BroadcastCastDelegateAndValue(OnCastCompletedDelegate, InInputActionInstance);
+	BroadcastCastDelegateAndValue(OnCastCompletedDelegate, InInputActionInstance);
 }
 
 void APlayerController_StairwayFishingGamePlayerController::BroadcastCastDelegateAndValue(const FOnPlayerActionInput& InDelegate, const FInputActionInstance& InInputActionInstance) const
@@ -100,7 +100,7 @@ bool APlayerController_StairwayFishingGamePlayerController::GetEnhancedInputLoca
 		UE_LOG(LogStairwayFishingGameCore, Error, TEXT("Local Player is not valid, this should not happen. Won't continue getting enhanced input local player subsystem..."));
 		return bReturnValue;
 	}
-	
+
 	UEnhancedInputLocalPlayerSubsystem* EnhancedInputLocalPlayerSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer);
 	if (!EnhancedInputLocalPlayerSubsystem)
 	{

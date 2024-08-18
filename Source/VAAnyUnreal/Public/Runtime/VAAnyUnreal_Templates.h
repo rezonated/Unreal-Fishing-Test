@@ -7,12 +7,10 @@
 #include "VAAnyUnreal_SingleValueStructRegistry.h"
 
 
-
 struct FVAAnyUnreal;
 
 
-
-template<class T>
+template <class T>
 struct TVAAnyUnreal_SingleValueStructTrait
 {
 	enum
@@ -28,36 +26,39 @@ struct TVAAnyUnreal_SingleValueStructTrait
 
 namespace VAAnyUnreal
 {
-	template<class T>
+	template <class T>
 	struct TVAAnyUnreal_SingleValueStructsTypeMap;
 
 
 	namespace Impl
 	{
-		template<class T>
+		template <class T>
 		constexpr bool IsSingleValue(typename TVAAnyUnreal_SingleValueStructsTypeMap<T>::Type*)
 		{
 			return true;
 		};
-		template<class T>
+
+		template <class T>
 		constexpr bool IsSingleValue(...) { return false; }
 
-		
-		template<class T>
+
+		template <class T>
 		constexpr bool IsSingleValueStructs(typename TVAAnyUnreal_SingleValueStructsTypeMap<decltype(T::Value)>::Type*)
 		{
 			return std::is_same_v<T, typename TVAAnyUnreal_SingleValueStructsTypeMap<decltype(T::Value)>::Type>;
 		};
-		template<class T>
+
+		template <class T>
 		constexpr bool IsSingleValueStructs(...) { return false; }
 
 
-		template<class T>
-		constexpr auto HasStaticStruct(T*) -> decltype(T::StaticStruct(),true) { return true; }
-		template<class T>
+		template <class T>
+		constexpr decltype(T::StaticStruct(), true) HasStaticStruct(T*) { return true; }
+
+		template <class T>
 		constexpr bool HasStaticStruct(...) { return false; }
-		
-		template<class T>
+
+		template <class T>
 		constexpr bool IsValidStruct()
 		{
 			return
@@ -67,33 +68,43 @@ namespace VAAnyUnreal
 		};
 
 
-		
-		template<class T>
+		template <class T>
 		constexpr bool IsImplicitlyConstructibleSingleValue(typename TVAAnyUnreal_SingleValueStructsTypeMap<T>::Type*)
 		{
 			static_assert(IsSingleValue<T>(nullptr), "T must be a single value");
 			return TVAAnyUnreal_SingleValueStructTrait<typename TVAAnyUnreal_SingleValueStructsTypeMap<T>::Type>::bUseImplicitConstructor;
 		};
 
-		template<class T>
+		template <class T>
 		constexpr bool IsImplicitlyConstructibleSingleValue(...)
 		{
 			return false;
 		};
-		
+
 	}
 
-	template<class T>
-	struct TVAAnyUnreal_IsValidAnyUnrealStruct { enum { Value = Impl::IsValidStruct<T>() }; };
-	template<class T>
-	struct TVAAnyUnreal_IsSingleValue { enum { Value = Impl::IsSingleValue<T>(nullptr) }; };
-	template<class T>
-	struct TVAAnyUnreal_IsImplicitlyConstructibleSingleValue { enum { Value = Impl::IsImplicitlyConstructibleSingleValue<T>(nullptr) }; };
+	template <class T>
+	struct TVAAnyUnreal_IsValidAnyUnrealStruct
+	{
+		enum { Value = Impl::IsValidStruct<T>() };
+	};
 
-	template<class T>
+	template <class T>
+	struct TVAAnyUnreal_IsSingleValue
+	{
+		enum { Value = Impl::IsSingleValue<T>(nullptr) };
+	};
+
+	template <class T>
+	struct TVAAnyUnreal_IsImplicitlyConstructibleSingleValue
+	{
+		enum { Value = Impl::IsImplicitlyConstructibleSingleValue<T>(nullptr) };
+	};
+
+	template <class T>
 	using TVAAnyUnreal_SingleValueStruct = typename TVAAnyUnreal_SingleValueStructsTypeMap<T>::Type;
 
-	template<class T>
+	template <class T>
 	UScriptStruct* GetSingleValueStruct()
 	{
 		return TVAAnyUnreal_SingleValueStruct<T>::StaticStruct();
@@ -101,7 +112,7 @@ namespace VAAnyUnreal
 
 	namespace SingleValueStruct
 	{
-		template<class T>
+		template <class T>
 		auto IsValidValue(const T& InValue) -> decltype(InValue.IsValidValue(), true)
 		{
 			return InValue.IsValidValue();
@@ -110,7 +121,7 @@ namespace VAAnyUnreal
 		/**
 		* Overload for SingleValueStruct that does not implement IsValidValue.
 		*/
-		template<class T>
+		template <class T>
 		bool IsValidValue(...)
 		{
 			return true;
@@ -127,8 +138,7 @@ template<> struct VAAnyUnreal::TVAAnyUnreal_SingleValueStructsTypeMap<decltype(t
 using Type = type;\
 static const TCHAR* GetTypeName() { return TEXT(name); }\
 static TVAAnyUnreal_SingleValueStructAutoRegistration<type> Registration;\
-};\
-
+};
 
 /**
  * Define a SingleValueStruct to be available from FVAAnyUnreal.

@@ -7,7 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 
 void UAnimNotifyState_PlayAudioRanged::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
-                                                   float TotalDuration)
+	float                                                                  TotalDuration)
 {
 	Super::NotifyBegin(MeshComp, Animation, TotalDuration);
 
@@ -19,8 +19,8 @@ void UAnimNotifyState_PlayAudioRanged::NotifyBegin(USkeletalMeshComponent* MeshC
 
 	if (!MeshComp)
 	{
-		 UE_LOG(LogTemp, Error, TEXT("MeshComp is null, this should never happen! Won't continue..."));
-		 return;
+		UE_LOG(LogTemp, Error, TEXT("MeshComp is null, this should never happen! Won't continue..."));
+		return;
 	}
 
 	AActor* Owner = MeshComp->GetOwner();
@@ -30,7 +30,7 @@ void UAnimNotifyState_PlayAudioRanged::NotifyBegin(USkeletalMeshComponent* MeshC
 		return;
 	}
 
-	const FVector OwnerLocation = Owner->GetActorLocation();
+	const FVector  OwnerLocation = Owner->GetActorLocation();
 	const FRotator OwnerRotation = Owner->GetActorRotation();
 
 	CurrentAudioComponent = UGameplayStatics::SpawnSound2D(Owner, SoundToPlay);
@@ -51,6 +51,6 @@ void UAnimNotifyState_PlayAudioRanged::NotifyEnd(USkeletalMeshComponent* MeshCom
 		CurrentAudioComponent->Stop();
 		CurrentAudioComponent->DestroyComponent();
 	}
-	
+
 	Super::NotifyEnd(MeshComp, Animation);
 }

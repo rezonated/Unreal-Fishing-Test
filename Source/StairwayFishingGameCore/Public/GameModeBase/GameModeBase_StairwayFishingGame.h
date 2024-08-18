@@ -16,16 +16,17 @@ UCLASS()
 class STAIRWAYFISHINGGAMECORE_API AGameModeBase_StairwayFishingGame : public AGameModeBase
 {
 	GENERATED_BODY()
+
 public:
 	AGameModeBase_StairwayFishingGame();
-	
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Game Mode Transition")
 	UDataAsset_GameModeTransitionConfig* GameModeTransitionConfigAsset = nullptr;
-	
+
 	virtual void BeginPlay() override;
 
 	void OnFishingGameLoopStateChanged(const EFishingGameLoopState& FishingGameLoopState);
-	
+
 	void ListenForGameLoopStateChanges();
 };

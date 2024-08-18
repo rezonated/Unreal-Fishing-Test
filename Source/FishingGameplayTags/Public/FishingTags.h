@@ -9,7 +9,7 @@ class FISHINGGAMEPLAYTAGS_API FFishingTags : public FNoncopyable
 {
 public:
 	static void Startup(UGameplayTagsManager& GameplayTagsManager);
-	
+
 	static FORCEINLINE FFishingTags& Get()
 	{
 		static FFishingTags FishingTags;

@@ -14,8 +14,10 @@ UCLASS()
 class FISHINGFEATURE_API UDataAsset_FishSpawnAreaConfig : public UDataAsset
 {
 	GENERATED_BODY()
+
 public:
 	FORCEINLINE FFishSpawnAreaConfig GetFishSpawnAreaConfig() const { return FishSpawnAreaConfig; }
+
 protected:
 	UPROPERTY(EditAnywhere, Category = "Fish Spawn Area Config")
 	FFishSpawnAreaConfig FishSpawnAreaConfig;

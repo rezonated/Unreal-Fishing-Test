@@ -2,19 +2,12 @@
 #include "VAAnyUnrealTestsModule.h"
 
 
-
 #define LOCTEXT_NAMESPACE "FVAAnyUnrealTestsModule"
 
-void FVAAnyUnrealTestsModule::StartupModule()
-{
+void FVAAnyUnrealTestsModule::StartupModule() {}
 
-}
-
-void FVAAnyUnrealTestsModule::ShutdownModule()
-{
-
-}
+void FVAAnyUnrealTestsModule::ShutdownModule() {}
 
 #undef LOCTEXT_NAMESPACE
-	
+
 IMPLEMENT_MODULE(FVAAnyUnrealTestsModule, VAAnyUnrealTests)

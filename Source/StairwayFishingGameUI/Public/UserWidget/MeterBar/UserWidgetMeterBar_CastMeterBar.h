@@ -14,14 +14,15 @@ class UCurveLinearColor;
  * 
  */
 UCLASS()
-class FISHINGFEATUREUI_API UUserWidgetMeterBar_CastMeterBar : public UUserWidget_MeterBar
+class STAIRWAYFISHINGGAMEUI_API UUserWidgetMeterBar_CastMeterBar : public UUserWidget_MeterBar
 {
 	GENERATED_BODY()
+
 protected:
-	void ListenForUICastUpdateMessage();
-	void InitializeMeterBar();
+	void         ListenForUICastUpdateMessage();
+	void         InitializeMeterBar();
 	virtual void NativeConstruct() override;
-	void CleanupUICastUpdateListener() const;
+	void         CleanupUICastUpdateListener() const;
 	virtual void NativeDestruct() override;
 
 	FLinearColor GetColorForProgress(const float& InProgress, const FLinearColor& DefaultColor = FLinearColor::White) const;
@@ -30,6 +31,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Cast Meter Bar")
 	UCurveLinearColor* CastMeterBarColorCurve = nullptr;
+
 private:
 	UFUNCTION()
 	void OnFishingMessageReceived(const FGameplayTag& Channel, const FVAAnyUnreal& MessagePayload);

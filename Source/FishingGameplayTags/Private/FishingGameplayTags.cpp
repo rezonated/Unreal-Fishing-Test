@@ -4,7 +4,7 @@
 
 #define LOCTEXT_NAMESPACE "FFishingGameplayTagsModule"
 #undef LOCTEXT_NAMESPACE
-    
+
 IMPLEMENT_MODULE(FFishingGameplayTagsModule, FishingGameplayTags)
 
 void FFishingGameplayTagsModule::StartupModule()

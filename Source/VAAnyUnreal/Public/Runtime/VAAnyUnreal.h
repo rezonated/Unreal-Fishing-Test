@@ -15,7 +15,7 @@ struct VAANYUNREAL_API FVAAnyUnreal
 {
 	GENERATED_BODY()
 
-#pragma region Constructors
+	#pragma region Constructors
 	/**
 	 * Default constructor.
 	 */
@@ -40,40 +40,38 @@ struct VAANYUNREAL_API FVAAnyUnreal
 	 * @tparam T - VAAnyUnreal struct type.
 	 * @param InSrc - Value to initialize the value.
 	 */
-	template<class T, typename TEnableIf<VAAnyUnreal::TVAAnyUnreal_IsValidAnyUnrealStruct<T>::Value, nullptr_t>::Type = nullptr>
-	FVAAnyUnreal(const T& InSrc) : FVAAnyUnreal(T::StaticStruct(), &InSrc)
-	{
-		
-	}
+	template <class T, typename TEnableIf<VAAnyUnreal::TVAAnyUnreal_IsValidAnyUnrealStruct<T>::Value, nullptr_t>::Type = nullptr>
+	FVAAnyUnreal(const T& InSrc)
+		: FVAAnyUnreal(T::StaticStruct(), &InSrc) {}
 
 	/**
 	 * Templated constructor for single values.
 	 * @tparam T - Single value type.
 	 * @param InSrc - Value to initialize the value.
 	 */
-	template<class T, typename TEnableIf<VAAnyUnreal::TVAAnyUnreal_IsImplicitlyConstructibleSingleValue<T>::Value, nullptr_t>::Type = nullptr>
+	template <class T, typename TEnableIf<VAAnyUnreal::TVAAnyUnreal_IsImplicitlyConstructibleSingleValue<T>::Value, nullptr_t>::Type = nullptr>
 	FVAAnyUnreal(const T& InSrc)
 	{
 		Set<T>(InSrc);
 	}
-#pragma endregion
+	#pragma endregion
 
-#pragma region Create
+	#pragma region Create
 	/**
 	 * Creates a new instance of FVAAnyUnreal.
 	 * @tparam T - Type of value to create.
 	 * @return - New instance of FVAAnyUnreal with passed type
 	 * and value. 
 	 */
-	template<class T>
+	template <class T>
 	static FVAAnyUnreal Create()
 	{
 		FVAAnyUnreal Value;
 		Value.Set<T>();
-		
+
 		return Value;
 	}
-	
+
 	/**
 	 * Creates a new instance of FVAAnyUnreal.
 	 * @tparam T - Type of value to create.
@@ -81,12 +79,12 @@ struct VAANYUNREAL_API FVAAnyUnreal
 	 * @return - New instance of FVAAnyUnreal with passed type
 	 * and value. 
 	 */
-	template<class T>
+	template <class T>
 	static FVAAnyUnreal Create(const T& InSrc)
 	{
 		FVAAnyUnreal Value;
 		Value.Set<T>(InSrc);
-		
+
 		return Value;
 	}
 
@@ -100,7 +98,7 @@ struct VAANYUNREAL_API FVAAnyUnreal
 	{
 		FVAAnyUnreal Value;
 		Value.Set<UObject*>(InObject);
-		
+
 		return Value;
 	}
 
@@ -115,10 +113,10 @@ struct VAANYUNREAL_API FVAAnyUnreal
 	{
 		FVAAnyUnreal Value;
 		Value.Set<TSoftObjectPtr<>>(InObject);
-		
+
 		return Value;
 	}
-	
+
 	/**
 	 * Create a new FVAAnyUnreal that holds a UClass.
 	 * @param InClass - UClass to create a new FVAAnyUnreal.
@@ -129,10 +127,10 @@ struct VAANYUNREAL_API FVAAnyUnreal
 	{
 		FVAAnyUnreal Value;
 		Value.Set<UClass*>(InClass);
-		
+
 		return Value;
 	}
-	
+
 	/**
 	 * Create a new FVAAnyUnreal that holds a TSoftClassPtr.
 	 * @param InClass - TSoftClassPtr to create a new
@@ -144,19 +142,19 @@ struct VAANYUNREAL_API FVAAnyUnreal
 	{
 		FVAAnyUnreal Value;
 		Value.Set<TSoftClassPtr<>>(InClass);
-		
+
 		return Value;
 	}
-#pragma endregion
+	#pragma endregion
 
-#pragma region Destructor
+	#pragma region Destructor
 	/**
 	 * Destructor.
 	 */
 	~FVAAnyUnreal();
-#pragma endregion
+	#pragma endregion
 
-#pragma region Copy Operations
+	#pragma region Copy Operations
 	/**
 	 * Copy constructor passing another FVAAnyUnreal.
 	 * @param InOther - FVAAnyUnreal to copy.
@@ -184,9 +182,9 @@ struct VAANYUNREAL_API FVAAnyUnreal
 	 * @return - Reference to this FVAAnyUnreal.
 	 */
 	FVAAnyUnreal& operator=(FVAAnyUnreal&& InOther);
-#pragma endregion
+	#pragma endregion
 
-#pragma region In/Equality 
+	#pragma region In/Equality
 	/**
 	 * Equality operator of == with another FVAAnyUnreal.
 	 */
@@ -205,9 +203,9 @@ struct VAANYUNREAL_API FVAAnyUnreal
 	 * false otherwise.
 	 */
 	bool Identical(const FVAAnyUnreal* InOther, const uint32 InComparisonFlags) const;
-#pragma endregion
+	#pragma endregion
 
-#pragma region Struct Operations
+	#pragma region Struct Operations
 	/**
 	 * Empty the value.
 	 */
@@ -271,9 +269,9 @@ struct VAANYUNREAL_API FVAAnyUnreal
 	 * false otherwise.
 	 */
 	static bool IsValidValueStruct(const UScriptStruct* InStruct);
-#pragma endregion 
+	#pragma endregion
 
-#pragma region Setters
+	#pragma region Setters
 	/**
 	 * Sets the value to a UScriptStruct with data, if the
 	 * InStruct is not valid, it releases the value.
@@ -290,10 +288,10 @@ struct VAANYUNREAL_API FVAAnyUnreal
 	 * @tparam T - Type of VAAnyUnreal value to set.
 	 * @return - Reference to the value.
 	 */
-	template<class T, typename TEnableIf<VAAnyUnreal::TVAAnyUnreal_IsValidAnyUnrealStruct<T>::Value, nullptr_t>::Type = nullptr> T& Set()
+	template <class T, typename TEnableIf<VAAnyUnreal::TVAAnyUnreal_IsValidAnyUnrealStruct<T>::Value, nullptr_t>::Type = nullptr> T& Set()
 	{
 		SetRaw(T::StaticStruct());
-		
+
 		return GetValueUnchecked<T>();
 	}
 
@@ -304,11 +302,11 @@ struct VAANYUNREAL_API FVAAnyUnreal
 	 * @param InValue - Value to set.
 	 * @return - Reference to the value.
 	 */
-	template<class T, typename TEnableIf<VAAnyUnreal::TVAAnyUnreal_IsValidAnyUnrealStruct<T>::Value, nullptr_t>::Type = nullptr>
+	template <class T, typename TEnableIf<VAAnyUnreal::TVAAnyUnreal_IsValidAnyUnrealStruct<T>::Value, nullptr_t>::Type = nullptr>
 	T& Set(const T& InValue)
 	{
 		SetRaw(T::StaticStruct(), &InValue);
-		
+
 		return GetValueUnchecked<T>();
 	}
 
@@ -318,11 +316,11 @@ struct VAANYUNREAL_API FVAAnyUnreal
 	 * @tparam T - Type of single value to set.
 	 * @return - Reference to the value.
 	 */
-	template<class T, typename TEnableIf<VAAnyUnreal::TVAAnyUnreal_IsSingleValue<T>::Value , nullptr_t>::Type = nullptr>
+	template <class T, typename TEnableIf<VAAnyUnreal::TVAAnyUnreal_IsSingleValue<T>::Value, nullptr_t>::Type = nullptr>
 	T& Set()
 	{
 		SetRaw(VAAnyUnreal::GetSingleValueStruct<T>());
-		
+
 		return GetValueUnchecked<T>();
 	}
 
@@ -333,19 +331,19 @@ struct VAANYUNREAL_API FVAAnyUnreal
 	 * @param InValue - Value to set.
 	 * @return - Reference to the value.
 	 */
-	template<class T, typename TEnableIf<VAAnyUnreal::TVAAnyUnreal_IsSingleValue<T>::Value, nullptr_t>::Type = nullptr>
+	template <class T, typename TEnableIf<VAAnyUnreal::TVAAnyUnreal_IsSingleValue<T>::Value, nullptr_t>::Type = nullptr>
 	T& Set(const T& InValue)
 	{
 		VAAnyUnreal::TVAAnyUnreal_SingleValueStruct<T> TempSingleValueStruct;
 		TempSingleValueStruct.Value = InValue;
-		
+
 		SetRaw(VAAnyUnreal::GetSingleValueStruct<T>(), &TempSingleValueStruct);
-		
+
 		return GetValueUnchecked<T>();
 	}
-#pragma endregion
+	#pragma endregion
 
-#pragma region Type Checkers
+	#pragma region Type Checkers
 	/**
 	 * Templated function to check if a struct is a specific
 	 * type of VAAnyUnreal struct.
@@ -354,7 +352,8 @@ struct VAANYUNREAL_API FVAAnyUnreal
 	 * InStruct, false otherwise.
 	 */
 	bool Is(const UScriptStruct* InStruct) const;
-	template<class T, typename TEnableIf<VAAnyUnreal::TVAAnyUnreal_IsValidAnyUnrealStruct<T>::Value, nullptr_t>::Type = nullptr>
+
+	template <class T, typename TEnableIf<VAAnyUnreal::TVAAnyUnreal_IsValidAnyUnrealStruct<T>::Value, nullptr_t>::Type = nullptr>
 	bool Is() const
 	{
 		return Is(T::StaticStruct());
@@ -367,14 +366,14 @@ struct VAANYUNREAL_API FVAAnyUnreal
 	 * @return - True if the value is the same type as the
 	 * single value, false otherwise.
 	 */
-	template<class T, typename TEnableIf<VAAnyUnreal::TVAAnyUnreal_IsSingleValue<T>::Value, nullptr_t>::Type = nullptr>
+	template <class T, typename TEnableIf<VAAnyUnreal::TVAAnyUnreal_IsSingleValue<T>::Value, nullptr_t>::Type = nullptr>
 	bool Is() const
 	{
 		return Is(VAAnyUnreal::GetSingleValueStruct<T>());
 	}
-#pragma endregion
+	#pragma endregion
 
-#pragma region Type Converters
+	#pragma region Type Converters
 	/**
 	 * Templated function to get the value as a specific type
 	 * of VAAnyUnreal struct.
@@ -382,11 +381,11 @@ struct VAANYUNREAL_API FVAAnyUnreal
 	 * @return - Pointer to the value if the value is the same
 	 * type as the T, nullptr otherwise.
 	 */
-	template<class T, typename TEnableIf<VAAnyUnreal::TVAAnyUnreal_IsValidAnyUnrealStruct<T>::Value, nullptr_t>::Type = nullptr>
+	template <class T, typename TEnableIf<VAAnyUnreal::TVAAnyUnreal_IsValidAnyUnrealStruct<T>::Value, nullptr_t>::Type = nullptr>
 	T* As()
 	{
 		const auto* This = this;
-		
+
 		return const_cast<T*>(This->As<T>());
 	}
 
@@ -397,11 +396,11 @@ struct VAANYUNREAL_API FVAAnyUnreal
 	 * @return - Pointer to the value if the value is the same
 	 * type as the T, nullptr otherwise.
 	 */
-	template<class T, typename TEnableIf<VAAnyUnreal::TVAAnyUnreal_IsSingleValue<T>::Value, nullptr_t>::Type = nullptr>
+	template <class T, typename TEnableIf<VAAnyUnreal::TVAAnyUnreal_IsSingleValue<T>::Value, nullptr_t>::Type = nullptr>
 	T* As()
 	{
 		const auto* This = this;
-		
+
 		return const_cast<T*>(This->As<T>());
 	}
 
@@ -412,14 +411,14 @@ struct VAANYUNREAL_API FVAAnyUnreal
 	 * @return - Const pointer to the value if the value is the
 	 * same type as the T, nullptr otherwise.
 	 */
-	template<class T, typename TEnableIf<VAAnyUnreal::TVAAnyUnreal_IsValidAnyUnrealStruct<T>::Value, nullptr_t>::Type = nullptr>
+	template <class T, typename TEnableIf<VAAnyUnreal::TVAAnyUnreal_IsValidAnyUnrealStruct<T>::Value, nullptr_t>::Type = nullptr>
 	const T* As() const
 	{
 		if (!Is<T>())
 		{
 			return nullptr;
 		}
-		
+
 		const void* Data = GetData();
 		return static_cast<const T*>(Data);
 	}
@@ -431,7 +430,7 @@ struct VAANYUNREAL_API FVAAnyUnreal
 	 * @return - Const pointer to the value if the value is the
 	 * same type as the T, nullptr otherwise.
 	 */
-	template<class T, typename TEnableIf<VAAnyUnreal::TVAAnyUnreal_IsSingleValue<T>::Value, nullptr_t>::Type = nullptr>
+	template <class T, typename TEnableIf<VAAnyUnreal::TVAAnyUnreal_IsSingleValue<T>::Value, nullptr_t>::Type = nullptr>
 	const T* As() const
 	{
 		using StructType = VAAnyUnreal::TVAAnyUnreal_SingleValueStruct<T>;
@@ -439,14 +438,14 @@ struct VAANYUNREAL_API FVAAnyUnreal
 		{
 			return nullptr;
 		}
-		
+
 		const void* Data = GetData();
-		
+
 		return &static_cast<const StructType*>(Data)->Value;
 	}
-#pragma endregion
+	#pragma endregion
 
-#pragma region Getters
+	#pragma region Getters
 	/**
 	 * Templated function to get the value as a specific type.
 	 * @tparam T - Type of value to get
@@ -454,12 +453,12 @@ struct VAANYUNREAL_API FVAAnyUnreal
 	 * same type as the T. Might crash at runtime if the value
 	 * is invalid.
 	 */
-	template<class T>
+	template <class T>
 	T& Get()
 	{
 		auto* Value = As<T>();
 		check(!Value);
-		
+
 		return *Value;
 	}
 
@@ -471,12 +470,12 @@ struct VAANYUNREAL_API FVAAnyUnreal
 	 * the same type as the T. Might crash at runtime if the
 	 * value is invalid.
 	 */
-	template<class T>
+	template <class T>
 	const T& Get() const
 	{
 		auto* Value = As<T>();
 		check(Value != nullptr);
-		
+
 		return *Value;
 	}
 
@@ -488,7 +487,7 @@ struct VAANYUNREAL_API FVAAnyUnreal
 	 * @return - True if the value is the same type as the T,
 	 * false otherwise.
 	 */
-	template<class T>
+	template <class T>
 	bool TryGetValue(T& OutValue) const
 	{
 		auto* Value = As<T>();
@@ -496,7 +495,7 @@ struct VAANYUNREAL_API FVAAnyUnreal
 		{
 			return false;
 		}
-		
+
 		OutValue = *Value;
 		return true;
 	}
@@ -509,19 +508,19 @@ struct VAANYUNREAL_API FVAAnyUnreal
 	 * same type as the T. If the value is invalid, it will
 	 * return a default value.
 	 */
-	template<class T, typename TEnableIf<VAAnyUnreal::TVAAnyUnreal_IsValidAnyUnrealStruct<T>::Value, nullptr_t>::Type = nullptr>
+	template <class T, typename TEnableIf<VAAnyUnreal::TVAAnyUnreal_IsValidAnyUnrealStruct<T>::Value, nullptr_t>::Type = nullptr>
 	T GetRef() const
 	{
 		auto* ValuePtr = As<T>();
-		
-		if(!ValuePtr)
+
+		if (!ValuePtr)
 		{
 			return T();
 		}
-		
+
 		return *ValuePtr;
 	}
-	
+
 	/**
 	 * Templated function to get the value as a specific type,
 	 * returning a default value if the value is invalid.
@@ -530,23 +529,23 @@ struct VAANYUNREAL_API FVAAnyUnreal
 	 * the same type as the T. If the value is invalid, it will
 	 * return a default value.
 	 */
-	template<class T, typename TEnableIf<VAAnyUnreal::TVAAnyUnreal_IsSingleValue<T>::Value, nullptr_t>::Type = nullptr>
+	template <class T, typename TEnableIf<VAAnyUnreal::TVAAnyUnreal_IsSingleValue<T>::Value, nullptr_t>::Type = nullptr>
 	T GetRef() const
 	{
 		using StructType = VAAnyUnreal::TVAAnyUnreal_SingleValueStruct<T>;
-		
+
 		auto* ValuePtr = As<StructType>();
-		
-		if(!ValuePtr)
+
+		if (!ValuePtr)
 		{
 			return T();
 		}
-		
-		if(!VAAnyUnreal::SingleValueStruct::IsValidValue<StructType>(*ValuePtr))
+
+		if (!VAAnyUnreal::SingleValueStruct::IsValidValue<StructType>(*ValuePtr))
 		{
 			return T();
 		}
-		
+
 		return ValuePtr->Value;
 	}
 
@@ -557,11 +556,11 @@ struct VAANYUNREAL_API FVAAnyUnreal
 	 * @tparam T - Type of value to get.
 	 * @return - Reference to the value.
 	 */
-	template<class T, typename TEnableIf<VAAnyUnreal::TVAAnyUnreal_IsValidAnyUnrealStruct<T>::Value, nullptr_t>::Type = nullptr>
+	template <class T, typename TEnableIf<VAAnyUnreal::TVAAnyUnreal_IsValidAnyUnrealStruct<T>::Value, nullptr_t>::Type = nullptr>
 	T& GetValueUnchecked()
 	{
 		checkSlow(Is<T>());
-		
+
 		return *static_cast<T*>(GetData());
 	}
 
@@ -572,13 +571,13 @@ struct VAANYUNREAL_API FVAAnyUnreal
 	 * @tparam T - Type of value to get.
 	 * @return - Reference to the value. 
 	 */
-	template<class T, typename TEnableIf<VAAnyUnreal::TVAAnyUnreal_IsSingleValue<T>::Value, nullptr_t>::Type = nullptr>
+	template <class T, typename TEnableIf<VAAnyUnreal::TVAAnyUnreal_IsSingleValue<T>::Value, nullptr_t>::Type = nullptr>
 	T& GetValueUnchecked()
 	{
 		using StructType = VAAnyUnreal::TVAAnyUnreal_SingleValueStruct<T>;
-		
+
 		checkSlow(Is<T>());
-		
+
 		return static_cast<StructType*>(GetData())->Value;
 	}
 
@@ -603,7 +602,7 @@ struct VAANYUNREAL_API FVAAnyUnreal
 	 * @return - ObjectClass pointer if the value is a UObject
 	 * and the class is the same.
 	 */
-	template<class ObjectClass>
+	template <class ObjectClass>
 	ObjectClass* GetObjectValue() const
 	{
 		return Cast<ObjectClass>(GetObjectValue());
@@ -630,7 +629,7 @@ struct VAANYUNREAL_API FVAAnyUnreal
 	 * the class is the same
 	 */
 	UClass* GetClassValue(const UClass* InParentClass) const;
-	
+
 	/**
 	 * Templated function to get the value as a specific type
 	 * of UClass.
@@ -638,7 +637,7 @@ struct VAANYUNREAL_API FVAAnyUnreal
 	 * @return - ParentClass pointer if the value is a UClass
 	 * and the class is the same.
 	 */
-	template<class ParentClass>
+	template <class ParentClass>
 	TSubclassOf<ParentClass> GetClassValue() const
 	{
 		return GetClassValue(ParentClass::StaticClass());
@@ -656,9 +655,9 @@ struct VAANYUNREAL_API FVAAnyUnreal
 	 * @return - Empty FVAAnyUnreal.
 	 */
 	static const FVAAnyUnreal& GetEmpty();
-#pragma endregion
+	#pragma endregion
 
-#pragma region TStructOpsTypeTraits Shits
+	#pragma region TStructOpsTypeTraits Shits
 	/**
 	 * Serialize the value.
 	 * @param Ar - Archive to serialize.
@@ -724,10 +723,10 @@ struct VAANYUNREAL_API FVAAnyUnreal
 	 * false otherwise.
 	 */
 	bool NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSuccess);
-#pragma endregion 
-	
+	#pragma endregion
+
 private:
-#pragma region Struct Operations Private
+	#pragma region Struct Operations Private
 	/**
 	 * Get a reference to the data as a void pointer reference.
 	 * @return - Void pointer reference to the data.
@@ -771,11 +770,11 @@ private:
 	 * @param InOther - FVAAnyUnreal to move.
 	 */
 	void Move_Internal(FVAAnyUnreal& InOther);
-#pragma endregion
-	
-#pragma region Small Object Optimization Handling
-// Only used if there's a need for small object optimization.
-#if ENABLE_VAANYUNREAL_SMALL_OBJECT_OPTIMIZATION
+	#pragma endregion
+
+	#pragma region Small Object Optimization Handling
+	// Only used if there's a need for small object optimization.
+	#if ENABLE_VAANYUNREAL_SMALL_OBJECT_OPTIMIZATION
 
 	/**
 	 * Statically assert that the size of the void pointer is
@@ -809,18 +808,18 @@ private:
 	{
 		return *reinterpret_cast<const void* const*>(RawDataStorage); // Jesus Christ I hate this line as well. Any suggestion to make it better?
 	}
-#else
+	#else
 #pragma endregion 
 	/**
 	 * RawData pointer, used only if Small Object Optimization
 	 * is disabled.
 	 */
 	void* RawData = nullptr;
-#endif
-	
-#pragma endregion
+	#endif
 
-#pragma region Internal Properties
+	#pragma endregion
+
+	#pragma region Internal Properties
 	/**
 	 * Current capacity of the value.
 	 */
@@ -833,7 +832,7 @@ private:
 	 * Reflection system, and it is the most flexible.
 	 */
 	const UScriptStruct* Struct = nullptr;
-#pragma endregion
+	#pragma endregion
 };
 
 #if ENABLE_VAANYUNREAL_SMALL_OBJECT_OPTIMIZATION
@@ -854,7 +853,7 @@ static_assert(sizeof(FVAAnyUnreal) == VAAnyUnrealConfigurations::ExpectedSize, "
  * - Serialization
  * - Net serialization for replication
  */
-template<>
+template <>
 struct TStructOpsTypeTraits<FVAAnyUnreal> : TStructOpsTypeTraitsBase2<FVAAnyUnreal>
 {
 	enum

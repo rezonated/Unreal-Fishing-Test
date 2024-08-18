@@ -2,16 +2,10 @@
 
 #define LOCTEXT_NAMESPACE "FVAGameplayMessagingModule"
 
-void FVAGameplayMessagingModule::StartupModule()
-{
-	
-}
+void FVAGameplayMessagingModule::StartupModule() {}
 
-void FVAGameplayMessagingModule::ShutdownModule()
-{
-    
-}
+void FVAGameplayMessagingModule::ShutdownModule() {}
 
 #undef LOCTEXT_NAMESPACE
-    
+
 IMPLEMENT_MODULE(FVAGameplayMessagingModule, VAGameplayMessaging)

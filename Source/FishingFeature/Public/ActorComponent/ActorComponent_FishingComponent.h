@@ -29,26 +29,26 @@ protected:
 	void SetupInitialVectors();
 
 	void InitializeDecalActor();
-	
+
 	void OnFishingRodAssetLoaded();
-	
+
 	void SpawnFishingRod(const FName& InFishingPoleSocketName, USkeletalMeshComponent* InSkeletalMeshComponent, UClass* InFishingRodActorClass, ESpawnActorCollisionHandlingMethod InCollisionHandlingMethod = ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-	
+
 	void BindToPlayerActionInputDelegates();
-	
+
 	void OnCastAction(const float& InElapsedTime);
 
 	void ResetStateAndTimer();
-	
+
 	void OnCastActionEnded(const float&);
 
 	void OnBobberLandsOnWater();
-	
+
 	void ListenForReelDoneNotify();
 	void ListenForThrowNotify();
-	
+
 	void ListenForGameModeStateChangeFinish();
-	
+
 	void DetermineCastLocation(const float& InElapsedTime);
 	void AttemptToCast(const FVector& InCastStartPosition);
 
@@ -59,7 +59,7 @@ protected:
 	void ReelBack();
 
 
-	void BroadcastUIMessage(const float& InProgress) const;
+	void  BroadcastUIMessage(const float& InProgress) const;
 	float GetMappedElapsedTimeToMaximumCastTime(const float& InValue, const float DefaultValue = 0.f) const;
 
 	void ToggleDecalVisibility(const bool& bInShouldBeVisible) const;
@@ -69,20 +69,20 @@ protected:
 
 	UFUNCTION()
 	void OnThrowNotifyMessageReceived(const FGameplayTag& Channel, const FVAAnyUnreal& MessagePayload);
-	
+
 	UFUNCTION()
 	void OnReelDoneNotifyMessageReceived(const FGameplayTag& Channel, const FVAAnyUnreal& MessagePayload);
 
 	UFUNCTION()
 	void OnGameModeStateChangeFinishMessageReceived(const FGameplayTag& Channel, const FVAAnyUnreal& MessagePayload);
-	
+
 	UPROPERTY(EditDefaultsOnly, Category = "Fishing Component | Config")
 	UDataAsset_FishingComponentConfig* FishingComponentConfigData = nullptr;
 
 private:
 	UPROPERTY(Transient)
 	FVector InitialActorLocation = FVector::ZeroVector;
-	
+
 	UPROPERTY(Transient)
 	FVector InitialActorForwardVector = FVector::ZeroVector;
 
@@ -96,7 +96,7 @@ private:
 	FGameplayTag CurrentFishingState;
 
 	ICatchableInterface* CurrentCatchable = nullptr;
-	
+
 	ICatcherInterface* CurrentCatcher = nullptr;
 
 	TSharedPtr<FStreamableHandle> FishingRodAssetHandle = nullptr;

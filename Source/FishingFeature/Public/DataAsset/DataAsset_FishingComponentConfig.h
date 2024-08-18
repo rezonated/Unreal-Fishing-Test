@@ -14,9 +14,10 @@ UCLASS()
 class FISHINGFEATURE_API UDataAsset_FishingComponentConfig : public UDataAsset
 {
 	GENERATED_BODY()
+
 public:
 	FORCEINLINE FFishingComponentConfig GetFishingComponentConfig() const { return FishingComponentConfig; }
-	
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Fishing Component Config")
 	FFishingComponentConfig FishingComponentConfig;

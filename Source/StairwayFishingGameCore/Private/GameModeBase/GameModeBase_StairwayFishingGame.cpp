@@ -35,8 +35,8 @@ void AGameModeBase_StairwayFishingGame::OnFishingGameLoopStateChanged(const EFis
 
 	if (!GameModeTransitionConfigAsset)
 	{
-		 UE_LOG(LogStairwayFishingGameCore, Error, TEXT("GameModeTransitionConfigAsset is not valid, have you set it up correctly in the game mode? Won't continue initializing..."));
-		 return;
+		UE_LOG(LogStairwayFishingGameCore, Error, TEXT("GameModeTransitionConfigAsset is not valid, have you set it up correctly in the game mode? Won't continue initializing..."));
+		return;
 	}
 
 	APawn* PossessedPawn = PlayerController->GetPawn();
@@ -60,15 +60,13 @@ void AGameModeBase_StairwayFishingGame::OnFishingGameLoopStateChanged(const EFis
 		return;
 	}
 
-	
-
 	const float TransitionFadeInTime = GameModeTransitionConfigAsset->GetGameModeTransitionConfig().TransitionFadeInTime;
 	const float TransitionFadeOutTime = GameModeTransitionConfigAsset->GetGameModeTransitionConfig().TransitionFadeOutTime;
 
 	FTimerHandle TimerHandle;
 
 	uint8 Payload = static_cast<uint8>(FishingGameLoopState);
-	
+
 	switch (FishingGameLoopState)
 	{
 		case EFishingGameLoopState::Fishing:
@@ -77,28 +75,26 @@ void AGameModeBase_StairwayFishingGame::OnFishingGameLoopStateChanged(const EFis
 
 			PlayerCameraManager->StartCameraFade(1.f, 0.f, TransitionFadeInTime, FLinearColor::Black, true, true);
 
-			GetWorld()->GetTimerManager().SetTimer(TimerHandle, [PlayerCameraManager, TransitionFadeOutTime, this, Payload, PossessedPawnAsSwitchableFishingView, FishingGameLoopState]
-			{
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle, [PlayerCameraManager, TransitionFadeOutTime, this, Payload, PossessedPawnAsSwitchableFishingView, FishingGameLoopState] {
 				PossessedPawnAsSwitchableFishingView->SetFishingView(FishingGameLoopState);
-				
+
 				UVAGameplayMessagingSubsystem::Get(this).BroadcastMessage(this, FFishingTags::Get().Messaging_GameMode_StateChangeFinish, Payload);
 
 				PlayerCameraManager->StartCameraFade(0.f, 1.f, TransitionFadeOutTime, FLinearColor::Black, true, true);
 			}, TransitionFadeInTime, false);
-		
+
 			break;
 		case EFishingGameLoopState::ShowFish:
 			PlayerController->DisableInput(PlayerController);
 			PlayerController->SetInputMode(FInputModeUIOnly());
 
 			PlayerCameraManager->StartCameraFade(0.f, 1.f, TransitionFadeInTime, FLinearColor::Black, true, true);
-		
-			GetWorld()->GetTimerManager().SetTimer(TimerHandle, [PlayerCameraManager, TransitionFadeOutTime, this, Payload, PossessedPawnAsSwitchableFishingView, FishingGameLoopState]
-			{
+
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle, [PlayerCameraManager, TransitionFadeOutTime, this, Payload, PossessedPawnAsSwitchableFishingView, FishingGameLoopState] {
 				PossessedPawnAsSwitchableFishingView->SetFishingView(FishingGameLoopState);
-				
+
 				UVAGameplayMessagingSubsystem::Get(this).BroadcastMessage(this, FFishingTags::Get().Messaging_GameMode_StateChangeFinish, Payload);
-				
+
 				PlayerCameraManager->StartCameraFade(1.f, 0.f, TransitionFadeOutTime, FLinearColor::Black, true, true);
 
 			}, TransitionFadeInTime, false);
@@ -129,7 +125,7 @@ void AGameModeBase_StairwayFishingGame::ListenForGameLoopStateChanges()
 void AGameModeBase_StairwayFishingGame::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	ListenForGameLoopStateChanges();
 
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
@@ -148,8 +144,8 @@ void AGameModeBase_StairwayFishingGame::BeginPlay()
 
 	if (!GameModeTransitionConfigAsset)
 	{
-		 UE_LOG(LogStairwayFishingGameCore, Error, TEXT("GameModeTransitionConfigAsset is not valid, have you set it up correctly in the game mode? Won't continue initializing..."));
-		 return;
+		UE_LOG(LogStairwayFishingGameCore, Error, TEXT("GameModeTransitionConfigAsset is not valid, have you set it up correctly in the game mode? Won't continue initializing..."));
+		return;
 	}
 
 	PlayerCameraManager->StartCameraFade(1.f, 0.f, GameModeTransitionConfigAsset->GetGameModeTransitionConfig().InitialGameModeTransitionTime, FLinearColor::Black, true, true);

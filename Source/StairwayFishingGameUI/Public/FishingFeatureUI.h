@@ -6,8 +6,8 @@
 class FFishingFeatureUIModule final : public IModuleInterface
 {
 public:
-    virtual void StartupModule() override;
-    virtual void ShutdownModule() override;
+	virtual void StartupModule() override;
+	virtual void ShutdownModule() override;
 };
 
 DECLARE_LOG_CATEGORY_EXTERN(LogFishingFeatureUI, Log, All);

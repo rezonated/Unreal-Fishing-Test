@@ -26,7 +26,7 @@ AActor_Fish::AActor_Fish()
 void AActor_Fish::ReeledIn(const FVector& RodLocation)
 {
 	bBeingTargeted = true;
-	
+
 	ReelInLocation = RodLocation;
 
 	LookAtReelInRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), ReelInLocation);
@@ -37,9 +37,9 @@ void AActor_Fish::ReeledIn(const FVector& RodLocation)
 void AActor_Fish::Escape()
 {
 	ReeledInTimeline.Stop();
-		
+
 	EscapeRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), InitialActorLocation);
-		
+
 	EscapeTimeline.PlayFromStart();
 }
 
@@ -74,7 +74,7 @@ void AActor_Fish::BeginPlay()
 	Super::BeginPlay();
 
 	InitialActorLocation = GetActorLocation();
-	
+
 	SetupTimelines();
 
 	SetupFishMovementValues();
@@ -94,7 +94,7 @@ void AActor_Fish::SetupTimelines()
 	if (FishReelingInCurve)
 	{
 		BIND_TIMELINE(ReeledInFloatUpdate, &ThisClass::OnReelInUpdate, ReeledInFinishedEvent, &ThisClass::OnReelInFinished)
-		
+
 		SetupTimelineDataAndCallbacks(&ReeledInTimeline, ReeledInFloatUpdate, ReeledInFinishedEvent, FishReelingInCurve);
 	}
 
@@ -102,7 +102,7 @@ void AActor_Fish::SetupTimelines()
 	if (FishEscapeCurve)
 	{
 		BIND_TIMELINE(EscapeFloatUpdate, &ThisClass::OnEscapeUpdate, EscapeFinishedEvent, &ThisClass::OnEscapeFinished)
-		
+
 		SetupTimelineDataAndCallbacks(&EscapeTimeline, EscapeFloatUpdate, EscapeFinishedEvent, FishEscapeCurve);
 	}
 }
@@ -117,15 +117,15 @@ void AActor_Fish::WanderWithinBoundingBox(float DeltaSeconds)
 	const bool bIsWithinTargetRadius = UKismetMathLibrary::Vector_Distance(GetActorLocation(), WanderTargetLocation) <= FishWanderTargetRadius;
 
 	const bool bIsWanderTargetLocationHasNotBeenSet = WanderTargetLocation == FVector::ZeroVector;
-	
+
 	if (bIsWithinTargetRadius || bIsWanderTargetLocationHasNotBeenSet) // Attempt to find a new target location if the current one has reached the target radius or have not been set yet
 	{
 		WanderTargetLocation = UKismetMathLibrary::RandomPointInBoundingBox(ContainingSpawnAreaCenter, ContainingSpawnAreaBoxExtent);
-		
-		WanderLookAtTargetRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), WanderTargetLocation);	
+
+		WanderLookAtTargetRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), WanderTargetLocation);
 	}
-		
-	const FVector InterpolatedLocationToWander = FMath::VInterpTo(GetActorLocation(), WanderTargetLocation, DeltaSeconds, FishMoveSpeed);
+
+	const FVector  InterpolatedLocationToWander = FMath::VInterpTo(GetActorLocation(), WanderTargetLocation, DeltaSeconds, FishMoveSpeed);
 	const FRotator InterpolatedRotationToWander = FMath::RInterpTo(GetActorRotation(), WanderLookAtTargetRotation, DeltaSeconds, FishRotationSpeed);
 
 	SetActorLocationAndRotation(InterpolatedLocationToWander, InterpolatedRotationToWander);
@@ -157,8 +157,8 @@ void AActor_Fish::SetupTimelineDataAndCallbacks(FTimeline* InTimeline, const FOn
 {
 	if (!InTimeline)
 	{
-		 UE_LOG(LogFishingFeature, Error, TEXT("Timeline is not valid, did you pass the correct pointer?"));
-		 return;
+		UE_LOG(LogFishingFeature, Error, TEXT("Timeline is not valid, did you pass the correct pointer?"));
+		return;
 	}
 
 	const float CurveLength = InCurveFloat->FloatCurve.GetLastKey().Time;
@@ -190,7 +190,7 @@ void AActor_Fish::InterpolateLocationAndRotation(const FVector& InTargetLocation
 {
 	const float DeltaSeconds = GetWorld()->GetDeltaSeconds();
 
-	const FVector InterpolatedLocationToReelIn = FMath::Lerp(GetActorLocation(), InTargetLocation, InAlpha * DeltaSeconds);
+	const FVector  InterpolatedLocationToReelIn = FMath::Lerp(GetActorLocation(), InTargetLocation, InAlpha * DeltaSeconds);
 	const FRotator InterpolatedRotationToReelIn = FMath::Lerp(GetActorRotation(), InTargetRotation, InAlpha * DeltaSeconds);
 
 	SetActorLocationAndRotation(InterpolatedLocationToReelIn, InterpolatedRotationToReelIn);
@@ -205,7 +205,7 @@ void AActor_Fish::PlayBiteSound() const
 	}
 
 	const FActorFishConfig FishConfig = ActorFishConfigData->GetActorFishConfig();
-	USoundBase* FishBiteSound = FishConfig.FishBiteSound;
+	USoundBase*            FishBiteSound = FishConfig.FishBiteSound;
 	if (!FishBiteSound)
 	{
 		UE_LOG(LogFishingFeature, Error, TEXT("Fish Bite Sound is not valid, have you set it up correctly in the data asset?"));

@@ -15,7 +15,6 @@ enum class EVAAnyUnrealMemoryErrorMode
 class VAANYUNREAL_API FVAAnyUnreal_MemoryCheck
 {
 public:
-
 	FVAAnyUnreal_MemoryCheck(EVAAnyUnrealMemoryErrorMode InErrorMode = EVAAnyUnrealMemoryErrorMode::Assert);
 
 	FVAAnyUnreal_MemoryCheck(const FVAAnyUnreal_MemoryCheck&) = delete;
@@ -27,18 +26,17 @@ public:
 	bool Check();
 
 private:
-#if VAANYUNREAL_DEBUG
+	#if VAANYUNREAL_DEBUG
 	EVAAnyUnrealMemoryErrorMode ErrorMode = EVAAnyUnrealMemoryErrorMode::Assert;
-	UPTRINT Checksum = 0;
-	int32 NumAllocated = 0;
-#endif
+	UPTRINT                     Checksum = 0;
+	int32                       NumAllocated = 0;
+	#endif
 };
 
 
 class VAANYUNREAL_API FVAAnyUnreal_ScopedMemoryCheck
 {
 public:
-
 	FVAAnyUnreal_ScopedMemoryCheck(EVAAnyUnrealMemoryErrorMode InErrorMode = EVAAnyUnrealMemoryErrorMode::Assert);
 	~FVAAnyUnreal_ScopedMemoryCheck();
 
@@ -64,17 +62,16 @@ public:
 	static FVAAnyUnreal_Memory& Get();
 
 	void* Malloc(SIZE_T Size);
-	void Free(void*& Ptr);
+	void  Free(void*& Ptr);
 
 	UPTRINT GetChecksum() const;
-	int32 GetNumAllocated() const;
+	int32   GetNumAllocated() const;
 
 private:
-#if VAANYUNREAL_DEBUG
+	#if VAANYUNREAL_DEBUG
 	UPTRINT Checksum = 0;
-	int32 NumAllocated = 0;
-#endif
+	int32   NumAllocated = 0;
+	#endif
 
 	static FVAAnyUnreal_Memory Instance;
 };
-

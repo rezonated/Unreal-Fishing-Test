@@ -14,13 +14,8 @@ public:
 	static TSharedRef<IDetailCustomization> MakeInstance();
 
 	void OnSkeletalMeshChanged(TSharedRef<IPropertyHandle> SkeletalMeshProperty, TSharedRef<IPropertyHandle> SocketNameProperty);
+
 	virtual void CustomizeDetails(IDetailLayoutBuilder& DetailBuilder) override;
-
-/*private:
-	//TSharedPtr<IPropertyHandle> SocketOrBoneNameProperty;
-	FText OnTextContentChanged() const;
-
-	TSharedRef<SWidget> OnGenerateWidget(TSharedPtr<FName> Item);*/
 
 private:
 	TArray<TSharedPtr<FName>> SocketAndBoneNames;

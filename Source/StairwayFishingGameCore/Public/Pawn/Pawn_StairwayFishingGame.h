@@ -27,7 +27,7 @@ public:
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Stairway Fishing Game Pawn")
 	UCapsuleComponent* Capsule = nullptr;
-	
+
 	UPROPERTY(VisibleAnywhere, Category = "Stairway Fishing Game Pawn")
 	USkeletalMeshComponent* Mesh = nullptr;
 
@@ -45,7 +45,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Stairway Fishing Game Pawn")
 	UActorComponent_FishingComponent* FishingComponent = nullptr;
-	
+
 	UPROPERTY(VisibleAnywhere, Category = "Stairway Fishing Game Pawn")
 	UCameraComponent* ShowFishCamera = nullptr;
 };

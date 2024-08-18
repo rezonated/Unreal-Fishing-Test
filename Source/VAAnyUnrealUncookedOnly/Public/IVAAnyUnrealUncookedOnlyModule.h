@@ -7,8 +7,6 @@
 class IVAAnyUnrealUncookedOnlyModule : public IModuleInterface
 {
 public:
-
-
 	static IVAAnyUnrealUncookedOnlyModule& Get()
 	{
 		return FModuleManager::LoadModuleChecked<IVAAnyUnrealUncookedOnlyModule>("VAAnyUnrealUncookedOnly");

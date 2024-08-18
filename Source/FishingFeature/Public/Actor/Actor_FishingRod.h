@@ -19,9 +19,9 @@ public:
 	AActor_FishingRod();
 
 	void PrepareBobberTimeline(UCurveFloat* InReelCurve);
-	
+
 	virtual void Throw(const FVector& InCastLocation) override;
-	
+
 	virtual void ReelBack() override;
 
 	FORCEINLINE virtual FSimpleDelegate& OnLandsOnWater() override { return CatchableLandsOnWaterDelegate; }
@@ -36,10 +36,10 @@ protected:
 	virtual void BeginPlay() override;
 
 	virtual void Tick(float DeltaSeconds) override;
-	
+
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UStaticMeshComponent* FishingRodMeshComponent = nullptr;
-	
+
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UStaticMeshComponent* BobberMeshComponent = nullptr;
 
@@ -54,7 +54,7 @@ protected:
 
 	UPROPERTY(Transient)
 	FVector BobberStartLocation = FVector::ZeroVector;
-	
+
 	void SetupTimelines();
 	void TickTimelines(float DeltaSeconds);
 
@@ -64,7 +64,7 @@ protected:
 
 	UPROPERTY(Transient)
 	FTimeline ThrowReelInTimeline;
-	
+
 	FOnTimelineFloat ThrowReelInFloatUpdate;
 	UFUNCTION()
 	void OnThrowReelInUpdate(float InAlpha);
@@ -83,7 +83,7 @@ protected:
 	FOnTimelineEvent PullReelOutFinishedEvent;
 	UFUNCTION()
 	void OnPullReelOutFinished();
-	
+
 	void InterpolateBobberLocation
 	(const float& InAlpha) const;
 

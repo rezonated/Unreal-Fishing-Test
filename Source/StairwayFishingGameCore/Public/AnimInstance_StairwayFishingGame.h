@@ -18,14 +18,14 @@ class STAIRWAYFISHINGGAMECORE_API UAnimInstance_StairwayFishingGame : public UAn
 
 public:
 	virtual void NativeBeginPlay() override;
-	
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "AnimationSet")
 	TMap<FGameplayTag, UAnimMontage*> TagToMontageMap;
 
 	UPROPERTY()
-	FGameplayTag StateTag;	
-	
+	FGameplayTag StateTag;
+
 	UFUNCTION()
 	void OnStateChangeMessageReceived(const FGameplayTag& Channel, const FVAAnyUnreal& MessagePayload);
 

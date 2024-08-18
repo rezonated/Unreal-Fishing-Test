@@ -10,10 +10,10 @@ void AHUD_StairwayFishingGame::SetupMainOverlayWidget()
 	if (!MainOverlayWidgetClass.Get())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("MainOverlayWidgetClass is not valid, please make sure you have a valid UserWidget class set in details tab!"));
-		
+
 		return;
 	}
-	
+
 	MainOverlayWidget = CreateWidget<UUserWidget>(GetWorld(), MainOverlayWidgetClass);
 
 	MainOverlayWidget->AddToViewport();

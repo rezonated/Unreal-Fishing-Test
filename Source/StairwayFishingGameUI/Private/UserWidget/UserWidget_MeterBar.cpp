@@ -17,13 +17,13 @@ void UUserWidget_MeterBar::SetProgress(const float InProgress)
 
 void UUserWidget_MeterBar::ToggleVisibility(const bool bInShouldBeVisible)
 {
-	 if (!ProgressBar_MeterBar)
-	 {
-		 UE_LOG(LogTemp, Warning, TEXT("MeterBar is not set! Please make sure to name it ProgressBar_MeterBar in the details panel. Returning."));
-		 return;
-	 }
+	if (!ProgressBar_MeterBar)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("MeterBar is not set! Please make sure to name it ProgressBar_MeterBar in the details panel. Returning."));
+		return;
+	}
 
-	 const ESlateVisibility NewVisibility = bInShouldBeVisible ? ESlateVisibility::Visible : ESlateVisibility::Collapsed;
+	const ESlateVisibility NewVisibility = bInShouldBeVisible ? ESlateVisibility::Visible : ESlateVisibility::Collapsed;
 
 	const ESlateVisibility CurrentVisibility = ProgressBar_MeterBar->GetVisibility();
 

@@ -15,12 +15,13 @@ UCLASS()
 class FISHINGFEATURE_API AActor_Fish : public AActor, public ICatchableInterface
 {
 	GENERATED_BODY()
+
 public:
 	AActor_Fish();
-	
+
 	virtual void ReeledIn(const FVector& RodLocation) override;
 	virtual void Escape() override;
-	void SetupFishMovementValues();
+	void         SetupFishMovementValues();
 	virtual void Catch(USceneComponent* InCatchingRod) override;
 
 	FORCEINLINE virtual void
@@ -34,16 +35,16 @@ protected:
 	virtual void BeginPlay() override;
 
 	virtual void Tick(float DeltaSeconds) override;
-	
+
 	UPROPERTY(VisibleAnywhere, Category = "Fish")
 	USphereComponent* FishSphereCollision = nullptr;
-	
+
 	UPROPERTY(VisibleAnywhere, Category = "Fish")
 	UStaticMeshComponent* FishMesh = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Fish | Config")
 	UDataAsset_ActorFishConfig* ActorFishConfigData = nullptr;
-	
+
 private:
 	UPROPERTY(Transient)
 	FVector InitialActorLocation = FVector::ZeroVector;

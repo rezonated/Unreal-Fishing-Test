@@ -7,7 +7,7 @@
 #include "StairwayFishingGameCore.h"
 #include "VACancellableAsyncAction/VAGameplayMessaging_ListenForGameplayMessages.h"
 
-void AGameStateBase_StairwayFishingGame::SetCurrentFishingGameLoopState(const EFishingGameLoopState&  InFishingGameLoopState)
+void AGameStateBase_StairwayFishingGame::SetCurrentFishingGameLoopState(const EFishingGameLoopState& InFishingGameLoopState)
 {
 	if (CurrentFishingGameLoopState == InFishingGameLoopState)
 	{
@@ -31,7 +31,7 @@ void AGameStateBase_StairwayFishingGame::BeginPlay()
 }
 
 void AGameStateBase_StairwayFishingGame::OnGameStateChangeMessageReceived(const FGameplayTag& Channel,
-	const FVAAnyUnreal& MessagePayload)
+	const FVAAnyUnreal&                                                                       MessagePayload)
 {
 	if (!MessagePayload.Is<uint8>())
 	{

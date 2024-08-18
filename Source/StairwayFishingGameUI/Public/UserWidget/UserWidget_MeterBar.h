@@ -11,14 +11,15 @@ class UProgressBar;
  * 
  */
 UCLASS()
-class FISHINGFEATUREUI_API UUserWidget_MeterBar : public UUserWidget
+class STAIRWAYFISHINGGAMEUI_API UUserWidget_MeterBar : public UUserWidget
 {
 	GENERATED_BODY()
+
 public:
 	virtual void SetProgress(const float InProgress);
 
 	virtual void ToggleVisibility(const bool bInShouldBeVisible);
-	
+
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Meter Bar", meta = (BindWidget))
 	UProgressBar* ProgressBar_MeterBar = nullptr;

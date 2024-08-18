@@ -10,7 +10,7 @@
  * 
  */
 UCLASS()
-class FISHINGFEATUREUI_API UUserWidget_MainOverlay : public UUserWidget
+class STAIRWAYFISHINGGAMEUI_API UUserWidget_MainOverlay : public UUserWidget
 {
 	GENERATED_BODY()
 };
