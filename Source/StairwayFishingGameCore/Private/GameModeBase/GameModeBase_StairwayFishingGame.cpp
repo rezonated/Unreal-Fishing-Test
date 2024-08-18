@@ -70,8 +70,7 @@ void AGameModeBase_StairwayFishingGame::OnFishingGameLoopStateChanged(const EFis
 	switch (FishingGameLoopState)
 	{
 		case EFishingGameLoopState::Fishing:
-			PlayerController->EnableInput(PlayerController);
-			PlayerController->SetInputMode(FInputModeGameOnly());
+			TogglePlayerControllerMode(PlayerController, true);
 
 			PlayerCameraManager->StartCameraFade(1.f, 0.f, TransitionFadeInTime, FLinearColor::Black, true, true);
 
@@ -85,8 +84,7 @@ void AGameModeBase_StairwayFishingGame::OnFishingGameLoopStateChanged(const EFis
 
 			break;
 		case EFishingGameLoopState::ShowFish:
-			PlayerController->DisableInput(PlayerController);
-			PlayerController->SetInputMode(FInputModeUIOnly());
+			TogglePlayerControllerMode(PlayerController, false);
 
 			PlayerCameraManager->StartCameraFade(0.f, 1.f, TransitionFadeInTime, FLinearColor::Black, true, true);
 
@@ -120,6 +118,28 @@ void AGameModeBase_StairwayFishingGame::ListenForGameLoopStateChanges()
 	}
 
 	GameStateStairwayFishingGame->OnFishingGameLoopStateChanged.AddUObject(this, &AGameModeBase_StairwayFishingGame::OnFishingGameLoopStateChanged);
+}
+
+void AGameModeBase_StairwayFishingGame::TogglePlayerControllerMode(APlayerController* InPlayerController, const bool& bIsEnabled) const
+{
+	if (!InPlayerController)
+	{
+		UE_LOG(LogStairwayFishingGameCore, Error, TEXT("InPlayerController is not valid, have you actually pass the correct pointer? Won't continue initializing..."));
+		return;
+	}
+
+	InPlayerController->EnableInput(InPlayerController);
+	
+	if (!bIsEnabled)
+	{
+		InPlayerController->SetInputMode(FInputModeUIOnly());
+	}
+	else
+	{
+		InPlayerController->SetInputMode(FInputModeGameOnly());
+	}
+
+	InPlayerController->SetShowMouseCursor(bIsEnabled);
 }
 
 void AGameModeBase_StairwayFishingGame::BeginPlay()

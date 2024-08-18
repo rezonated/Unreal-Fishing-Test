@@ -29,4 +29,6 @@ protected:
 	void OnFishingGameLoopStateChanged(const EFishingGameLoopState& FishingGameLoopState);
 
 	void ListenForGameLoopStateChanges();
+
+	void TogglePlayerControllerMode(APlayerController* InPlayerController, const bool& bIsEnabled) const;
 };
