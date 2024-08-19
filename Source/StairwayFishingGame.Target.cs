@@ -21,7 +21,7 @@ public class StairwayFishingGameTarget : TargetRules
 	{
 		ExtraModuleNames.AddRange(new[]
 		{
-			"FishingFeature", "FishingGameplayTags", "FishingGameTypes", "StairwayFishingGameUI", "FishingFeatureTests"
+			"FishingFeature", "FishingGameplayTags", "FishingGameTypes", "StairwayFishingGameUI"
 		});
 	}
 }
