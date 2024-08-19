@@ -7,7 +7,7 @@
 void FFishingFeatureEditorModule::StartupModule()
 {
 	FPropertyEditorModule& PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
-	
+
 	PropertyModule.RegisterCustomClassLayout("DataAsset_FishingComponentConfig", FOnGetDetailCustomizationInstance::CreateStatic(&FDetailCustomization_FishingComponent::MakeInstance));
 }
 
@@ -21,5 +21,5 @@ void FFishingFeatureEditorModule::ShutdownModule()
 }
 
 #undef LOCTEXT_NAMESPACE
-    
+
 IMPLEMENT_MODULE(FFishingFeatureEditorModule, FishingFeatureEditor)

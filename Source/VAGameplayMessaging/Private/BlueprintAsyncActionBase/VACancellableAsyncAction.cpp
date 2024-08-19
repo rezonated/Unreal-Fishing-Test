@@ -6,7 +6,7 @@
 void UVACancellableAsyncAction::BeginDestroy()
 {
 	Cancel();
-	
+
 	Super::BeginDestroy();
 }
 

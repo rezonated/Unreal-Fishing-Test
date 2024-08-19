@@ -22,12 +22,12 @@ class STAIRWAYFISHINGGAMECORE_API APawn_StairwayFishingGame : public APawn, publ
 public:
 	APawn_StairwayFishingGame();
 
-	virtual void SetFishingView(const EFishingGameLoopState& InFishingGameLoopState) override;
+	virtual void SetFishingView(const FGameplayTag& InFishingGameLoopStateTag) override;
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Stairway Fishing Game Pawn")
 	UCapsuleComponent* Capsule = nullptr;
-	
+
 	UPROPERTY(VisibleAnywhere, Category = "Stairway Fishing Game Pawn")
 	USkeletalMeshComponent* Mesh = nullptr;
 
@@ -45,7 +45,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Stairway Fishing Game Pawn")
 	UActorComponent_FishingComponent* FishingComponent = nullptr;
-	
+
 	UPROPERTY(VisibleAnywhere, Category = "Stairway Fishing Game Pawn")
 	UCameraComponent* ShowFishCamera = nullptr;
 };

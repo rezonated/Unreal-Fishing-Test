@@ -30,12 +30,12 @@ void AActor_FishingRod::PrepareBobberTimeline(UCurveFloat* InReelCurve)
 		UE_LOG(LogFishingFeature, Error, TEXT("Bobber Curve is not valid, have you set it up correctly in the component?"));
 		return;
 	}
-	
+
 	BIND_TIMELINE(ThrowReelInFloatUpdate, &ThisClass::OnThrowReelInUpdate, ThrowReelInFinishedEvent, &ThisClass::OnThrowReelInFinished)
 
 	const float CurveLength = InReelCurve->FloatCurve.GetLastKey().Time;
 	ThrowReelInTimeline.SetTimelineLength(CurveLength);
-	
+
 	ThrowReelInTimeline.AddInterpFloat(InReelCurve, ThrowReelInFloatUpdate);
 	ThrowReelInTimeline.SetTimelineFinishedFunc(ThrowReelInFinishedEvent);
 }
@@ -58,8 +58,8 @@ void AActor_FishingRod::ToggleBobberVisibility(const bool& bInShouldBeVisible)
 {
 	if (!BobberMeshComponent)
 	{
-		 UE_LOG(LogFishingFeature, Error, TEXT("Bobber Mesh Component is not valid, won't continue toggling visibility..."));
-		 return;
+		UE_LOG(LogFishingFeature, Error, TEXT("Bobber Mesh Component is not valid, won't continue toggling visibility..."));
+		return;
 	}
 
 	BobberMeshComponent->SetVisibility(bInShouldBeVisible);
@@ -76,8 +76,7 @@ void AActor_FishingRod::BeginPlay()
 
 	SetupTimelines();
 
-	GetWorld()->GetTimerManager().SetTimerForNextTick([&] ()
-	{
+	GetWorld()->GetTimerManager().SetTimerForNextTick([&]() {
 		BobberStartLocation = BobberMeshComponent->GetComponentLocation();
 	});
 }
@@ -117,7 +116,7 @@ void AActor_FishingRod::SetupTimelines()
 	if (BobberReelInCurve)
 	{
 		BIND_TIMELINE(ThrowReelInFloatUpdate, &ThisClass::OnThrowReelInUpdate, ThrowReelInFinishedEvent, &ThisClass::OnThrowReelInFinished)
-		
+
 		SetupTimelineDataAndCallbacks(&ThrowReelInTimeline, ThrowReelInFloatUpdate, ThrowReelInFinishedEvent, BobberReelInCurve);
 	}
 
@@ -182,7 +181,7 @@ void AActor_FishingRod::OnPullReelOutFinished()
 
 void AActor_FishingRod::InterpolateBobberLocation(const float& InAlpha) const
 {
-	const float DeltaSeconds = GetWorld()->GetDeltaSeconds();
+	const float   DeltaSeconds = GetWorld()->GetDeltaSeconds();
 	const FVector InterpolatedLocationToReelIn = FMath::Lerp(BobberMeshComponent->GetComponentLocation(), BobberTargetLocation, InAlpha * DeltaSeconds);
 
 	BobberMeshComponent->SetWorldLocationAndRotation(InterpolatedLocationToReelIn, FRotator::ZeroRotator);

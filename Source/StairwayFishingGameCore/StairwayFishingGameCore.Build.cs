@@ -7,12 +7,12 @@ public class StairwayFishingGameCore : ModuleRules
 	public StairwayFishingGameCore(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-	
+
 		PublicDependencyModuleNames.AddRange(new[]
 		{
-			"Core", 
-			"CoreUObject", 
-			"Engine", 
+			"Core",
+			"CoreUObject",
+			"Engine",
 			"InputCore",
 			"EnhancedInput",
 			"Slate",
@@ -20,12 +20,12 @@ public class StairwayFishingGameCore : ModuleRules
 			"VAGameplayMessaging",
 			"FishingGameplayTags",
 			"GameplayTags",
-			"VAAnyUnreal", 
+			"VAAnyUnreal",
 			"FishingGameTypes",
 			"FishingFeature"
 		});
 
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
+		PrivateDependencyModuleNames.AddRange(new string[] { });
 
 		OptimizeCode = CodeOptimization.InShippingBuildsOnly;
 	}

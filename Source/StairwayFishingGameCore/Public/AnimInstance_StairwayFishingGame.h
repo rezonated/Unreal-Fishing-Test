@@ -8,6 +8,7 @@
 #include "Runtime/VAAnyUnreal.h"
 #include "AnimInstance_StairwayFishingGame.generated.h"
 
+class UVAGameplayMessaging_ListenForGameplayMessages;
 /**
  * 
  */
@@ -18,14 +19,19 @@ class STAIRWAYFISHINGGAMECORE_API UAnimInstance_StairwayFishingGame : public UAn
 
 public:
 	virtual void NativeBeginPlay() override;
-	
+
+	virtual void BeginDestroy() override;
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "AnimationSet")
 	TMap<FGameplayTag, UAnimMontage*> TagToMontageMap;
 
-	UPROPERTY()
-	FGameplayTag StateTag;	
-	
+	UPROPERTY(Transient)
+	FGameplayTag StateTag;
+
+	UPROPERTY(Transient)
+	UVAGameplayMessaging_ListenForGameplayMessages* StateChangeMessageListenerAsync = nullptr;
+
 	UFUNCTION()
 	void OnStateChangeMessageReceived(const FGameplayTag& Channel, const FVAAnyUnreal& MessagePayload);
 

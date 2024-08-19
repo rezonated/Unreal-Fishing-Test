@@ -14,9 +14,10 @@ UCLASS()
 class STAIRWAYFISHINGGAMECORE_API UDataAsset_GameModeTransitionConfig : public UDataAsset
 {
 	GENERATED_BODY()
+
 public:
 	FORCEINLINE FGameModeTransitionConfig GetGameModeTransitionConfig() const { return GameModeTransitionConfig; }
-	
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Game Mode Transition")
 	FGameModeTransitionConfig GameModeTransitionConfig;

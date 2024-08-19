@@ -13,11 +13,22 @@ void UAnimInstance_StairwayFishingGame::NativeBeginPlay()
 
 	StateTag = FFishingTags::Get().AnimInstance_Fishing_State_Idling;
 
-	UVAGameplayMessaging_ListenForGameplayMessages* ListenForStateChangeMessage = UVAGameplayMessaging_ListenForGameplayMessages::ListenForGameplayMessagesViaChannel(this, FFishingTags::Get().Messaging_Fishing_AnimInstance_StateChange);
-	
-	ListenForStateChangeMessage->OnGameplayMessageReceived.AddUniqueDynamic(this, &ThisClass::OnStateChangeMessageReceived);
+	StateChangeMessageListenerAsync = UVAGameplayMessaging_ListenForGameplayMessages::ListenForGameplayMessagesViaChannel(this, FFishingTags::Get().Messaging_Fishing_AnimInstance_StateChange);
 
-	ListenForStateChangeMessage->Activate();
+	StateChangeMessageListenerAsync->OnGameplayMessageReceived.AddUniqueDynamic(this, &ThisClass::OnStateChangeMessageReceived);
+
+	StateChangeMessageListenerAsync->Activate();
+}
+
+void UAnimInstance_StairwayFishingGame::BeginDestroy()
+{
+	if (IsValid(StateChangeMessageListenerAsync))
+	{
+		StateChangeMessageListenerAsync->Cancel();
+		StateChangeMessageListenerAsync = nullptr;
+	}
+	
+	Super::BeginDestroy();
 }
 
 void UAnimInstance_StairwayFishingGame::OnStateChangeMessageReceived(const FGameplayTag& Channel, const FVAAnyUnreal& MessagePayload)

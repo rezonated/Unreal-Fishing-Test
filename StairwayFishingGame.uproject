@@ -56,7 +56,7 @@
 			"LoadingPhase": "Default"
 		},
 		{
-			"Name": "FishingFeatureUI",
+			"Name": "StairwayFishingGameUI",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
 		},

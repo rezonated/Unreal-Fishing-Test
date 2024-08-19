@@ -19,7 +19,7 @@ namespace VAAnyUnrealConfigurations
 {
 	// FVAAnyUnreal size (number of pointer sizes).
 	constexpr SIZE_T SizeNumPtr = 8;
-	
+
 	constexpr SIZE_T ExpectedSize = sizeof(void*) * SizeNumPtr;
 	// Total size of properties used in FVAAnyUnreal.
 	constexpr SIZE_T PropertiesSize = (sizeof(void*) + sizeof(int32));
@@ -28,5 +28,3 @@ namespace VAAnyUnrealConfigurations
 	constexpr SIZE_T MaxAlign = alignof(std::max_align_t);
 
 }
-
-

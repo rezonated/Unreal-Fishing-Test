@@ -16,10 +16,10 @@ class STAIRWAYFISHINGGAMECORE_API AHUD_StairwayFishingGame : public AHUD
 
 protected:
 	virtual void BeginPlay() override;
-	void SetupMainOverlayWidget();
+	void         SetupMainOverlayWidget();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Stairway Fishing Game HUD")
 	TSubclassOf<UUserWidget> MainOverlayWidgetClass = nullptr;
-	
+
 	TWeakObjectPtr<UUserWidget> MainOverlayWidget = nullptr;
 };

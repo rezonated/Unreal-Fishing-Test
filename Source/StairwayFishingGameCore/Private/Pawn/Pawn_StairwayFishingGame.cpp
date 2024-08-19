@@ -3,6 +3,7 @@
 
 #include "Pawn/Pawn_StairwayFishingGame.h"
 
+#include "FishingTags.h"
 #include "Camera/CameraComponent.h"
 #include "Components/ArrowComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -50,17 +51,23 @@ APawn_StairwayFishingGame::APawn_StairwayFishingGame()
 	ShowFishCamera->SetAutoActivate(false);
 }
 
-void APawn_StairwayFishingGame::SetFishingView(const EFishingGameLoopState& InFishingGameLoopState)
+void APawn_StairwayFishingGame::SetFishingView(const FGameplayTag& InFishingGameLoopStateTag)
 {
-	switch (InFishingGameLoopState)
+	if (!InFishingGameLoopStateTag.IsValid()) 
 	{
-		case EFishingGameLoopState::Fishing:
-			Camera->SetActive(true);
-			ShowFishCamera->SetActive(false);
-			break;
-		case EFishingGameLoopState::ShowFish:
-			Camera->SetActive(false);
-			ShowFishCamera->SetActive(true);
-			break;
+		UE_LOG(LogTemp, Error, TEXT("InFishingGameLoopStateTag is not valid, have you set it up correctly in the component?"));
+		return;
+	}
+	
+	const bool bShouldFish = InFishingGameLoopStateTag.MatchesTag(FFishingTags::Get().FishingGameLoopState_Fishing);
+
+	if (Camera)
+	{
+		Camera->SetActive(bShouldFish);
+	}
+
+	if (ShowFishCamera)
+	{
+		ShowFishCamera->SetActive(!bShouldFish);
 	}
 }

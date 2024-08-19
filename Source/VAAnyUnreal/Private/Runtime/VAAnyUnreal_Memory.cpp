@@ -6,19 +6,19 @@
 
 FVAAnyUnreal_MemoryCheck::FVAAnyUnreal_MemoryCheck(EVAAnyUnrealMemoryErrorMode InErrorMode /*= EVAAnyUnrealMemoryErrorMode::Assert*/)
 {
-#if VAANYUNREAL_DEBUG
+	#if VAANYUNREAL_DEBUG
 	ErrorMode = InErrorMode;
 	Checksum = FVAAnyUnreal_Memory::Get().GetChecksum();
 	NumAllocated = FVAAnyUnreal_Memory::Get().GetNumAllocated();
-#endif
+	#endif
 }
 
 bool FVAAnyUnreal_MemoryCheck::Check()
 {
-#if VAANYUNREAL_DEBUG
+	#if VAANYUNREAL_DEBUG
 	const UPTRINT LastChecksum = FVAAnyUnreal_Memory::Get().GetChecksum();
-	int32 LastNumAllocated = FVAAnyUnreal_Memory::Get().GetNumAllocated();
-	
+	int32         LastNumAllocated = FVAAnyUnreal_Memory::Get().GetNumAllocated();
+
 	bool bResult = LastChecksum == Checksum && LastNumAllocated == NumAllocated;
 	if (bResult)
 	{
@@ -27,30 +27,27 @@ bool FVAAnyUnreal_MemoryCheck::Check()
 
 	switch (ErrorMode)
 	{
-	case EVAAnyUnrealMemoryErrorMode::Assert:
-		check(LastChecksum == Checksum && LastNumAllocated == NumAllocated);
-		break;
+		case EVAAnyUnrealMemoryErrorMode::Assert:
+			check(LastChecksum == Checksum && LastNumAllocated == NumAllocated);
+			break;
 
-	case EVAAnyUnrealMemoryErrorMode::Log:
-		UE_LOG(LogVAAnyUnreal, Error, TEXT("FVAAnyUnreal_MemoryCheck::Check: (%d, %x) -> (%d, %x)"),
-			NumAllocated, Checksum,
-			LastNumAllocated, LastChecksum);
-		break;
+		case EVAAnyUnrealMemoryErrorMode::Log:
+			UE_LOG(LogVAAnyUnreal, Error, TEXT("FVAAnyUnreal_MemoryCheck::Check: (%d, %x) -> (%d, %x)"),
+				NumAllocated, Checksum,
+				LastNumAllocated, LastChecksum);
+			break;
 
-	default:
-		break;
+		default:
+			break;
 	}
 	return false;
-#else
+	#else
 	return true;
-#endif
+	#endif
 }
 
 FVAAnyUnreal_ScopedMemoryCheck::FVAAnyUnreal_ScopedMemoryCheck(EVAAnyUnrealMemoryErrorMode InErrorMode /*= EVAAnyUnrealMemoryErrorMode::Assert*/)
-	: Instance(InErrorMode)
-{
-
-}
+	: Instance(InErrorMode) {}
 
 FVAAnyUnreal_ScopedMemoryCheck::~FVAAnyUnreal_ScopedMemoryCheck()
 {
@@ -63,13 +60,10 @@ bool FVAAnyUnreal_ScopedMemoryCheck::Check()
 }
 
 
-
 FVAAnyUnreal_Memory FVAAnyUnreal_Memory::Instance;
 
 
-FVAAnyUnreal_Memory::~FVAAnyUnreal_Memory()
-{
-}
+FVAAnyUnreal_Memory::~FVAAnyUnreal_Memory() {}
 
 FVAAnyUnreal_Memory& FVAAnyUnreal_Memory::Get()
 {
@@ -79,38 +73,38 @@ FVAAnyUnreal_Memory& FVAAnyUnreal_Memory::Get()
 void* FVAAnyUnreal_Memory::Malloc(SIZE_T Size)
 {
 	void* Ptr = FMemory::Malloc(Size);
-#if VAANYUNREAL_DEBUG
+	#if VAANYUNREAL_DEBUG
 	Checksum ^= reinterpret_cast<UPTRINT>(Ptr);
 	NumAllocated++;
-#endif
+	#endif
 	return Ptr;
 
 }
 
 void FVAAnyUnreal_Memory::Free(void*& Ptr)
 {
-#if VAANYUNREAL_DEBUG
+	#if VAANYUNREAL_DEBUG
 	Checksum ^= reinterpret_cast<UPTRINT>(Ptr);
 	NumAllocated--;
-#endif
+	#endif
 	FMemory::Free(Ptr);
 	Ptr = nullptr;
 }
 
 UPTRINT FVAAnyUnreal_Memory::GetChecksum() const
 {
-#if VAANYUNREAL_DEBUG
+	#if VAANYUNREAL_DEBUG
 	return Checksum;
-#else
+	#else
 	return 0;
-#endif
+	#endif
 }
 
 int32 FVAAnyUnreal_Memory::GetNumAllocated() const
 {
-#if VAANYUNREAL_DEBUG
+	#if VAANYUNREAL_DEBUG
 	return NumAllocated;
-#else
+	#else
 	return 0;
-#endif
+	#endif
 }

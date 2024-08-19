@@ -7,7 +7,8 @@
 #include "StairwayFishingGameCore.h"
 #include "VACancellableAsyncAction/VAGameplayMessaging_ListenForGameplayMessages.h"
 
-void AGameStateBase_StairwayFishingGame::SetCurrentFishingGameLoopState(const EFishingGameLoopState&  InFishingGameLoopState)
+void AGameStateBase_StairwayFishingGame::SetCurrentFishingGameLoopState(
+	const FGameplayTag& InFishingGameLoopState)
 {
 	if (CurrentFishingGameLoopState == InFishingGameLoopState)
 	{
@@ -23,25 +24,44 @@ void AGameStateBase_StairwayFishingGame::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UVAGameplayMessaging_ListenForGameplayMessages* ListenForGameplayMessages = UVAGameplayMessaging_ListenForGameplayMessages::ListenForGameplayMessagesViaChannel(this, FFishingTags::Get().Messaging_GameState_StateChange);
+	GameStateChangeMessageListenerAsync = UVAGameplayMessaging_ListenForGameplayMessages::ListenForGameplayMessagesViaChannel(this, FFishingTags::Get().Messaging_GameState_StateChange);
 
-	ListenForGameplayMessages->OnGameplayMessageReceived.AddUniqueDynamic(this, &ThisClass::OnGameStateChangeMessageReceived);
+	GameStateChangeMessageListenerAsync->OnGameplayMessageReceived.AddUniqueDynamic(
+		this, &ThisClass::OnGameStateChangeMessageReceived);
 
-	ListenForGameplayMessages->Activate();
+	GameStateChangeMessageListenerAsync->Activate();
 }
 
-void AGameStateBase_StairwayFishingGame::OnGameStateChangeMessageReceived(const FGameplayTag& Channel,
-	const FVAAnyUnreal& MessagePayload)
+void AGameStateBase_StairwayFishingGame::CleanupGameStateChangeMessageListener()
 {
-	if (!MessagePayload.Is<uint8>())
+	if (IsValid(GameStateChangeMessageListenerAsync))
 	{
-		UE_LOG(LogStairwayFishingGameCore, Error, TEXT("Message Payload is not a valid EFishingGameLoopState, won't continue..."));
+		GameStateChangeMessageListenerAsync->Cancel();
+		GameStateChangeMessageListenerAsync = nullptr;
+	}
+}
+
+void AGameStateBase_StairwayFishingGame::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	CleanupGameStateChangeMessageListener();
+	
+	Super::EndPlay(EndPlayReason);
+}
+
+void AGameStateBase_StairwayFishingGame::OnGameStateChangeMessageReceived(const FGameplayTag& Channel, const FVAAnyUnreal& MessagePayload)
+{
+	if (!MessagePayload.Is<FGameplayTag>())
+	{
+		UE_LOG(LogStairwayFishingGameCore, Error, TEXT("Message Payload is not a valid Gameplay Tag, won't continue..."));
 		return;
 	}
 
-	const uint8 FishingGameLoopState = MessagePayload.Get<uint8>();
+	const FGameplayTag FishingGameLoopState = MessagePayload.Get<FGameplayTag>();
+	if (!FishingGameLoopState.IsValid())
+	{
+		UE_LOG(LogStairwayFishingGameCore, Error, TEXT("Message Payload is not a valid Gameplay Tag, won't continue..."));
+		return;
+	}
 
-	const EFishingGameLoopState FishingGameLoopStateAsEnum = static_cast<EFishingGameLoopState>(FishingGameLoopState);
-
-	SetCurrentFishingGameLoopState(FishingGameLoopStateAsEnum);
+	SetCurrentFishingGameLoopState(FishingGameLoopState);
 }

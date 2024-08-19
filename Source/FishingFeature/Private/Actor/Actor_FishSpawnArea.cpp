@@ -29,11 +29,11 @@ void AActor_FishSpawnArea::RequestLoadFishAssetSoftClass()
 		UE_LOG(LogFishingFeature, Error, TEXT("Fish Spawn Area Config Data is not set, are you sure you have a valid data asset set? Won't continue spawning fish..."));
 		return;
 	}
-	
+
 	const FFishSpawnAreaConfig FishSpawnAreaConfig = FishSpawnAreaConfigData->GetFishSpawnAreaConfig();
 
 	const TSoftClassPtr<AActor> FishActorClass = FishSpawnAreaConfig.FishActorClass;
-	
+
 	FishSpawnAssetHandle = UAssetManager::GetStreamableManager().RequestAsyncLoad(FishActorClass.ToSoftObjectPath(), FStreamableDelegate::CreateUObject(this, &ThisClass::OnFishSpawnAssetLoaded));
 }
 
@@ -50,7 +50,7 @@ void AActor_FishSpawnArea::BeginDestroy()
 	{
 		FishSpawnAssetHandle->CancelHandle();
 	}
-	
+
 	Super::BeginDestroy();
 }
 
@@ -59,7 +59,7 @@ void AActor_FishSpawnArea::OnFishSpawnAssetLoaded()
 	UObject* LoadedAsset = FishSpawnAssetHandle.Get()->GetLoadedAsset();
 
 	UClass* LoadedAssetAsClass = Cast<UClass>(LoadedAsset);
-	
+
 	if (!SpawnAreaBox)
 	{
 		UE_LOG(LogFishingFeature, Error, TEXT("Spawn Area Box is not valid, this should not happen. Won't continue spawning fish..."));
@@ -75,22 +75,22 @@ void AActor_FishSpawnArea::OnFishSpawnAssetLoaded()
 	const FFishSpawnAreaConfig FishSpawnAreaConfig = FishSpawnAreaConfigData->GetFishSpawnAreaConfig();
 
 	const int32 FishSpawnAmount = FishSpawnAreaConfig.FishSpawnAmount;
-	
+
 	const FVector CenterLocation = GetRootComponent()->GetComponentLocation();
 	const FVector BoxExtent = SpawnAreaBox->GetScaledBoxExtent();
-	
+
 	SpawnFishes(FishSpawnAmount, CenterLocation, BoxExtent, LoadedAssetAsClass);
 }
 
 void AActor_FishSpawnArea::SpawnFishes(const int32& InFishSpawnAmount, const FVector& InCenterLocation,
-	const FVector& InBoxExtent, UClass* InFishActorClass)
+	const FVector&                                  InBoxExtent, UClass*              InFishActorClass)
 {
 	if (!InFishActorClass)
 	{
 		UE_LOG(LogFishingFeature, Error, TEXT("Failed to cast loaded asset to UClass, this should not happen. Won't continue spawning fish..."));
 		return;
 	}
-	
+
 	UWorld* World = GetWorld();
 	if (!World)
 	{
@@ -121,9 +121,9 @@ void AActor_FishSpawnArea::SpawnFishes(const int32& InFishSpawnAmount, const FVe
 		{
 			continue;
 		}
-		
+
 		SpawnedActorAsCatchableInterface->SetSpawnAreaCenterAndExtent(InCenterLocation, InBoxExtent);
-		
+
 		SpawnedActor->FinishSpawning(SpawnTransform);
 	}
 }

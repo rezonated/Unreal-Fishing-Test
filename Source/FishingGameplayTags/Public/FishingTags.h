@@ -9,7 +9,7 @@ class FISHINGGAMEPLAYTAGS_API FFishingTags : public FNoncopyable
 {
 public:
 	static void Startup(UGameplayTagsManager& GameplayTagsManager);
-	
+
 	static FORCEINLINE FFishingTags& Get()
 	{
 		static FFishingTags FishingTags;
@@ -39,4 +39,7 @@ public:
 	FGameplayTag FishingComponent_State_AbleToReel;
 	FGameplayTag FishingComponent_State_Reeling_In;
 	FGameplayTag FishingComponent_State_Reeling_Out;
+
+	FGameplayTag FishingGameLoopState_Fishing;
+	FGameplayTag FishingGameLoopState_ShowFish;
 };

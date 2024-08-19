@@ -12,7 +12,7 @@ namespace VAAnyUnreal
 	struct FVAAnyUnreal_SingleValueStructInfo
 	{
 		FSoftObjectPath StructPath;
-		FString TypeName;
+		FString         TypeName;
 	};
 
 	class VAANYUNREAL_API IVAAnyUnreal_SingleValueStructRegistration
@@ -22,9 +22,9 @@ namespace VAAnyUnreal
 
 		virtual const FString& GetTypeName() const = 0;
 		virtual UScriptStruct* GetStruct() const = 0;
-		
+
 	};
-	
+
 	class VAANYUNREAL_API FVAAnyUnreal_SingleValueStructRegistry
 	{
 	private:
@@ -42,30 +42,29 @@ namespace VAAnyUnreal
 		void Unregister(const IVAAnyUnreal_SingleValueStructRegistration* InRegistration);
 
 		TArray<FVAAnyUnreal_SingleValueStructInfo> GetStructs();
-		bool IsSingleValueStruct(const UScriptStruct* InStruct);
+		bool                                       IsSingleValueStruct(const UScriptStruct* InStruct);
 
 	private:
 		void UpdateCache();
 		void ResetCache();
 
 		void AddToCache(const IVAAnyUnreal_SingleValueStructRegistration* InRegistration);
-		
+
 	private:
 		TArray<const IVAAnyUnreal_SingleValueStructRegistration*> Registrations;
 
 		TArray<FVAAnyUnreal_SingleValueStructInfo> CachedStructInfo;
-		TSet<FSoftObjectPath> CachedRegisteredStructs;
-		mutable FCriticalSection CacheCriticalSection;
+		TSet<FSoftObjectPath>                      CachedRegisteredStructs;
+		mutable FCriticalSection                   CacheCriticalSection;
 	};
 
 
-	
-	template<class T>
+	template <class T>
 	class TVAAnyUnreal_SingleValueStructAutoRegistration : public IVAAnyUnreal_SingleValueStructRegistration
 	{
 	public:
 		TVAAnyUnreal_SingleValueStructAutoRegistration(const TCHAR* InTypeName)
-			:TypeName(InTypeName)
+			: TypeName(InTypeName)
 		{
 			FVAAnyUnreal_SingleValueStructRegistry::Get().Register(this);
 		}
@@ -74,15 +73,17 @@ namespace VAAnyUnreal
 		{
 			FVAAnyUnreal_SingleValueStructRegistry::Get().Unregister(this);
 		}
-		
+
 		virtual const FString& GetTypeName() const override
 		{
 			return TypeName;
 		}
+
 		virtual UScriptStruct* GetStruct() const override
 		{
 			return T::StaticStruct();
 		}
+
 	private:
 		FString TypeName;
 	};

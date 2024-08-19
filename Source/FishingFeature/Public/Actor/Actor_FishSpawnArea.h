@@ -17,7 +17,7 @@ class FISHINGFEATURE_API AActor_FishSpawnArea : public AActor
 
 public:
 	AActor_FishSpawnArea();
-	
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void BeginDestroy() override;
@@ -26,10 +26,10 @@ protected:
 	void OnFishSpawnAssetLoaded();
 
 	void SpawnFishes(const int32& InFishSpawnAmount, const FVector& InCenterLocation, const FVector& InBoxExtent, UClass* InFishActorClass);
-	
+
 	UPROPERTY(VisibleAnywhere, Category = "Fish Spawn Area")
 	USceneComponent* SpawnAreaRoot = nullptr;
-	
+
 	UPROPERTY(VisibleAnywhere, Category = "Fish Spawn Area")
 	UBoxComponent* SpawnAreaBox = nullptr;
 

@@ -8,7 +8,6 @@
 class IVAAnyUnrealEditorModule : public IModuleInterface
 {
 public:
-
 	static IVAAnyUnrealEditorModule& Get()
 	{
 		return FModuleManager::LoadModuleChecked<IVAAnyUnrealEditorModule>("VAAnyUnrealEditor");

@@ -14,7 +14,7 @@ namespace VAAnyUnreal
 	void FVAAnyUnreal_SingleValueStructRegistry::Register(const IVAAnyUnreal_SingleValueStructRegistration* InRegistration)
 	{
 		FScopeLock Lock(&CacheCriticalSection);
-		
+
 		Registrations.AddUnique(InRegistration);
 		ResetCache();
 	}
@@ -22,11 +22,11 @@ namespace VAAnyUnreal
 	void FVAAnyUnreal_SingleValueStructRegistry::Unregister(const IVAAnyUnreal_SingleValueStructRegistration* InRegistration)
 	{
 		FScopeLock Lock(&CacheCriticalSection);
-		
+
 		Registrations.Remove(InRegistration);
 		ResetCache();
 	}
-	
+
 	TArray<FVAAnyUnreal_SingleValueStructInfo> FVAAnyUnreal_SingleValueStructRegistry::GetStructs()
 	{
 		FScopeLock Lock(&CacheCriticalSection);
@@ -37,7 +37,7 @@ namespace VAAnyUnreal
 
 	bool FVAAnyUnreal_SingleValueStructRegistry::IsSingleValueStruct(const UScriptStruct* InStruct)
 	{
-		if(InStruct == nullptr)
+		if (InStruct == nullptr)
 		{
 			return false;
 		}
@@ -46,7 +46,7 @@ namespace VAAnyUnreal
 			FScopeLock Lock(&CacheCriticalSection);
 
 			UpdateCache();
-		
+
 			const FSoftObjectPath StructPath = InStruct;
 			return CachedRegisteredStructs.Contains(StructPath);
 		}
@@ -54,11 +54,11 @@ namespace VAAnyUnreal
 
 	void FVAAnyUnreal_SingleValueStructRegistry::UpdateCache()
 	{
-		if(CachedStructInfo.Num() != Registrations.Num())
+		if (CachedStructInfo.Num() != Registrations.Num())
 		{
 			CachedStructInfo.Reset();
 
-			for(const auto* Registration : Registrations)
+			for (const auto* Registration : Registrations)
 			{
 				AddToCache(Registration);
 			}
@@ -73,22 +73,22 @@ namespace VAAnyUnreal
 
 	void FVAAnyUnreal_SingleValueStructRegistry::AddToCache(const IVAAnyUnreal_SingleValueStructRegistration* InRegistration)
 	{
-		if(InRegistration == nullptr)
+		if (InRegistration == nullptr)
 		{
 			return;
 		}
 
 		const UScriptStruct* Struct = InRegistration->GetStruct();
-		if(Struct == nullptr)
+		if (Struct == nullptr)
 		{
 			return;
 		}
-		
+
 		FVAAnyUnreal_SingleValueStructInfo Info;
 
 		Info.StructPath = Struct;
 		Info.TypeName = InRegistration->GetTypeName();
-		
+
 		CachedStructInfo.Add(Info);
 		CachedRegisteredStructs.Add(Info.StructPath);
 	}

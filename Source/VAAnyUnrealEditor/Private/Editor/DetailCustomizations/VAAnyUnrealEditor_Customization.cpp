@@ -36,7 +36,7 @@ namespace VAAnyUnrealEditorCustomization
 	{
 		TArray<FString> StructNames;
 		MetadataString.ParseIntoArrayWS(StructNames, TEXT(","), true);
-			
+
 		TArray<TSoftObjectPtr<UScriptStruct>> Structs;
 		Structs.Reserve(StructNames.Num());
 
@@ -53,7 +53,7 @@ namespace VAAnyUnrealEditorCustomization
 		return Structs;
 	}
 
-	
+
 	class FVAAnyUnrealEditorCustomizationStructFilter final : public IStructViewerFilter
 	{
 	public:
@@ -61,29 +61,28 @@ namespace VAAnyUnrealEditorCustomization
 		virtual bool IsStructAllowed(const FStructViewerInitializationOptions& InInitOptions, const UScriptStruct* InStruct, TSharedRef<FStructViewerFilterFuncs> InFilterFuncs) override
 		{
 			const bool bBlueprintType = InStruct->GetBoolMetaData(FBlueprintMetadata::MD_AllowableBlueprintVariableType);
-			if(!bBlueprintType)
+			if (!bBlueprintType)
 			{
 				return false;
 			}
 
-			if(AllowedStructs.Num() != 0)
+			if (AllowedStructs.Num() != 0)
 			{
-				bool bAllowed = AllowedStructs.ContainsByPredicate([&](TSoftObjectPtr<UScriptStruct> AllowedStructPath)
-				{
+				bool bAllowed = AllowedStructs.ContainsByPredicate([&](TSoftObjectPtr<UScriptStruct> AllowedStructPath) {
 					UScriptStruct* AllowedStruct = AllowedStructPath.LoadSynchronous();
 
-					if(AllowedStruct && InStruct->IsChildOf(AllowedStruct))
+					if (AllowedStruct && InStruct->IsChildOf(AllowedStruct))
 					{
 						return true;
 					}
 					return false;
 				});
-				if(!bAllowed)
+				if (!bAllowed)
 				{
 					return false;
 				}
 			}
-			
+
 			return FVAAnyUnreal::IsValidValueStruct(InStruct);
 		}
 
@@ -91,6 +90,7 @@ namespace VAAnyUnrealEditorCustomization
 		{
 			return false;
 		}
+
 		// End of IStructViewerFilter interface.
 
 		void SetAllowedStructsByMetaDataString(const FString& MetadataString)
@@ -103,10 +103,9 @@ namespace VAAnyUnrealEditorCustomization
 	};
 
 
-
 	const UScriptStruct* GetDefaultStruct(IPropertyHandle& PropertyHandle)
 	{
-		if(PropertyHandle.HasMetaData(MD_AllowedStructs))
+		if (PropertyHandle.HasMetaData(MD_AllowedStructs))
 		{
 			// FVAAnyUnrealEditorCustomizationStructFilter Filter;
 			// Filter.SetAllowedStructsByMetaDataString(PropertyHandle.GetMetaData(MD_AllowedStructs));
@@ -114,10 +113,10 @@ namespace VAAnyUnrealEditorCustomization
 			// {
 			// }
 			TArray<TSoftObjectPtr<UScriptStruct>> Structs = GetStructsByMetaDataString(PropertyHandle.GetMetaData(MD_AllowedStructs));
-			for(TSoftObjectPtr<UScriptStruct> Struct : Structs)
+			for (TSoftObjectPtr<UScriptStruct> Struct : Structs)
 			{
 				auto* LoadedStruct = Struct.LoadSynchronous();
-				if(LoadedStruct)
+				if (LoadedStruct)
 				{
 					return LoadedStruct;
 				}
@@ -125,7 +124,7 @@ namespace VAAnyUnrealEditorCustomization
 		}
 		return TBaseStructure<FVector>::Get();
 	}
-	
+
 }
 
 FVAAnyUnrealEditor_Customization::FValueChanged FVAAnyUnrealEditor_Customization::OnValueChanged;
@@ -133,7 +132,7 @@ FVAAnyUnrealEditor_Customization::FValueChanged FVAAnyUnrealEditor_Customization
 void FVAAnyUnrealEditor_Customization::Register()
 {
 	FPropertyEditorModule& PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
-	
+
 	PropertyModule.RegisterCustomPropertyTypeLayout(
 		VAAnyUnrealEditorCustomization::GetTypeName(),
 		FOnGetPropertyTypeCustomizationInstance::CreateStatic(&FVAAnyUnrealEditor_Customization::MakeInstance));
@@ -157,39 +156,38 @@ FVAAnyUnrealEditor_Customization::FVAAnyUnrealEditor_Customization()
 }
 
 void FVAAnyUnrealEditor_Customization::CustomizeHeader(
-	TSharedRef<IPropertyHandle> PropertyHandle,
-	FDetailWidgetRow& HeaderRow,
+	TSharedRef<IPropertyHandle>      PropertyHandle,
+	FDetailWidgetRow&                HeaderRow,
 	IPropertyTypeCustomizationUtils& CustomizationUtils)
 {
 	OnValueChanged.RemoveAll(this);
 	OnValueChanged.AddSP(this, &FVAAnyUnrealEditor_Customization::HandleValueChanged);
-	
+
 	StructPropertyHandle = PropertyHandle;
 	InitializeTypePickerOptions();
 
 	UTransBuffer* Trans = GEditor ? Cast<UTransBuffer>(GEditor->Trans) : nullptr;
-	if(Trans)
+	if (Trans)
 	{
 		Trans->OnRedo().RemoveAll(this);
 		Trans->OnUndo().RemoveAll(this);
-		Trans->OnRedo().AddSP(this, &FVAAnyUnrealEditor_Customization::HandleRedoUndo);	
+		Trans->OnRedo().AddSP(this, &FVAAnyUnrealEditor_Customization::HandleRedoUndo);
 		Trans->OnUndo().AddSP(this, &FVAAnyUnrealEditor_Customization::HandleRedoUndo);
 	}
 
-	
 	const auto* StructProperty = CastFieldChecked<FStructProperty>(PropertyHandle->GetProperty());
 	if (!StructProperty || StructProperty->Struct != FVAAnyUnreal::StaticStruct())
 	{
 		return;
 	}
 
-	TSharedPtr<FString> TypeName;
+	TSharedPtr<FString>     TypeName;
 	FPropertyAccess::Result Result = GetTypeName(TypeName);
-	if(Result == FPropertyAccess::MultipleValues)
+	if (Result == FPropertyAccess::MultipleValues)
 	{
 		TypeName = MultipleValuesOption;
 	}
-	
+
 	HeaderRow
 		.NameContent()
 		[
@@ -228,41 +226,40 @@ void FVAAnyUnrealEditor_Customization::CustomizeHeader(
 }
 
 void FVAAnyUnrealEditor_Customization::CustomizeChildren(
-	TSharedRef<IPropertyHandle> PropertyHandle,
-	IDetailChildrenBuilder& ChildBuilder,
+	TSharedRef<IPropertyHandle>      PropertyHandle,
+	IDetailChildrenBuilder&          ChildBuilder,
 	IPropertyTypeCustomizationUtils& CustomizationUtils)
 {
 	PropertyUtilities = CustomizationUtils.GetPropertyUtilities();
-	const UScriptStruct* ScriptStruct = nullptr;
+	const UScriptStruct*          ScriptStruct = nullptr;
 	const FPropertyAccess::Result Result = GetValueStruct(ScriptStruct);
-	if(Result != FPropertyAccess::Success)
+	if (Result != FPropertyAccess::Success)
 	{
 		StructValue = nullptr;
 		return;
 	}
 
 	const TArray<FVAAnyUnreal*> Values = GetPropertyValues();
-	if(Values.Num() != 1)
+	if (Values.Num() != 1)
 	{
 		StructValue = nullptr;
 		return;
 	}
-	
+
 	FVAAnyUnreal* Value = Values[0];
-	if(Value == nullptr || !Value->IsValid())
+	if (Value == nullptr || !Value->IsValid())
 	{
 		StructValue = nullptr;
 		return;;
 	}
 
-	
 	FText StructName;
 	{
-		TSharedPtr<FString> TypeName;
+		TSharedPtr<FString>     TypeName;
 		FPropertyAccess::Result TypeNameResult = GetTypeName(TypeName);
-		if(TypeName)
+		if (TypeName)
 		{
-			if(TypeName == AnyStructTypeOption)
+			if (TypeName == AnyStructTypeOption)
 			{
 				StructName = Value->GetStruct()->GetDisplayNameText();
 			}
@@ -272,15 +269,15 @@ void FVAAnyUnrealEditor_Customization::CustomizeChildren(
 			}
 		}
 	}
-	
+
 	StructValue = MakeShared<FStructOnScope>(Value->GetStruct(), static_cast<uint8*>(Value->GetData()));
-	if(StructValue)
+	if (StructValue)
 	{
 		IDetailPropertyRow* PropertyRow = ChildBuilder.AddExternalStructure(StructValue.ToSharedRef());
-		if(PropertyRow)
-		{	
+		if (PropertyRow)
+		{
 			PropertyRow->DisplayName(StructName);
-			PropertyRow->IsEnabled(TAttribute<bool>(this,&FVAAnyUnrealEditor_Customization::IsPropertyEditable));
+			PropertyRow->IsEnabled(TAttribute<bool>(this, &FVAAnyUnrealEditor_Customization::IsPropertyEditable));
 
 			const auto OnValueChangedDelegate = FSimpleDelegate::CreateSP(this, &FVAAnyUnrealEditor_Customization::OnStructValueChanged);
 			PropertyRow->GetPropertyHandle()->SetOnPropertyValueChanged(OnValueChangedDelegate);
@@ -304,15 +301,15 @@ void FVAAnyUnrealEditor_Customization::InitializeTypePickerOptions()
 	TypePickerOptions.Add(AnyStructTypeOption);
 
 	bool bHasAllowedStructs = false;
-	if(StructPropertyHandle)
+	if (StructPropertyHandle)
 	{
-		bHasAllowedStructs = StructPropertyHandle->HasMetaData(VAAnyUnrealEditorCustomization::MD_AllowedStructs); 
+		bHasAllowedStructs = StructPropertyHandle->HasMetaData(VAAnyUnrealEditorCustomization::MD_AllowedStructs);
 	}
 
-	if(!bHasAllowedStructs)
+	if (!bHasAllowedStructs)
 	{
 		TArray<VAAnyUnreal::FVAAnyUnreal_SingleValueStructInfo> SingleValueStructs = VAAnyUnreal::FVAAnyUnreal_SingleValueStructRegistry::Get().GetStructs();
-		for(const auto& StructInfo : SingleValueStructs)
+		for (const auto& StructInfo : SingleValueStructs)
 		{
 			TSharedPtr<FString> TypeName = MakeShared<FString>(StructInfo.TypeName);
 			TypePickerOptions.Add(TypeName);
@@ -324,7 +321,7 @@ void FVAAnyUnrealEditor_Customization::InitializeTypePickerOptions()
 
 FText FVAAnyUnrealEditor_Customization::OnGetComboTextValue() const
 {
-	const UScriptStruct* Struct = nullptr;
+	const UScriptStruct*          Struct = nullptr;
 	const FPropertyAccess::Result Result = GetValueStruct(Struct);
 
 	if (Result == FPropertyAccess::Success)
@@ -336,7 +333,7 @@ FText FVAAnyUnrealEditor_Customization::OnGetComboTextValue() const
 	{
 		return LOCTEXT("MultipleValues", "MultipleValues");
 	}
-	
+
 	return FText::GetEmpty();
 }
 
@@ -346,36 +343,34 @@ TSharedRef<SWidget> FVAAnyUnrealEditor_Customization::GenerateStructPicker()
 
 	TSharedRef<VAAnyUnrealEditorCustomization::FVAAnyUnrealEditorCustomizationStructFilter> StructFilter = MakeShared<VAAnyUnrealEditorCustomization::FVAAnyUnrealEditorCustomizationStructFilter>();
 
-	
 	FString AllowedStructs = StructPropertyHandle->GetMetaData(VAAnyUnrealEditorCustomization::MD_AllowedStructs);
 	StructFilter->SetAllowedStructsByMetaDataString(AllowedStructs);
-	
+
 	FStructViewerInitializationOptions Options;
 	Options.Mode = EStructViewerMode::StructPicker;
 	Options.StructFilter = StructFilter;
 
-
 	const TSharedRef<SWidget> StructViewer = StructViewerModule.CreateStructViewer(
 		Options,
 		FOnStructPicked::CreateSP(this, &FVAAnyUnrealEditor_Customization::OnValueStructPicked));
-	
+
 	return
-		SNew(SBox)
-		.WidthOverride(330)
-		[
-			SNew(SVerticalBox)
-			+ SVerticalBox::Slot()
-			.FillHeight(1.0f)
-			.MaxHeight(500)
+			SNew(SBox)
+			.WidthOverride(330)
 			[
-				SNew(SBorder)
-				.Padding(4)
-				.BorderImage(FEditorStyle::GetBrush("ToolPanel.GroupBorder"))
+				SNew(SVerticalBox)
+				+ SVerticalBox::Slot()
+				.FillHeight(1.0f)
+				.MaxHeight(500)
 				[
-					StructViewer
+					SNew(SBorder)
+					.Padding(4)
+					.BorderImage(FEditorStyle::GetBrush("ToolPanel.GroupBorder"))
+					[
+						StructViewer
+					]
 				]
-			]
-		];
+			];
 }
 
 bool FVAAnyUnrealEditor_Customization::IsPropertyEditable() const
@@ -390,61 +385,59 @@ bool FVAAnyUnrealEditor_Customization::IsPropertyEditable() const
 
 EVisibility FVAAnyUnrealEditor_Customization::GetStructPickerVisibility() const
 {
-	TSharedPtr<FString> TypeName;
+	TSharedPtr<FString>     TypeName;
 	FPropertyAccess::Result Result = GetTypeName(TypeName);
 
-	if(Result != FPropertyAccess::Success)
+	if (Result != FPropertyAccess::Success)
 	{
 		return EVisibility::Collapsed;
 	}
 
-	if(TypeName != AnyStructTypeOption)
+	if (TypeName != AnyStructTypeOption)
 	{
 		return EVisibility::Collapsed;
 	}
 
-	
 	return EVisibility::Visible;
 }
 
 void FVAAnyUnrealEditor_Customization::OnValueTypePicked(TSharedPtr<FString> ChosenType, ESelectInfo::Type SelectInfo)
 {
-	if(StructPropertyHandle == nullptr)
+	if (StructPropertyHandle == nullptr)
 	{
 		return;
 	}
 	FScopedTransaction Transaction(VAAnyUnrealEditorCustomization::Transaction_SetValueType);
-	
+
 	FEditPropertyChain PropertyChain;
 	PropertyChain.AddHead(StructPropertyHandle->GetProperty());
 
-	
 	// Fire off the pre-notify
 	StructPropertyHandle->NotifyPreChange();
-	
+
 	ModifyOuterObjects();
-	
+
 	TArray<FVAAnyUnreal*> Values = GetPropertyValues();
 
 	if (ChosenType == NoneTypeOption)
 	{
 		for (FVAAnyUnreal* Value : Values)
 		{
-			if(Value)
+			if (Value)
 			{
 				Value->Reset();
 			}
 		}
 	}
-	else if(ChosenType == AnyStructTypeOption)
+	else if (ChosenType == AnyStructTypeOption)
 	{
 		const UScriptStruct* DefaultStruct = VAAnyUnrealEditorCustomization::GetDefaultStruct(*StructPropertyHandle);
 		for (FVAAnyUnreal* Value : Values)
 		{
-			if(Value)
+			if (Value)
 			{
 				TSharedPtr<FString> CurrentTypeName = GetTypeNameByValue(*Value);
-				if(CurrentTypeName != ChosenType)
+				if (CurrentTypeName != ChosenType)
 				{
 					Value->Emplace(DefaultStruct);
 				}
@@ -454,12 +447,12 @@ void FVAAnyUnrealEditor_Customization::OnValueTypePicked(TSharedPtr<FString> Cho
 	else
 	{
 		const FSoftObjectPath StructPath = TypeNameToStructMap.FindRef(ChosenType);
-		UScriptStruct* Struct = Cast<UScriptStruct>(StructPath.TryLoad());
+		UScriptStruct*        Struct = Cast<UScriptStruct>(StructPath.TryLoad());
 		for (FVAAnyUnreal* Value : Values)
 		{
-			if(Value)
+			if (Value)
 			{
-				if(Struct)
+				if (Struct)
 				{
 					Value->Emplace(Struct);
 				}
@@ -470,21 +463,19 @@ void FVAAnyUnrealEditor_Customization::OnValueTypePicked(TSharedPtr<FString> Cho
 			}
 		}
 	}
-	
 
 	StructPropertyHandle->NotifyPostChange(EPropertyChangeType::ValueSet);
-	if(PropertyUtilities)
+	if (PropertyUtilities)
 	{
 		PropertyUtilities->ForceRefresh();
 	}
-	
 
 	OnValueChanged.Broadcast(StructPropertyHandle, Values);
 }
 
 void FVAAnyUnrealEditor_Customization::OnValueStructPicked(const UScriptStruct* ChosenStruct)
 {
-	if(StructPropertyHandle == nullptr)
+	if (StructPropertyHandle == nullptr)
 	{
 		return;
 	}
@@ -495,16 +486,16 @@ void FVAAnyUnrealEditor_Customization::OnValueStructPicked(const UScriptStruct* 
 
 	// Fire off the pre-notify
 	StructPropertyHandle->NotifyPreChange();
-	
+
 	ModifyOuterObjects();
-	
+
 	TArray<FVAAnyUnreal*> Values = GetPropertyValues();
 
 	if (ChosenStruct != nullptr)
 	{
 		for (FVAAnyUnreal* Value : Values)
 		{
-			if(Value != nullptr && Value->GetStruct() != ChosenStruct)
+			if (Value != nullptr && Value->GetStruct() != ChosenStruct)
 			{
 				Value->Emplace(ChosenStruct);
 			}
@@ -514,24 +505,24 @@ void FVAAnyUnrealEditor_Customization::OnValueStructPicked(const UScriptStruct* 
 	{
 		for (FVAAnyUnreal* Value : Values)
 		{
-			if(Value != nullptr)
+			if (Value != nullptr)
 			{
 				Value->Reset();
 			}
 		}
 	}
-	
+
 	FPropertyChangedEvent BubbleChangeEvent(StructPropertyHandle->GetProperty(), EPropertyChangeType::ValueSet);
-	
+
 	// post notify
 	StructPropertyHandle->NotifyPostChange(EPropertyChangeType::ValueSet);
-	if(PropertyUtilities)
+	if (PropertyUtilities)
 	{
 		PropertyUtilities->ForceRefresh();
 	}
 
 	OnValueChanged.Broadcast(StructPropertyHandle, Values);
-	
+
 	StructPickerComboButton->SetIsOpen(false);
 }
 
@@ -554,12 +545,12 @@ FPropertyAccess::Result FVAAnyUnrealEditor_Customization::GetValueStruct(const U
 	for (int32 i = 1; i < Values.Num(); ++i)
 	{
 		const auto* ValuePtr = Values[i];
-		if(ValuePtr == nullptr)
+		if (ValuePtr == nullptr)
 		{
 			return FPropertyAccess::Fail;
 		}
-		
-		if(ValuePtr->GetStruct() != FirstValurStruct)
+
+		if (ValuePtr->GetStruct() != FirstValurStruct)
 		{
 			return FPropertyAccess::MultipleValues;
 		}
@@ -587,13 +578,13 @@ FPropertyAccess::Result FVAAnyUnrealEditor_Customization::GetTypeName(TSharedPtr
 	TSharedPtr<FString> FirstTypeName = GetTypeNameByValue(*Values[0]);
 	for (int32 i = 1; i < Values.Num(); ++i)
 	{
-		if(Values[i] == nullptr)
+		if (Values[i] == nullptr)
 		{
 			return FPropertyAccess::Fail;
 		}
-		
+
 		TSharedPtr<FString> TypeName = GetTypeNameByValue(*Values[i]);
-		if(FirstTypeName != TypeName)
+		if (FirstTypeName != TypeName)
 		{
 			return FPropertyAccess::MultipleValues;
 		}
@@ -606,7 +597,7 @@ FPropertyAccess::Result FVAAnyUnrealEditor_Customization::GetTypeName(TSharedPtr
 TArray<FVAAnyUnreal*> FVAAnyUnrealEditor_Customization::GetPropertyValues() const
 {
 	TArray<FVAAnyUnreal*> PropertyValues;
-	TArray<void*> RawData;
+	TArray<void*>         RawData;
 	StructPropertyHandle->AccessRawData(RawData);
 
 	PropertyValues.Reserve(RawData.Num());
@@ -621,15 +612,15 @@ TArray<FVAAnyUnreal*> FVAAnyUnrealEditor_Customization::GetPropertyValues() cons
 
 TSharedPtr<FString> FVAAnyUnrealEditor_Customization::GetTypeNameByValue(const FVAAnyUnreal& InValue) const
 {
-	if(!InValue.IsValid())
+	if (!InValue.IsValid())
 	{
 		return NoneTypeOption;
 	}
 
 	FSoftObjectPath StructPath = InValue.GetStruct();
-	for(const auto& Pair : TypeNameToStructMap)
+	for (const auto& Pair : TypeNameToStructMap)
 	{
-		if(Pair.Value == StructPath)
+		if (Pair.Value == StructPath)
 		{
 			return Pair.Key;
 		}
@@ -642,22 +633,22 @@ TSharedPtr<FString> FVAAnyUnrealEditor_Customization::GetTypeNameByValue(const F
 void FVAAnyUnrealEditor_Customization::OnStructValueChanged()
 {
 	ModifyOuterObjects();
-	
+
 	TArray<FVAAnyUnreal*> Values = GetPropertyValues();
-	if(Values.Num() <= 1 || Values[0] != nullptr)
+	if (Values.Num() <= 1 || Values[0] != nullptr)
 	{
 		return;
 	}
-	
+
 	const FVAAnyUnreal* FirstValue = Values[0];
-	for(int32 i = 1; i <  Values.Num(); ++i)
+	for (int32 i = 1; i < Values.Num(); ++i)
 	{
-		if(Values[i] != nullptr)
+		if (Values[i] != nullptr)
 		{
 			*Values[i] = *FirstValue;
 		}
 	}
-	
+
 	StructPropertyHandle->NotifyFinishedChangingProperties();
 }
 
@@ -673,9 +664,9 @@ void FVAAnyUnrealEditor_Customization::ModifyOuterObjects()
 
 void FVAAnyUnrealEditor_Customization::HandleRedoUndo(const FTransactionContext& TransactionContext, bool Succeeded)
 {
-	if(TransactionContext.Title.IdenticalTo(VAAnyUnrealEditorCustomization::Transaction_SetValueType))
+	if (TransactionContext.Title.IdenticalTo(VAAnyUnrealEditorCustomization::Transaction_SetValueType))
 	{
-		if(PropertyUtilities)
+		if (PropertyUtilities)
 		{
 			PropertyUtilities->ForceRefresh();
 		}
@@ -685,26 +676,23 @@ void FVAAnyUnrealEditor_Customization::HandleRedoUndo(const FTransactionContext&
 
 void FVAAnyUnrealEditor_Customization::HandleValueChanged(const TSharedPtr<IPropertyHandle>& PropertyHandle, const TArray<FVAAnyUnreal*>& PropertyValues)
 {
-	if(PropertyHandle != StructPropertyHandle)
+	if (PropertyHandle != StructPropertyHandle)
 	{
 		TArray<FVAAnyUnreal*> Values = GetPropertyValues();
 
-
 		bool bRefresh = false;
-		for(FVAAnyUnreal* Value : Values)
+		for (FVAAnyUnreal* Value : Values)
 		{
-			if(PropertyValues.Contains(Value))
+			if (PropertyValues.Contains(Value))
 			{
 				bRefresh = true;
 				break;
 			}
 		}
 
-		
-
-		if(bRefresh)
+		if (bRefresh)
 		{
-			if(PropertyUtilities)
+			if (PropertyUtilities)
 			{
 				PropertyUtilities->ForceRefresh();
 			}

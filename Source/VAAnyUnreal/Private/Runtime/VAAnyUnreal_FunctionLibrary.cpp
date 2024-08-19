@@ -50,9 +50,9 @@ void UVAAnyUnreal_FunctionLibrary::ConvStructToAny(FVAAnyUnreal& Target, const F
 }
 
 void UVAAnyUnreal_FunctionLibrary::ConvStructToAnyGeneric(
-	FVAAnyUnreal& Target,
+	FVAAnyUnreal&  Target,
 	UScriptStruct* ValueStruct,
-	const void* Value)
+	const void*    Value)
 {
 	if (!ensure(FVAAnyUnreal::IsValidValueStruct(ValueStruct)))
 	{
@@ -66,41 +66,41 @@ void UVAAnyUnreal_FunctionLibrary::ConvStructToAnyGeneric(
 bool UVAAnyUnreal_FunctionLibrary::GetValueAny(const FVAAnyUnreal& InputValue, FVAAnyUnreal& OutResult)
 {
 	checkNoEntry(); // This will call execGetValueAny custom thunk function instead of the generated one.
-	return false; // Return false to avoid compiler warning.
+	return false;   // Return false to avoid compiler warning.
 }
 
 bool UVAAnyUnreal_FunctionLibrary::GetValueAnyGeneric(
 	const FVAAnyUnreal& InputValue,
-	UScriptStruct* ValueStruct,
-	void* OutResult)
+	UScriptStruct*      ValueStruct,
+	void*               OutResult)
 {
 	if (!ensure(FVAAnyUnreal::IsValidValueStruct(ValueStruct)))
 	{
 		ValueStruct->ClearScriptStruct(OutResult);
 		return false;
 	}
-	
-	if(!InputValue.IsValid())
+
+	if (!InputValue.IsValid())
 	{
 		ValueStruct->ClearScriptStruct(OutResult);
 		return false;
 	}
-		
+
 	if (!InputValue.Is(ValueStruct))
 	{
 		ValueStruct->ClearScriptStruct(OutResult);
 		return false;
 	}
-		
+
 	ValueStruct->CopyScriptStruct(OutResult, InputValue.GetData());
 	return true;
 }
 
 bool UVAAnyUnreal_FunctionLibrary::IsStructValue(const FVAAnyUnreal& InputValue, UScriptStruct* Struct)
 {
-	if(Struct == nullptr)
+	if (Struct == nullptr)
 	{
-		if(!InputValue.IsValid())
+		if (!InputValue.IsValid())
 		{
 			return false;
 		}
@@ -118,7 +118,7 @@ FVAAnyUnreal UVAAnyUnreal_FunctionLibrary::ConvBoolToAny(bool InValue)
 
 bool UVAAnyUnreal_FunctionLibrary::GetBoolValueAny(const FVAAnyUnreal& Value, bool& OutValue)
 {
-	if(Value.TryGetValue(OutValue))
+	if (Value.TryGetValue(OutValue))
 	{
 		return true;
 	}
@@ -140,7 +140,7 @@ FVAAnyUnreal UVAAnyUnreal_FunctionLibrary::ConvByteToValueAny(uint8 InValue)
 
 bool UVAAnyUnreal_FunctionLibrary::GetByteValueAny(const FVAAnyUnreal& Value, uint8& OutValue)
 {
-	if(Value.TryGetValue(OutValue))
+	if (Value.TryGetValue(OutValue))
 	{
 		return true;
 	}
@@ -161,7 +161,7 @@ FVAAnyUnreal UVAAnyUnreal_FunctionLibrary::ConvIntToValueAny(int32 InValue)
 
 bool UVAAnyUnreal_FunctionLibrary::GetIntValueAny(const FVAAnyUnreal& Value, int32& OutValue)
 {
-	if(Value.TryGetValue(OutValue))
+	if (Value.TryGetValue(OutValue))
 	{
 		return true;
 	}
@@ -182,7 +182,7 @@ FVAAnyUnreal UVAAnyUnreal_FunctionLibrary::ConvInt64ToValueAny(int64 InValue)
 
 bool UVAAnyUnreal_FunctionLibrary::GetInt64ValueAny(const FVAAnyUnreal& Value, int64& OutValue)
 {
-	if(Value.TryGetValue(OutValue))
+	if (Value.TryGetValue(OutValue))
 	{
 		return true;
 	}
@@ -203,7 +203,7 @@ FVAAnyUnreal UVAAnyUnreal_FunctionLibrary::ConvFloatToValueAny(float InValue)
 
 bool UVAAnyUnreal_FunctionLibrary::GetFloatValueAny(const FVAAnyUnreal& Value, float& OutValue)
 {
-	if(Value.TryGetValue(OutValue))
+	if (Value.TryGetValue(OutValue))
 	{
 		return true;
 	}
@@ -224,7 +224,7 @@ FVAAnyUnreal UVAAnyUnreal_FunctionLibrary::ConvStringToValueAny(const FString& I
 
 bool UVAAnyUnreal_FunctionLibrary::GetStringValueAny(const FVAAnyUnreal& Value, FString& OutValue)
 {
-	if(Value.TryGetValue(OutValue))
+	if (Value.TryGetValue(OutValue))
 	{
 		return true;
 	}
@@ -245,7 +245,7 @@ FVAAnyUnreal UVAAnyUnreal_FunctionLibrary::ConvNameToValueAny(FName InValue)
 
 bool UVAAnyUnreal_FunctionLibrary::GetNameValueAny(const FVAAnyUnreal& Value, FName& OutValue)
 {
-	if(Value.TryGetValue(OutValue))
+	if (Value.TryGetValue(OutValue))
 	{
 		return true;
 	}
@@ -266,7 +266,7 @@ FVAAnyUnreal UVAAnyUnreal_FunctionLibrary::ConvTextToValueAny(const FText& InVal
 
 bool UVAAnyUnreal_FunctionLibrary::GetTextValueAny(const FVAAnyUnreal& Value, FText& OutValue)
 {
-	if(Value.TryGetValue(OutValue))
+	if (Value.TryGetValue(OutValue))
 	{
 		return true;
 	}
@@ -292,7 +292,7 @@ UObject* UVAAnyUnreal_FunctionLibrary::GetObjectFromAny(const FVAAnyUnreal& Valu
 
 bool UVAAnyUnreal_FunctionLibrary::IsObjectValueAny(const FVAAnyUnreal& Value, bool bEvenIfNull)
 {
-	if(bEvenIfNull)
+	if (bEvenIfNull)
 	{
 		return Value.Is<UObject*>();
 	}
@@ -312,7 +312,7 @@ TSoftObjectPtr<UObject> UVAAnyUnreal_FunctionLibrary::GetSoftObjectReferenceFrom
 
 bool UVAAnyUnreal_FunctionLibrary::IsSoftObjectReferenceValueAny(const FVAAnyUnreal& Value, bool bEvenIfNull)
 {
-	if(bEvenIfNull)
+	if (bEvenIfNull)
 	{
 		return Value.Is<TSoftObjectPtr<UObject>>();
 	}
@@ -332,7 +332,7 @@ UClass* UVAAnyUnreal_FunctionLibrary::GetClassFromValueAny(const FVAAnyUnreal& V
 
 bool UVAAnyUnreal_FunctionLibrary::IsClassValueAny(const FVAAnyUnreal& Value, bool bEvenIfNull)
 {
-	if(bEvenIfNull)
+	if (bEvenIfNull)
 	{
 		return Value.Is<UClass*>();
 	}
@@ -352,12 +352,10 @@ TSoftClassPtr<UObject> UVAAnyUnreal_FunctionLibrary::GetSoftClassReferenceFromVa
 
 bool UVAAnyUnreal_FunctionLibrary::IsSoftClassReferenceValueAny(const FVAAnyUnreal& Value, bool bEvenIfNull)
 {
-	if(bEvenIfNull)
+	if (bEvenIfNull)
 	{
 		return Value.Is<TSoftClassPtr<UObject>>();
 	}
 
 	return !Value.GetSoftClassPtrValue().IsNull();
 }
-
-

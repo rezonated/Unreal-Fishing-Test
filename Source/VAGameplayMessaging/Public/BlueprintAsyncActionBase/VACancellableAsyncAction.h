@@ -15,8 +15,8 @@ UCLASS(Abstract, BlueprintType, meta = (ExposedAsyncProxy = AsyncAction))
 class VAGAMEPLAYMESSAGING_API UVACancellableAsyncAction : public UBlueprintAsyncActionBase
 {
 	GENERATED_BODY()
+
 public:
-	
 	/** Handle when this action is being destroyed to ensure that the action is canceled and child classes can clean up. */
 	virtual void BeginDestroy() override;
 
