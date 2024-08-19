@@ -48,15 +48,17 @@ bool AFunctionalTest_FishingFeatureTest::PrepLookForMockableFishingComponent()
 	
 	for (UActorComponent* Component : PawnComponents)
 	{
-		if (Component->Implements<UMockableFishingInterface>())
+		if (!Component->Implements<UMockableFishingInterface>())
 		{
-			CurrentFishingComponentToMock = Cast<IMockableFishingInterface>(Component);
-			if (!CurrentFishingComponentToMock)
-			{
-				FinishTest(EFunctionalTestResult::Failed, "Pawn has a component that doesn't implement UFishingFeature");
-				return bReturnValue;
-			}
+			continue;
 		}
+		CurrentFishingComponentToMock = Cast<IMockableFishingInterface>(Component);
+		if (!CurrentFishingComponentToMock)
+		{
+			FinishTest(EFunctionalTestResult::Failed, "Pawn has a component that doesn't implement UFishingFeature");
+			return bReturnValue;
+		}
+		break;
 	}
 
 	if (CurrentFishingComponentToMock == nullptr)
