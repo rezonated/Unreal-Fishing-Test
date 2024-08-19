@@ -82,8 +82,7 @@ void AActor_FishSpawnArea::OnFishSpawnAssetLoaded()
 	SpawnFishes(FishSpawnAmount, CenterLocation, BoxExtent, LoadedAssetAsClass);
 }
 
-void AActor_FishSpawnArea::SpawnFishes(const int32& InFishSpawnAmount, const FVector& InCenterLocation,
-	const FVector&                                  InBoxExtent, UClass*              InFishActorClass)
+void AActor_FishSpawnArea::SpawnFishes(const int32& InFishSpawnAmount, const FVector& InCenterLocation, const FVector& InBoxExtent, UClass* InFishActorClass)
 {
 	if (!InFishActorClass)
 	{

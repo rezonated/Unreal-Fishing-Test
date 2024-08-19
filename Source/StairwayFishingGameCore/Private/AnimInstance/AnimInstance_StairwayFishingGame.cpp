@@ -1,7 +1,7 @@
 ﻿// Vanan Andreas - 2024
 
 
-#include "AnimInstance_StairwayFishingGame.h"
+#include "AnimInstance/AnimInstance_StairwayFishingGame.h"
 
 #include "FishingTags.h"
 #include "StairwayFishingGameCore.h"

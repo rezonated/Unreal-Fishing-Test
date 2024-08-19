@@ -7,7 +7,6 @@
 #include "UObject/Interface.h"
 #include "PlayerActionInputInterface.generated.h"
 
-// This class does not need to be modified.
 UINTERFACE()
 class FISHINGGAMETYPES_API UPlayerActionInputInterface : public UInterface
 {
@@ -15,15 +14,25 @@ class FISHINGGAMETYPES_API UPlayerActionInputInterface : public UInterface
 };
 
 /**
- * 
+ * Interface for player action input, handles the player action input events.
  */
 class FISHINGGAMETYPES_API IPlayerActionInputInterface
 {
 	GENERATED_BODY()
 
-	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
+	/*
+	 * Returns the delegate for when the player action input starts.
+	 */
 	virtual FOnPlayerActionInput& OnCastActionStarted() = 0;
+
+	/*
+	 * Returns the delegate for when the player action input is triggered.
+	 */
 	virtual FOnPlayerActionInput& OnCastActionTriggered() = 0;
+
+	/*
+	 * Returns the delegate for when the player action input is completed.
+	 */
 	virtual FOnPlayerActionInput& OnCastActionCompleted() = 0;
 };

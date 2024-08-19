@@ -707,7 +707,7 @@ void UActorComponent_FishingComponent::OnGameModeStateChangeFinishMessageReceive
 {
 	if (!MessagePayload.Is<FGameplayTag>())
 	{
-		UE_LOG(LogFishingFeature, Error, TEXT("Message payload is not a gmeplay tag, have you correctly send the tag value? Won't continue..."));
+		UE_LOG(LogFishingFeature, Error, TEXT("Message payload is not a gameplay tag, have you correctly send the tag value? Won't continue..."));
 		return;
 	}
 

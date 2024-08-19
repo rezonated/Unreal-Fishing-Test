@@ -8,7 +8,7 @@
 #include "DataAsset_FishSpawnAreaConfig.generated.h"
 
 /**
- * 
+ * Data asset for configuring the fish spawn area.
  */
 UCLASS()
 class FISHINGFEATURE_API UDataAsset_FishSpawnAreaConfig : public UDataAsset
@@ -16,9 +16,15 @@ class FISHINGFEATURE_API UDataAsset_FishSpawnAreaConfig : public UDataAsset
 	GENERATED_BODY()
 
 public:
+	/*
+	 * Returns the fish spawn area config.
+	 */
 	FORCEINLINE FFishSpawnAreaConfig GetFishSpawnAreaConfig() const { return FishSpawnAreaConfig; }
 
 protected:
+	/*
+	 * The fish spawn area config.
+	 */
 	UPROPERTY(EditAnywhere, Category = "Fish Spawn Area Config")
 	FFishSpawnAreaConfig FishSpawnAreaConfig;
 };
