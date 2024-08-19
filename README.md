@@ -14,6 +14,11 @@ This repo contains the source code for a fishing game built using Unreal Engine 
   - Wait for ~3secs for the fish to reel in and bites the bobber. If the player clicks early, the fish will escape!
   - Reel out the fish
   - And finally show the fish and have a choice to restart or quit the game!
+- Added functional tests to test the fishing feature, can be run via session frontend
+  - Validates and check if the parameters are set correctly and able to catch any fish
+  - Checks if waiting 3s to pull the fish works
+  - Checks if reeling out early will not catch the fish works
+![FunctionalTest](./img/FunctionalTest.png)
 
 ## Asset credits
 - Fishing rod: https://sketchfab.com/3d-models/fishing-rod-1ffdece4c1054f44b640ef3a189ada09
