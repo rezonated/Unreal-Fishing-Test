@@ -18,7 +18,9 @@ This repo contains the source code for a fishing game built using Unreal Engine 
   - Validates and check if the parameters are set correctly and able to catch any fish
   - Checks if waiting 3s to pull the fish works
   - Checks if reeling out early will not catch the fish works
-![FunctionalTest](./img/FunctionalTest.png)
+ 
+
+  ![FunctionalTest](./img/FunctionalTest.png)
 
 ## Asset credits
 - Fishing rod: https://sketchfab.com/3d-models/fishing-rod-1ffdece4c1054f44b640ef3a189ada09
