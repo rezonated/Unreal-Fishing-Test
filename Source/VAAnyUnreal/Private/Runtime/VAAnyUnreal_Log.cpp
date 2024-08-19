@@ -3,5 +3,3 @@
 
 
 DEFINE_LOG_CATEGORY(LogVAAnyUnreal);
-
-

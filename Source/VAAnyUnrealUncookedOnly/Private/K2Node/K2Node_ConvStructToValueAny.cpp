@@ -15,9 +15,7 @@ namespace K2Node_ConvStructToValueAny
 }
 
 
-UK2Node_ConvStructToValueAny::UK2Node_ConvStructToValueAny(const FObjectInitializer& ObjectInitializer)
-{
-}
+UK2Node_ConvStructToValueAny::UK2Node_ConvStructToValueAny(const FObjectInitializer& ObjectInitializer) {}
 
 void UK2Node_ConvStructToValueAny::AllocateDefaultPins()
 {
@@ -26,14 +24,14 @@ void UK2Node_ConvStructToValueAny::AllocateDefaultPins()
 	// Add Input pin
 	UEdGraphPin* ReturnValuePin = CreatePin(EGPD_Output, UEdGraphSchema_K2::PC_Struct, FVAAnyUnreal::StaticStruct(), UEdGraphSchema_K2::PN_ReturnValue);
 	UEdGraphPin* ValuePin = CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Wildcard, K2Node_ConvStructToValueAny::ValuePinName);
-	
+
 	Super::AllocateDefaultPins();
 }
 
 FText UK2Node_ConvStructToValueAny::GetNodeTitle(ENodeTitleType::Type TitleType) const
 {
 	auto* ValueStruct = GetInputStructTypeFromPin();
-	if(ValueStruct != nullptr)
+	if (ValueStruct != nullptr)
 	{
 		if (CachedNodeTitle.IsOutOfDate(this))
 		{
@@ -47,13 +45,13 @@ FText UK2Node_ConvStructToValueAny::GetNodeTitle(ENodeTitleType::Type TitleType)
 	}
 	return LOCTEXT("NodeTitle", "To VA_AnyUnreal (structure)");
 }
-	
+
 
 void UK2Node_ConvStructToValueAny::ExpandNode(FKismetCompilerContext& CompilerContext, UEdGraph* SourceGraph)
 {
 	Super::ExpandNode(CompilerContext, SourceGraph);
 
-	const FName FunctionName = GET_FUNCTION_NAME_CHECKED(UVAAnyUnreal_FunctionLibrary, ConvStructToAny);
+	const FName           FunctionName = GET_FUNCTION_NAME_CHECKED(UVAAnyUnreal_FunctionLibrary, ConvStructToAny);
 	UK2Node_CallFunction* FunctionNode = CompilerContext.SpawnIntermediateNode<UK2Node_CallFunction>(this, SourceGraph);
 	FunctionNode->FunctionReference.SetExternalMember(FunctionName, UVAAnyUnreal_FunctionLibrary::StaticClass());
 	FunctionNode->AllocateDefaultPins();
@@ -62,7 +60,7 @@ void UK2Node_ConvStructToValueAny::ExpandNode(FKismetCompilerContext& CompilerCo
 	UEdGraphPin* FunctionValuePin = FunctionNode->FindPinChecked(TEXT("Value"));
 
 	UEdGraphPin* OriginalValuePin = GetValuePin();
-	
+
 	FunctionValuePin->PinType = OriginalValuePin->PinType;
 	FunctionValuePin->PinType.PinSubCategoryObject = OriginalValuePin->PinType.PinSubCategoryObject;
 
@@ -87,7 +85,7 @@ void UK2Node_ConvStructToValueAny::ReallocatePinsDuringReconstruction(TArray<UEd
 void UK2Node_ConvStructToValueAny::GetMenuActions(FBlueprintActionDatabaseRegistrar& ActionRegistrar) const
 {
 	Super::GetMenuActions(ActionRegistrar);
-	
+
 	UClass* ActionKey = GetClass();
 	if (ActionRegistrar.IsOpenForRegistration(ActionKey))
 	{
@@ -106,7 +104,7 @@ FText UK2Node_ConvStructToValueAny::GetMenuCategory() const
 bool UK2Node_ConvStructToValueAny::IsConnectionDisallowed(
 	const UEdGraphPin* MyPin,
 	const UEdGraphPin* OtherPin,
-	FString& OutReason) const
+	FString&           OutReason) const
 {
 	if (MyPin == GetValuePin() && MyPin->PinType.PinCategory == UEdGraphSchema_K2::PC_Wildcard)
 	{
@@ -140,7 +138,7 @@ void UK2Node_ConvStructToValueAny::EarlyValidation(FCompilerResultsLog& MessageL
 void UK2Node_ConvStructToValueAny::NotifyPinConnectionListChanged(UEdGraphPin* Pin)
 {
 	Super::NotifyPinConnectionListChanged(Pin);
-	
+
 	if (Pin == GetValuePin())
 	{
 		RefreshInputPinType();
@@ -157,8 +155,8 @@ UEdGraphPin* UK2Node_ConvStructToValueAny::GetReturnValuePin() const
 UEdGraphPin* UK2Node_ConvStructToValueAny::GetValuePin(bool bChecked) const
 {
 	UEdGraphPin* Pin = FindPin(K2Node_ConvStructToValueAny::ValuePinName);
-	
-	if(bChecked) { check(Pin != nullptr); }
+
+	if (bChecked) { check(Pin != nullptr); }
 	check(Pin == nullptr || Pin->Direction == EGPD_Input);
 
 	return Pin;
@@ -196,11 +194,11 @@ UScriptStruct* UK2Node_ConvStructToValueAny::GetInputStructType() const
 	UEdGraphPin* ValuePin = GetValuePin();
 	if (ValuePin && 0 < ValuePin->LinkedTo.Num())
 	{
-		const TArray<UEdGraphPin*>& LinkedTo =  ValuePin->LinkedTo;
-		UScriptStruct* PinStructType = Cast<UScriptStruct>(LinkedTo[0]->PinType.PinSubCategoryObject.Get());
+		const TArray<UEdGraphPin*>& LinkedTo = ValuePin->LinkedTo;
+		UScriptStruct*              PinStructType = Cast<UScriptStruct>(LinkedTo[0]->PinType.PinSubCategoryObject.Get());
 		for (int32 LinkIndex = 1; LinkIndex < ValuePin->LinkedTo.Num(); ++LinkIndex)
 		{
-			UEdGraphPin* Link = LinkedTo[LinkIndex];
+			UEdGraphPin*   Link = LinkedTo[LinkIndex];
 			UScriptStruct* LinkType = Cast<UScriptStruct>(Link->PinType.PinSubCategoryObject.Get());
 
 			if (PinStructType->IsChildOf(LinkType))
@@ -216,9 +214,9 @@ UScriptStruct* UK2Node_ConvStructToValueAny::GetInputStructType() const
 UScriptStruct* UK2Node_ConvStructToValueAny::GetInputStructTypeFromPin() const
 {
 	UEdGraphPin* ValuePin = GetValuePin(false);
-	if(ValuePin)
+	if (ValuePin)
 	{
-		if(ValuePin->PinType.PinCategory == UEdGraphSchema_K2::PC_Struct)
+		if (ValuePin->PinType.PinCategory == UEdGraphSchema_K2::PC_Struct)
 		{
 			return Cast<UScriptStruct>(ValuePin->PinType.PinSubCategoryObject.Get());
 		}

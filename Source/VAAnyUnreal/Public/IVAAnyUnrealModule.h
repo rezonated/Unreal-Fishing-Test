@@ -9,10 +9,8 @@
 class VAANYUNREAL_API IVAAnyUnrealModule : public IModuleInterface
 {
 public:
-
 	static IVAAnyUnrealModule& Get()
 	{
 		return FModuleManager::LoadModuleChecked<IVAAnyUnrealModule>("VAAnyUnreal");
 	}
 };
-

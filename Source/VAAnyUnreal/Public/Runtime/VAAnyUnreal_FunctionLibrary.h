@@ -13,6 +13,7 @@ UCLASS()
 class VAANYUNREAL_API UVAAnyUnreal_FunctionLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
+
 public:
 	/**
 	 * Resets the value to an empty state.
@@ -104,23 +105,23 @@ public:
 		// Begin the native function.
 		P_NATIVE_BEGIN;
 
-		// Ensure the value struct property and value pointer are valid.
-		if (ensure(ValueStructProp && ValuePtr))
-		{
-			// Get the value struct.
-			UScriptStruct* ValueStruct = ValueStructProp->Struct;
-			
-			// Set the value.
-			SetValueAnyGeneric(Target, ValueStruct, ValuePtr);
-		}
+			// Ensure the value struct property and value pointer are valid.
+			if (ensure(ValueStructProp && ValuePtr))
+			{
+				// Get the value struct.
+				UScriptStruct* ValueStruct = ValueStructProp->Struct;
 
-		// Reset the target if the value struct property or value pointer are invalid.
-		else
-		{
-			Target.Reset();
-		}
+				// Set the value.
+				SetValueAnyGeneric(Target, ValueStruct, ValuePtr);
+			}
 
-		// End the native function.
+			// Reset the target if the value struct property or value pointer are invalid.
+			else
+			{
+				Target.Reset();
+			}
+
+			// End the native function.
 		P_NATIVE_END;
 	}
 
@@ -167,25 +168,25 @@ public:
 
 		// Begin the native function.
 		P_NATIVE_BEGIN;
-		
-		// Ensure the value struct property and value pointer are valid.
-		if (ensure(ValueStructProp && ValuePtr))
-		{
-			// Get the value struct.
-			UScriptStruct* ValueStruct = ValueStructProp->Struct;
 
-			// Convert the structure to an FVAAnyUnreal.
-			ConvStructToAnyGeneric(ReturnValue, ValueStruct, ValuePtr);
-		}
+			// Ensure the value struct property and value pointer are valid.
+			if (ensure(ValueStructProp && ValuePtr))
+			{
+				// Get the value struct.
+				UScriptStruct* ValueStruct = ValueStructProp->Struct;
 
-		// Reset the return value if the value struct property or value pointer are invalid.
-		else
-		{
-			// Reset the return value.
-			ReturnValue.Reset();
-		}
+				// Convert the structure to an FVAAnyUnreal.
+				ConvStructToAnyGeneric(ReturnValue, ValueStruct, ValuePtr);
+			}
 
-		// End the native function.
+			// Reset the return value if the value struct property or value pointer are invalid.
+			else
+			{
+				// Reset the return value.
+				ReturnValue.Reset();
+			}
+
+			// End the native function.
 		P_NATIVE_END;
 	}
 
@@ -222,7 +223,7 @@ public:
 		Stack.StepCompiledIn<FStructProperty>(nullptr);
 
 		// Get the output result.
-		void* ValuePtr = Stack.MostRecentPropertyAddress;
+		void*            ValuePtr = Stack.MostRecentPropertyAddress;
 		FStructProperty* ValueStructProp = CastField<FStructProperty>(Stack.MostRecentProperty);
 
 		// Finish the function.
@@ -231,28 +232,28 @@ public:
 		// Begin the native function.
 		P_NATIVE_BEGIN;
 
-		// Create a boolean to store the success of the operation.
-		bool* bSuccess = static_cast<bool*>(RESULT_PARAM);
+			// Create a boolean to store the success of the operation.
+			bool* bSuccess = static_cast<bool*>(RESULT_PARAM);
 
-		// Ensure the value struct property and value pointer are valid.
-		if (ensure(ValueStructProp && ValuePtr))
-		{
-			// Get the value struct.
-			UScriptStruct* ValueStruct = ValueStructProp->Struct;
+			// Ensure the value struct property and value pointer are valid.
+			if (ensure(ValueStructProp && ValuePtr))
+			{
+				// Get the value struct.
+				UScriptStruct* ValueStruct = ValueStructProp->Struct;
 
-			// Get the value from the FVAAnyUnreal.
-			*bSuccess = GetValueAnyGeneric(InputValue, ValueStruct, ValuePtr);
-		}
-		// If failed, set the success to false
-		else
-		{
-			*bSuccess = false;
-		}
+				// Get the value from the FVAAnyUnreal.
+				*bSuccess = GetValueAnyGeneric(InputValue, ValueStruct, ValuePtr);
+			}
+			// If failed, set the success to false
+			else
+			{
+				*bSuccess = false;
+			}
 
-		// End the native function.
+			// End the native function.
 		P_NATIVE_END;
 	}
-	
+
 	/**
 	 * Checks if the value is a structure.
 	 * @param InputValue - The value to check.
@@ -462,7 +463,7 @@ public:
 	 */
 	UFUNCTION(BlueprintPure, Category="VA_AnyUnreal", meta=(DisplayName="ToValueAny (String)", CompactNodeTitle="->", BlueprintAutocast))
 	static FVAAnyUnreal ConvStringToValueAny(const FString& InValue);
-	
+
 	/**
 	 * Gets the string value from the FVAAnyUnreal.
 	 * @param Value - Value to get. 
@@ -578,7 +579,7 @@ public:
 	 * @return - The output value.
 	 */
 	UFUNCTION(BlueprintCallable, Category="VA_AnyUnreal", meta=(DeterminesOutputType="ObjectClass", AdvancedDisplay="ObjectClass"))
-	static UObject* GetObjectFromAny(const FVAAnyUnreal& Value, TSubclassOf<UObject> ObjectClass=nullptr);
+	static UObject* GetObjectFromAny(const FVAAnyUnreal& Value, TSubclassOf<UObject> ObjectClass = nullptr);
 
 	/**
 	 * Checks if the value is an object.
@@ -587,7 +588,7 @@ public:
 	 * @return - True if the value is an object, false otherwise.
 	 */
 	UFUNCTION(BlueprintPure, Category="VA_AnyUnreal")
-	static bool IsObjectValueAny(const FVAAnyUnreal& Value, bool bEvenIfNull=false);
+	static bool IsObjectValueAny(const FVAAnyUnreal& Value, bool bEvenIfNull = false);
 
 	/**
 	 * Converts soft object reference to FVAAnyUnreal.
@@ -612,7 +613,7 @@ public:
 	 * @return - True if the value is a soft object reference, false otherwise.
 	 */
 	UFUNCTION(BlueprintPure, Category="VA_AnyUnreal")
-	static bool IsSoftObjectReferenceValueAny(const FVAAnyUnreal& Value, bool bEvenIfNull=false);
+	static bool IsSoftObjectReferenceValueAny(const FVAAnyUnreal& Value, bool bEvenIfNull = false);
 
 
 	/**
@@ -630,7 +631,7 @@ public:
 	 * @return - The output value.
 	 */
 	UFUNCTION(BlueprintCallable, Category="VA_AnyUnreal", meta=(DeterminesOutputType="ParentClass", AdvancedDisplay="ParentClass"))
-	static UClass* GetClassFromValueAny(const FVAAnyUnreal& Value, TSubclassOf<UObject> ParentClass=nullptr);
+	static UClass* GetClassFromValueAny(const FVAAnyUnreal& Value, TSubclassOf<UObject> ParentClass = nullptr);
 
 	/**
 	 * Checks if the value is a class.
@@ -639,7 +640,7 @@ public:
 	 * @return - True if the value is a class, false otherwise.
 	 */
 	UFUNCTION(BlueprintPure, Category="VA_AnyUnreal")
-	static bool IsClassValueAny(const FVAAnyUnreal& Value, bool bEvenIfNull=false);
+	static bool IsClassValueAny(const FVAAnyUnreal& Value, bool bEvenIfNull = false);
 
 	/**
 	 * Converts soft class reference to FVAAnyUnreal.
@@ -664,5 +665,5 @@ public:
 	 * @return - True if the value is a soft class reference, false otherwise.
 	 */
 	UFUNCTION(BlueprintPure, Category="VA_AnyUnreal")
-	static bool IsSoftClassReferenceValueAny(const FVAAnyUnreal& Value, bool bEvenIfNull=false);
+	static bool IsSoftClassReferenceValueAny(const FVAAnyUnreal& Value, bool bEvenIfNull = false);
 };

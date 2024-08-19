@@ -8,7 +8,6 @@
 class FVAAnyUnrealEditorModule final : public IVAAnyUnrealEditorModule
 {
 public:
-
 	/** IModuleInterface implementation */
 	virtual void StartupModule() override
 	{
@@ -22,6 +21,5 @@ public:
 };
 
 #undef LOCTEXT_NAMESPACE
-	
-IMPLEMENT_MODULE(FVAAnyUnrealEditorModule, VAAnyUnrealEditor)
 
+IMPLEMENT_MODULE(FVAAnyUnrealEditorModule, VAAnyUnrealEditor)

@@ -29,7 +29,7 @@ struct FChannelMembersData
 	{
 		ChannelMembers.Remove(ChannelMember);
 	}
-	
+
 	FORCEINLINE bool IsEmpty() const
 	{
 		return ChannelMembers.Num() <= 0;
@@ -44,7 +44,7 @@ struct FChannelMembersData
 	{
 		return ChannelMembers;
 	}
-	
+
 private:
 	TArray<UVAGameplayMessaging_ListenForGameplayMessages*> ChannelMembers;
 };
@@ -53,6 +53,7 @@ UCLASS()
 class VAGAMEPLAYMESSAGING_API UVAGameplayMessagingSubsystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
+
 public:
 	static UVAGameplayMessagingSubsystem& Get(const UObject* WorldContextObject);
 
@@ -62,12 +63,13 @@ public:
 	static bool BroadcastMessage(const UObject* WorldContextObject, const FGameplayTag InChannel, const FVAAnyUnreal InMessagePayload);
 
 	bool BroadcastMessage_Internal(const FGameplayTag InChannel, const FVAAnyUnreal& InMessagePayload);
-	
+
 	bool RegisterNewMember(const FGameplayTagContainer& InChannels, UVAGameplayMessaging_ListenForGameplayMessages* InChannelMember);
 
 	void UnregisterMember(UVAGameplayMessaging_ListenForGameplayMessages* InChannelMember);
 
 	virtual void Deinitialize() override;
+
 private:
 	UPROPERTY()
 	TMap<FGameplayTag, FChannelMembersData> ChannelToMembersMap;

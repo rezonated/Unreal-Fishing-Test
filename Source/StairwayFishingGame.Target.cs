@@ -4,16 +4,24 @@ using UnrealBuildTool;
 
 public class StairwayFishingGameTarget : TargetRules
 {
-	public StairwayFishingGameTarget( TargetInfo Target) : base(Target)
+	public StairwayFishingGameTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Game;
 		DefaultBuildSettings = BuildSettingsVersion.Latest;
-		ExtraModuleNames.AddRange( new[]
+		ExtraModuleNames.AddRange(new[]
 		{
 			"StairwayFishingGameCore",
 			"VAAnyUnreal",
-			"VALogging",
 			"VAGameplayMessaging"
-		} );
+		});
+		RegisterModulesCreatedByRider();
+	}
+
+	private void RegisterModulesCreatedByRider()
+	{
+		ExtraModuleNames.AddRange(new[]
+		{
+			"FishingFeature", "FishingGameplayTags", "FishingGameTypes", "StairwayFishingGameUI"
+		});
 	}
 }

@@ -10,20 +10,13 @@
 class FVAAnyUnrealModule final : public IVAAnyUnrealModule
 {
 public:
-
 	/** IModuleInterface implementation */
-	virtual void StartupModule() override
-	{
+	virtual void StartupModule() override {}
 
-	}
-
-	virtual void ShutdownModule() override
-	{
-
-	}
+	virtual void ShutdownModule() override {}
 };
 
 
 #undef LOCTEXT_NAMESPACE
-	
+
 IMPLEMENT_MODULE(FVAAnyUnrealModule, VAAnyUnreal)

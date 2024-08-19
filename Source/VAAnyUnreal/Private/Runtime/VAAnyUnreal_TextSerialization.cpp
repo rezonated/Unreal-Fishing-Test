@@ -5,16 +5,16 @@
 
 
 bool FVAAnyUnreal_TextValueSerializationProxy::ExportTextItem(FString& ValueStr,
-                                                              const FVAAnyUnreal_TextValueSerializationProxy& DefaultValue, UObject* Parent, int32 PortFlags,
-                                                              UObject* ExportRootScope) const
+	const FVAAnyUnreal_TextValueSerializationProxy&                    DefaultValue, UObject* Parent, int32 PortFlags,
+	UObject*                                                           ExportRootScope) const
 {
 	check(Outer);
 	// ver.5.1 : Override ExportText.
 	if (ExportValue)
 	{
-		FString DataStr;
+		FString              DataStr;
 		const UScriptStruct* LocalStruct = Cast<UScriptStruct>(Outer->Struct.TryLoad());
-		if(ensure(LocalStruct))
+		if (ensure(LocalStruct))
 		{
 			LocalStruct->ExportText(DataStr, ExportValue, nullptr, Parent, PortFlags, ExportRootScope);
 			ValueStr += DataStr;
@@ -25,24 +25,24 @@ bool FVAAnyUnreal_TextValueSerializationProxy::ExportTextItem(FString& ValueStr,
 		}
 	}
 	//UE_LOG(LogTemp, Log, TEXT("ExportTextItem : %s"), *ValueStr);
-	
+
 	return true;
 }
 
 bool FVAAnyUnreal_TextValueSerializationProxy::ImportTextItem(const TCHAR*& Buffer, int32 PortFlags, UObject* OwnerObject,
-	FOutputDevice* ErrorText)
+	FOutputDevice*                                                          ErrorText)
 {
 	check(Outer);
 	//UE_LOG(LogTemp, Log, TEXT("ImportTextItem => OK"));
 
 	// Ver.5.1 : Fixed by FSoftObjectPath::ImportTextItem() Ln.374 Update. 
 	UScriptStruct* Struct = Cast<UScriptStruct>(Outer->Struct.TryLoad());
-	if(ensure(Struct))
+	if (ensure(Struct))
 	{
 		auto StructNameGetter = [&]() { return GetNameSafe(Struct); };
 
 		const int32 NewSize = FMath::Max(Struct->GetStructureSize(), 1);
-		void* Mem = FVAAnyUnreal_Memory::Get().Malloc(NewSize);
+		void*       Mem = FVAAnyUnreal_Memory::Get().Malloc(NewSize);
 		Struct->InitializeStruct(Mem);
 		Buffer = Struct->ImportText(Buffer, Mem, OwnerObject, PortFlags, ErrorText, StructNameGetter);
 		ImportedValue = Mem;
@@ -56,7 +56,7 @@ bool FVAAnyUnreal_TextValueSerializationProxy::ImportTextItem(const TCHAR*& Buff
 
 FVAAnyUnreal_TextValueSerializationProxy::~FVAAnyUnreal_TextValueSerializationProxy()
 {
-	if(ImportedValue != nullptr)
+	if (ImportedValue != nullptr)
 	{
 		FVAAnyUnreal_Memory::Get().Free(ImportedValue);
 	}

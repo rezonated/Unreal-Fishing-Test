@@ -15,7 +15,6 @@ Macros define various operations with FVAAnyUnreal.
 */
 
 
-
 /**
  * boolean value.
  */
@@ -23,6 +22,7 @@ USTRUCT()
 struct VAANYUNREAL_API FVAAnyUnreal_SingleValueStruct_Bool
 {
 	GENERATED_BODY()
+
 public:
 	UPROPERTY(EditAnywhere, Category="Value")
 	bool Value = false;
@@ -30,7 +30,7 @@ public:
 	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess);
 };
 
-template<>
+template <>
 struct TStructOpsTypeTraits<FVAAnyUnreal_SingleValueStruct_Bool> : public TStructOpsTypeTraitsBase2<FVAAnyUnreal_SingleValueStruct_Bool>
 {
 	enum
@@ -47,6 +47,7 @@ USTRUCT()
 struct VAANYUNREAL_API FVAAnyUnreal_SingleValueStruct_Byte
 {
 	GENERATED_BODY()
+
 public:
 	UPROPERTY(EditAnywhere, Category="Value")
 	uint8 Value = 0;
@@ -55,7 +56,7 @@ public:
 };
 
 
-template<>
+template <>
 struct TStructOpsTypeTraits<FVAAnyUnreal_SingleValueStruct_Byte> : public TStructOpsTypeTraitsBase2<FVAAnyUnreal_SingleValueStruct_Byte>
 {
 	enum
@@ -72,6 +73,7 @@ USTRUCT()
 struct VAANYUNREAL_API FVAAnyUnreal_SingleValueStruct_Int32
 {
 	GENERATED_BODY()
+
 public:
 	UPROPERTY(EditAnywhere, Category="Value")
 	int32 Value = 0;
@@ -79,7 +81,7 @@ public:
 	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess);
 };
 
-template<>
+template <>
 struct TStructOpsTypeTraits<FVAAnyUnreal_SingleValueStruct_Int32> : public TStructOpsTypeTraitsBase2<FVAAnyUnreal_SingleValueStruct_Int32>
 {
 	enum
@@ -95,14 +97,15 @@ USTRUCT()
 struct VAANYUNREAL_API FVAAnyUnreal_SingleValueStruct_Int64
 {
 	GENERATED_BODY()
+
 public:
 	UPROPERTY(EditAnywhere, Category="Value")
 	int64 Value = 0;
-	
+
 	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess);
 };
 
-template<>
+template <>
 struct TStructOpsTypeTraits<FVAAnyUnreal_SingleValueStruct_Int64> : public TStructOpsTypeTraitsBase2<FVAAnyUnreal_SingleValueStruct_Int64>
 {
 	enum
@@ -118,14 +121,15 @@ USTRUCT()
 struct VAANYUNREAL_API FVAAnyUnreal_SingleValueStruct_Float
 {
 	GENERATED_BODY()
+
 public:
 	UPROPERTY(EditAnywhere, Category="Value")
 	float Value = 0.0f;
-	
+
 	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess);
 };
 
-template<>
+template <>
 struct TStructOpsTypeTraits<FVAAnyUnreal_SingleValueStruct_Float> : public TStructOpsTypeTraitsBase2<FVAAnyUnreal_SingleValueStruct_Float>
 {
 	enum
@@ -141,14 +145,15 @@ USTRUCT()
 struct VAANYUNREAL_API FVAAnyUnreal_SingleValueStruct_String
 {
 	GENERATED_BODY()
+
 public:
 	UPROPERTY(EditAnywhere, Category="Value")
 	FString Value;
-	
+
 	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess);
 };
 
-template<>
+template <>
 struct TStructOpsTypeTraits<FVAAnyUnreal_SingleValueStruct_String> : public TStructOpsTypeTraitsBase2<FVAAnyUnreal_SingleValueStruct_String>
 {
 	enum
@@ -164,14 +169,15 @@ USTRUCT()
 struct VAANYUNREAL_API FVAAnyUnreal_SingleValueStruct_Name
 {
 	GENERATED_BODY()
+
 public:
 	UPROPERTY(EditAnywhere, Category="Value")
 	FName Value;
-	
+
 	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess);
 };
 
-template<>
+template <>
 struct TStructOpsTypeTraits<FVAAnyUnreal_SingleValueStruct_Name> : public TStructOpsTypeTraitsBase2<FVAAnyUnreal_SingleValueStruct_Name>
 {
 	enum
@@ -188,14 +194,15 @@ USTRUCT()
 struct VAANYUNREAL_API FVAAnyUnreal_SingleValueStruct_Text
 {
 	GENERATED_BODY()
+
 public:
 	UPROPERTY(EditAnywhere, Category="Value")
 	FText Value;
-	
+
 	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess);
 };
 
-template<>
+template <>
 struct TStructOpsTypeTraits<FVAAnyUnreal_SingleValueStruct_Text> : public TStructOpsTypeTraitsBase2<FVAAnyUnreal_SingleValueStruct_Text>
 {
 	enum
@@ -211,6 +218,7 @@ USTRUCT()
 struct VAANYUNREAL_API FVAAnyUnreal_SingleValueStruct_UObject
 {
 	GENERATED_BODY()
+
 public:
 	UPROPERTY(EditAnywhere, Category="Value")
 	UObject* Value = nullptr;
@@ -219,10 +227,11 @@ public:
 	{
 		return ::IsValid(Value);
 	}
-	
+
 	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess);
 };
-template<>
+
+template <>
 struct TVAAnyUnreal_SingleValueStructTrait<FVAAnyUnreal_SingleValueStruct_UObject>
 {
 	enum
@@ -230,7 +239,8 @@ struct TVAAnyUnreal_SingleValueStructTrait<FVAAnyUnreal_SingleValueStruct_UObjec
 		bUseImplicitConstructor = false,
 	};
 };
-template<>
+
+template <>
 struct TStructOpsTypeTraits<FVAAnyUnreal_SingleValueStruct_UObject> : public TStructOpsTypeTraitsBase2<FVAAnyUnreal_SingleValueStruct_UObject>
 {
 	enum
@@ -247,6 +257,7 @@ USTRUCT()
 struct VAANYUNREAL_API FVAAnyUnreal_SingleValueStruct_SoftObjectPtr
 {
 	GENERATED_BODY()
+
 public:
 	UPROPERTY(EditAnywhere, Category="Value")
 	TSoftObjectPtr<UObject> Value = nullptr;
@@ -255,10 +266,11 @@ public:
 	{
 		return !Value.IsNull();
 	}
-	
+
 	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess);
 };
-template<>
+
+template <>
 struct TVAAnyUnreal_SingleValueStructTrait<FVAAnyUnreal_SingleValueStruct_SoftObjectPtr>
 {
 	enum
@@ -266,7 +278,8 @@ struct TVAAnyUnreal_SingleValueStructTrait<FVAAnyUnreal_SingleValueStruct_SoftOb
 		bUseImplicitConstructor = false,
 	};
 };
-template<>
+
+template <>
 struct TStructOpsTypeTraits<FVAAnyUnreal_SingleValueStruct_SoftObjectPtr> : public TStructOpsTypeTraitsBase2<FVAAnyUnreal_SingleValueStruct_SoftObjectPtr>
 {
 	enum
@@ -282,6 +295,7 @@ USTRUCT()
 struct VAANYUNREAL_API FVAAnyUnreal_SingleValueStruct_UClass
 {
 	GENERATED_BODY()
+
 public:
 	UPROPERTY(EditAnywhere, Category="Value")
 	UClass* Value = nullptr;
@@ -290,10 +304,11 @@ public:
 	{
 		return ::IsValid(Value);
 	}
-	
+
 	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess);
 };
-template<>
+
+template <>
 struct TVAAnyUnreal_SingleValueStructTrait<FVAAnyUnreal_SingleValueStruct_UClass>
 {
 	enum
@@ -301,7 +316,8 @@ struct TVAAnyUnreal_SingleValueStructTrait<FVAAnyUnreal_SingleValueStruct_UClass
 		bUseImplicitConstructor = false,
 	};
 };
-template<>
+
+template <>
 struct TStructOpsTypeTraits<FVAAnyUnreal_SingleValueStruct_UClass> : public TStructOpsTypeTraitsBase2<FVAAnyUnreal_SingleValueStruct_UClass>
 {
 	enum
@@ -318,6 +334,7 @@ USTRUCT()
 struct VAANYUNREAL_API FVAAnyUnreal_SingleValueStruct_SoftClassPtr
 {
 	GENERATED_BODY()
+
 public:
 	UPROPERTY(EditAnywhere, Category="Value")
 	TSoftClassPtr<UObject> Value = nullptr;
@@ -326,11 +343,11 @@ public:
 	{
 		return !Value.IsNull();
 	}
-	
+
 	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess);
 };
 
-template<>
+template <>
 struct TVAAnyUnreal_SingleValueStructTrait<FVAAnyUnreal_SingleValueStruct_SoftClassPtr>
 {
 	enum
@@ -338,7 +355,8 @@ struct TVAAnyUnreal_SingleValueStructTrait<FVAAnyUnreal_SingleValueStruct_SoftCl
 		bUseImplicitConstructor = false,
 	};
 };
-template<>
+
+template <>
 struct TStructOpsTypeTraits<FVAAnyUnreal_SingleValueStruct_SoftClassPtr> : public TStructOpsTypeTraitsBase2<FVAAnyUnreal_SingleValueStruct_SoftClassPtr>
 {
 	enum
@@ -348,17 +366,26 @@ struct TStructOpsTypeTraits<FVAAnyUnreal_SingleValueStruct_SoftClassPtr> : publi
 };
 
 
-
-
 VAANYUNREAL_DECLARE_SINGLEVALUESTRUCT("Boolean", FVAAnyUnreal_SingleValueStruct_Bool);
+
 VAANYUNREAL_DECLARE_SINGLEVALUESTRUCT("Byte", FVAAnyUnreal_SingleValueStruct_Byte);
+
 VAANYUNREAL_DECLARE_SINGLEVALUESTRUCT("Integer", FVAAnyUnreal_SingleValueStruct_Int32);
+
 VAANYUNREAL_DECLARE_SINGLEVALUESTRUCT("Integer64", FVAAnyUnreal_SingleValueStruct_Int64);
+
 VAANYUNREAL_DECLARE_SINGLEVALUESTRUCT("Float", FVAAnyUnreal_SingleValueStruct_Float);
+
 VAANYUNREAL_DECLARE_SINGLEVALUESTRUCT("String", FVAAnyUnreal_SingleValueStruct_String);
+
 VAANYUNREAL_DECLARE_SINGLEVALUESTRUCT("Name", FVAAnyUnreal_SingleValueStruct_Name);
+
 VAANYUNREAL_DECLARE_SINGLEVALUESTRUCT("Text", FVAAnyUnreal_SingleValueStruct_Text);
+
 VAANYUNREAL_DECLARE_SINGLEVALUESTRUCT("Object", FVAAnyUnreal_SingleValueStruct_UObject);
+
 VAANYUNREAL_DECLARE_SINGLEVALUESTRUCT("SoftObjectReference", FVAAnyUnreal_SingleValueStruct_SoftObjectPtr);
+
 VAANYUNREAL_DECLARE_SINGLEVALUESTRUCT("Class", FVAAnyUnreal_SingleValueStruct_UClass);
+
 VAANYUNREAL_DECLARE_SINGLEVALUESTRUCT("SoftClassReference", FVAAnyUnreal_SingleValueStruct_SoftClassPtr);

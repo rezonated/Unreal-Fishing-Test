@@ -10,20 +10,13 @@
 class FVAAnyUnrealUncookedOnlyModule final : public IVAAnyUnrealUncookedOnlyModule
 {
 public:
-
 	/** IModuleInterface implementation */
-	virtual void StartupModule() override
-	{
+	virtual void StartupModule() override {}
 
-	}
-
-	virtual void ShutdownModule() override
-	{
-
-	}
+	virtual void ShutdownModule() override {}
 };
 
 
 #undef LOCTEXT_NAMESPACE
-	
+
 IMPLEMENT_MODULE(FVAAnyUnrealUncookedOnlyModule, VAAnyUnrealUncookedOnly)
