@@ -23,23 +23,6 @@ AActor_FishingRod::AActor_FishingRod()
 	CatchableAttachPoint->SetupAttachment(BobberMeshComponent);
 }
 
-void AActor_FishingRod::PrepareBobberTimeline(UCurveFloat* InReelCurve)
-{
-	if (!InReelCurve)
-	{
-		UE_LOG(LogFishingFeature, Error, TEXT("Bobber Curve is not valid, have you set it up correctly in the component?"));
-		return;
-	}
-
-	BIND_TIMELINE(ThrowReelInFloatUpdate, &ThisClass::OnThrowReelInUpdate, ThrowReelInFinishedEvent, &ThisClass::OnThrowReelInFinished)
-
-	const float CurveLength = InReelCurve->FloatCurve.GetLastKey().Time;
-	ThrowReelInTimeline.SetTimelineLength(CurveLength);
-
-	ThrowReelInTimeline.AddInterpFloat(InReelCurve, ThrowReelInFloatUpdate);
-	ThrowReelInTimeline.SetTimelineFinishedFunc(ThrowReelInFinishedEvent);
-}
-
 void AActor_FishingRod::Throw(const FVector& InCastLocation)
 {
 	BobberTargetLocation = InCastLocation;

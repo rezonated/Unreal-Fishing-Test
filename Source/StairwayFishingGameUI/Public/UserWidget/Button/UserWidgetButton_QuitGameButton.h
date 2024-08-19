@@ -7,7 +7,7 @@
 #include "UserWidgetButton_QuitGameButton.generated.h"
 
 /**
- * 
+ * Button widget to quit the game.
  */
 UCLASS()
 class STAIRWAYFISHINGGAMEUI_API UUserWidgetButton_QuitGameButton : public UUserWidget_Button
@@ -15,5 +15,8 @@ class STAIRWAYFISHINGGAMEUI_API UUserWidgetButton_QuitGameButton : public UUserW
 	GENERATED_BODY()
 
 protected:
+	/*
+	 * Overrides the button clicked function to quit the game.
+	 */
 	virtual void OnButtonClicked() override;
 };

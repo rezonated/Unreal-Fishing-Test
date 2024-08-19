@@ -124,12 +124,8 @@ void AGameModeBase_StairwayFishingGame::TogglePlayerControllerMode(APlayerContro
 	InPlayerController->SetShowMouseCursor(!bIsEnabled);
 }
 
-void AGameModeBase_StairwayFishingGame::BeginPlay()
+void AGameModeBase_StairwayFishingGame::InitialFadeIn()
 {
-	Super::BeginPlay();
-
-	ListenForGameLoopStateChanges();
-
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 	if (!PlayerController)
 	{
@@ -151,4 +147,13 @@ void AGameModeBase_StairwayFishingGame::BeginPlay()
 	}
 
 	PlayerCameraManager->StartCameraFade(1.f, 0.f, GameModeTransitionConfigAsset->GetGameModeTransitionConfig().InitialGameModeTransitionTime, FLinearColor::Black, true, true);
+}
+
+void AGameModeBase_StairwayFishingGame::BeginPlay()
+{
+	Super::BeginPlay();
+
+	ListenForGameLoopStateChanges();
+
+	InitialFadeIn();
 }

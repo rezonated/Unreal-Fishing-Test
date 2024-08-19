@@ -8,7 +8,7 @@
 #include "DataAsset_GameModeTransitionConfig.generated.h"
 
 /**
- * 
+ * Data asset for configuring the game mode transition.
  */
 UCLASS()
 class STAIRWAYFISHINGGAMECORE_API UDataAsset_GameModeTransitionConfig : public UDataAsset
@@ -16,9 +16,15 @@ class STAIRWAYFISHINGGAMECORE_API UDataAsset_GameModeTransitionConfig : public U
 	GENERATED_BODY()
 
 public:
+	/*
+	 * Returns the game mode transition config.
+	 */
 	FORCEINLINE FGameModeTransitionConfig GetGameModeTransitionConfig() const { return GameModeTransitionConfig; }
 
 protected:
+	/*
+	 * The game mode transition config.
+	 */
 	UPROPERTY(EditDefaultsOnly, Category = "Game Mode Transition")
 	FGameModeTransitionConfig GameModeTransitionConfig;
 };

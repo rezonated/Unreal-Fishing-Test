@@ -22,11 +22,11 @@ void UAnimNotify_SendMessageEvent::Notify(USkeletalMeshComponent* MeshComp, UAni
 		return;
 	}
 
-	if (!MessageTag.IsValid())
+	if (!ChannelTag.IsValid())
 	{
 		UE_LOG(LogTemp, Error, TEXT("MessageTag is invalid, are you sure you picked a valid tag? Won't continue..."));
 		return;
 	}
 
-	UVAGameplayMessagingSubsystem::Get(Owner).BroadcastMessage(Owner, MessageTag, {});
+	UVAGameplayMessagingSubsystem::Get(Owner).BroadcastMessage(Owner, ChannelTag, {});
 }
