@@ -10,6 +10,7 @@
 #include "ActorComponent_FishingComponent.generated.h"
 
 
+class UVAGameplayMessaging_ListenForGameplayMessages;
 class ICatcherInterface;
 class ICatchableInterface;
 class UDataAsset_FishingComponentConfig;
@@ -25,6 +26,9 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	void CleanupMessageListeners();
+
+	virtual void BeginDestroy() override;
 
 	void SetupInitialVectors();
 
@@ -94,6 +98,15 @@ private:
 
 	UPROPERTY(Transient)
 	FGameplayTag CurrentFishingState;
+
+	UPROPERTY(Transient)
+	UVAGameplayMessaging_ListenForGameplayMessages* NotifyMessageListenerAsync = nullptr;
+
+	UPROPERTY(Transient)
+	UVAGameplayMessaging_ListenForGameplayMessages* GameModeStateChangeMessageListenerAsync = nullptr;
+
+	UPROPERTY(Transient)
+	UVAGameplayMessaging_ListenForGameplayMessages* ReelDoneDoneNotifyMessageListenerAsync = nullptr;
 
 	ICatchableInterface* CurrentCatchable = nullptr;
 

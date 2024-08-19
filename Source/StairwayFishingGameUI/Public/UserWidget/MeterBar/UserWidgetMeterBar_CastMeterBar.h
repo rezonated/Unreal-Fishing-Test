@@ -22,7 +22,7 @@ protected:
 	void         ListenForUICastUpdateMessage();
 	void         InitializeMeterBar();
 	virtual void NativeConstruct() override;
-	void         CleanupUICastUpdateListener() const;
+	void         CleanupUICastUpdateListener();
 	virtual void NativeDestruct() override;
 
 	FLinearColor GetColorForProgress(const float& InProgress, const FLinearColor& DefaultColor = FLinearColor::White) const;

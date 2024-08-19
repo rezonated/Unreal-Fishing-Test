@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
-#include "Enum/FishingGameLoopState.h"
 #include "GameFramework/GameStateBase.h"
 #include "Runtime/VAAnyUnreal.h"
 #include "GameStateBase_StairwayFishingGame.generated.h"
@@ -13,7 +12,8 @@
  * 
  */
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnFishingGameLoopStateChanged, const EFishingGameLoopState& /*InFishingGameLoopState*/);
+class UVAGameplayMessaging_ListenForGameplayMessages;
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnFishingGameLoopStateChanged, const FGameplayTag& /*InFishingGameLoopState*/);
 
 UCLASS()
 class STAIRWAYFISHINGGAMECORE_API AGameStateBase_StairwayFishingGame : public AGameStateBase
@@ -21,18 +21,24 @@ class STAIRWAYFISHINGGAMECORE_API AGameStateBase_StairwayFishingGame : public AG
 	GENERATED_BODY()
 
 public:
-	FORCEINLINE EFishingGameLoopState GetCurrentFishingGameLoopState() const { return CurrentFishingGameLoopState; }
+	FORCEINLINE FGameplayTag GetCurrentFishingGameLoopState() const { return CurrentFishingGameLoopState; }
 
 	FOnFishingGameLoopStateChanged OnFishingGameLoopStateChanged;
 
-	void SetCurrentFishingGameLoopState(const EFishingGameLoopState& InFishingGameLoopState);
+	void SetCurrentFishingGameLoopState(const FGameplayTag& InFishingGameLoopState);
 
 protected:
 	virtual void BeginPlay() override;
+	void CleanupGameStateChangeMessageListener();
+
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	UFUNCTION()
 	void OnGameStateChangeMessageReceived(const FGameplayTag& Channel, const FVAAnyUnreal& MessagePayload);
 
-	UPROPERTY()
-	EFishingGameLoopState CurrentFishingGameLoopState = EFishingGameLoopState::Fishing;
+	UPROPERTY(Transient)
+	FGameplayTag CurrentFishingGameLoopState = FGameplayTag();
+
+	UPROPERTY(Transient)
+	UVAGameplayMessaging_ListenForGameplayMessages* GameStateChangeMessageListenerAsync = nullptr;
 };

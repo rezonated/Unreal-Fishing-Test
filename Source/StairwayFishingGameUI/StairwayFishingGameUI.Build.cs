@@ -24,7 +24,7 @@ public class StairwayFishingGameUI : ModuleRules
 				"CoreUObject",
 				"Engine",
 				"Slate",
-				"SlateCore"
+				"SlateCore", "FishingGameTypes"
 			}
 		);
 

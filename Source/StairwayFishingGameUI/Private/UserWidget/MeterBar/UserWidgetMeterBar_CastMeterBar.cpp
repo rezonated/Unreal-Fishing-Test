@@ -35,11 +35,12 @@ void UUserWidgetMeterBar_CastMeterBar::NativeConstruct()
 	InitializeMeterBar();
 }
 
-void UUserWidgetMeterBar_CastMeterBar::CleanupUICastUpdateListener() const
+void UUserWidgetMeterBar_CastMeterBar::CleanupUICastUpdateListener()
 {
-	if (FishingMessageListenerAsync)
+	if (IsValid(FishingMessageListenerAsync))
 	{
 		FishingMessageListenerAsync->Cancel();
+		FishingMessageListenerAsync = nullptr;
 	}
 }
 

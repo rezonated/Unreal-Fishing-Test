@@ -22,7 +22,7 @@ class STAIRWAYFISHINGGAMECORE_API APawn_StairwayFishingGame : public APawn, publ
 public:
 	APawn_StairwayFishingGame();
 
-	virtual void SetFishingView(const EFishingGameLoopState& InFishingGameLoopState) override;
+	virtual void SetFishingView(const FGameplayTag& InFishingGameLoopStateTag) override;
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Stairway Fishing Game Pawn")

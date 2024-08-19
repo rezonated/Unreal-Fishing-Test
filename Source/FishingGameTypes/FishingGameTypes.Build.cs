@@ -9,7 +9,7 @@ public class FishingGameTypes : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"Core"
+				"Core", "GameplayTags"
 			}
 		);
 

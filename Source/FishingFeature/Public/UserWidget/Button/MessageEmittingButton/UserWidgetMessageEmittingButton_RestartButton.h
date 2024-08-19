@@ -13,4 +13,6 @@ UCLASS()
 class FISHINGFEATURE_API UUserWidgetMessageEmittingButton_RestartButton : public UUserWidgetButton_MessageEmittingButton
 {
 	GENERATED_BODY()
+protected:
+	virtual void NativePreConstruct() override;
 };

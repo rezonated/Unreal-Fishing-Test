@@ -16,7 +16,7 @@ void FFishingTags::Startup(UGameplayTagsManager& GameplayTagsManager)
 
 	FishingTags.Messaging_Fishing_AnimInstance_StateChange = GameplayTagsManager.AddNativeGameplayTag(TEXT("Messaging.Fishing.AnimInstance.StateChange"));
 
-	FishingTags.Messaging_GameState_StateChange = GameplayTagsManager.AddNativeGameplayTag(TEXT("Messaging.GameState.StateChange.Fishing"));
+	FishingTags.Messaging_GameState_StateChange = GameplayTagsManager.AddNativeGameplayTag(TEXT("Messaging.GameState.StateChange"));
 
 	FishingTags.Messaging_GameMode_StateChangeFinish = GameplayTagsManager.AddNativeGameplayTag(TEXT("Messaging.GameMode.StateChange.Finish"));
 
@@ -32,4 +32,7 @@ void FFishingTags::Startup(UGameplayTagsManager& GameplayTagsManager)
 	FishingTags.FishingComponent_State_AbleToReel = GameplayTagsManager.AddNativeGameplayTag(TEXT("FishingComponent.State.AbleToReel"));
 	FishingTags.FishingComponent_State_Reeling_In = GameplayTagsManager.AddNativeGameplayTag(TEXT("FishingComponent.State.Reeling.In"));
 	FishingTags.FishingComponent_State_Reeling_Out = GameplayTagsManager.AddNativeGameplayTag(TEXT("FishingComponent.State.Reeling.Out"));
+
+	FishingTags.FishingGameLoopState_Fishing = GameplayTagsManager.AddNativeGameplayTag(TEXT("FishingGameLoopState.Fishing"));
+	FishingTags.FishingGameLoopState_ShowFish = GameplayTagsManager.AddNativeGameplayTag(TEXT("FishingGameLoopState.ShowFish"));
 }

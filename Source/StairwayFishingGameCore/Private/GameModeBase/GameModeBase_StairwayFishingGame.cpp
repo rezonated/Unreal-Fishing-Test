@@ -17,7 +17,7 @@ AGameModeBase_StairwayFishingGame::AGameModeBase_StairwayFishingGame()
 }
 
 
-void AGameModeBase_StairwayFishingGame::OnFishingGameLoopStateChanged(const EFishingGameLoopState& FishingGameLoopState)
+void AGameModeBase_StairwayFishingGame::OnFishingGameLoopStateChanged(const FGameplayTag& FishingGameLoopState)
 {
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 	if (!PlayerController)
@@ -62,43 +62,25 @@ void AGameModeBase_StairwayFishingGame::OnFishingGameLoopStateChanged(const EFis
 
 	const float TransitionFadeInTime = GameModeTransitionConfigAsset->GetGameModeTransitionConfig().TransitionFadeInTime;
 	const float TransitionFadeOutTime = GameModeTransitionConfigAsset->GetGameModeTransitionConfig().TransitionFadeOutTime;
+	
+	const bool bShouldFish = FishingGameLoopState.MatchesTag(FFishingTags::Get().FishingGameLoopState_Fishing);
 
+	TogglePlayerControllerMode(PlayerController, bShouldFish);
+
+	TriggerScreenFadeInOut(PlayerCameraManager, FishingGameLoopState, TransitionFadeInTime, TransitionFadeOutTime, PossessedPawnAsSwitchableFishingView);
+}
+
+void AGameModeBase_StairwayFishingGame::TriggerScreenFadeInOut(APlayerCameraManager* InPlayerCameraManager, const FGameplayTag& InFishingGameLoopState, const float& TransitionFadeInTime, const float& TransitionFadeOutTime, ISwitchableFishingViewInterface* InSwitchableFishingView) const
+{
 	FTimerHandle TimerHandle;
+	
+	InPlayerCameraManager->StartCameraFade(0.f, 1.f, TransitionFadeInTime, FLinearColor::Black, true, true);
 
-	uint8 Payload = static_cast<uint8>(FishingGameLoopState);
-
-	switch (FishingGameLoopState)
-	{
-		case EFishingGameLoopState::Fishing:
-			TogglePlayerControllerMode(PlayerController, true);
-
-			PlayerCameraManager->StartCameraFade(1.f, 0.f, TransitionFadeInTime, FLinearColor::Black, true, true);
-
-			GetWorld()->GetTimerManager().SetTimer(TimerHandle, [PlayerCameraManager, TransitionFadeOutTime, this, Payload, PossessedPawnAsSwitchableFishingView, FishingGameLoopState] {
-				PossessedPawnAsSwitchableFishingView->SetFishingView(FishingGameLoopState);
-
-				UVAGameplayMessagingSubsystem::Get(this).BroadcastMessage(this, FFishingTags::Get().Messaging_GameMode_StateChangeFinish, Payload);
-
-				PlayerCameraManager->StartCameraFade(0.f, 1.f, TransitionFadeOutTime, FLinearColor::Black, true, true);
-			}, TransitionFadeInTime, false);
-
-			break;
-		case EFishingGameLoopState::ShowFish:
-			TogglePlayerControllerMode(PlayerController, false);
-
-			PlayerCameraManager->StartCameraFade(0.f, 1.f, TransitionFadeInTime, FLinearColor::Black, true, true);
-
-			GetWorld()->GetTimerManager().SetTimer(TimerHandle, [PlayerCameraManager, TransitionFadeOutTime, this, Payload, PossessedPawnAsSwitchableFishingView, FishingGameLoopState] {
-				PossessedPawnAsSwitchableFishingView->SetFishingView(FishingGameLoopState);
-
-				UVAGameplayMessagingSubsystem::Get(this).BroadcastMessage(this, FFishingTags::Get().Messaging_GameMode_StateChangeFinish, Payload);
-
-				PlayerCameraManager->StartCameraFade(1.f, 0.f, TransitionFadeOutTime, FLinearColor::Black, true, true);
-
-			}, TransitionFadeInTime, false);
-
-			break;
-	}
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [InPlayerCameraManager, TransitionFadeOutTime, this, InFishingGameLoopState, InSwitchableFishingView] {
+		InSwitchableFishingView->SetFishingView(InFishingGameLoopState);
+		UVAGameplayMessagingSubsystem::Get(this).BroadcastMessage(this, FFishingTags::Get().Messaging_GameMode_StateChangeFinish, InFishingGameLoopState);
+		InPlayerCameraManager->StartCameraFade(1.f, 0.f, TransitionFadeOutTime, FLinearColor::Black, true, true);
+	}, TransitionFadeInTime, false);
 }
 
 void AGameModeBase_StairwayFishingGame::ListenForGameLoopStateChanges()
@@ -139,7 +121,7 @@ void AGameModeBase_StairwayFishingGame::TogglePlayerControllerMode(APlayerContro
 		InPlayerController->SetInputMode(FInputModeGameOnly());
 	}
 
-	InPlayerController->SetShowMouseCursor(bIsEnabled);
+	InPlayerController->SetShowMouseCursor(!bIsEnabled);
 }
 
 void AGameModeBase_StairwayFishingGame::BeginPlay()

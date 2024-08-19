@@ -7,7 +7,6 @@
 #include "FishingTags.h"
 #include "DataAsset/DataAsset_FishingComponentConfig.h"
 #include "Engine/AssetManager.h"
-#include "Enum/FishingGameLoopState.h"
 #include "GameInstanceSubsystem/VAGameplayMessagingSubsystem.h"
 #include "Interface/CatchableInterface.h"
 #include "Interface/CatcherInterface.h"
@@ -41,20 +40,20 @@ void UActorComponent_FishingComponent::RequestLoadFishingRodSoftClass()
 
 void UActorComponent_FishingComponent::ListenForThrowNotify()
 {
-	UVAGameplayMessaging_ListenForGameplayMessages* ListenForThrowNotifyMessage = UVAGameplayMessaging_ListenForGameplayMessages::ListenForGameplayMessagesViaChannel(this, FFishingTags::Get().Messaging_Fishing_Notify_Throw);
+	NotifyMessageListenerAsync = UVAGameplayMessaging_ListenForGameplayMessages::ListenForGameplayMessagesViaChannel(this, FFishingTags::Get().Messaging_Fishing_Notify_Throw);
 
-	ListenForThrowNotifyMessage->OnGameplayMessageReceived.AddUniqueDynamic(this, &ThisClass::OnThrowNotifyMessageReceived);
+	NotifyMessageListenerAsync->OnGameplayMessageReceived.AddUniqueDynamic(this, &ThisClass::OnThrowNotifyMessageReceived);
 
-	ListenForThrowNotifyMessage->Activate();
+	NotifyMessageListenerAsync->Activate();
 }
 
 void UActorComponent_FishingComponent::ListenForGameModeStateChangeFinish()
 {
-	UVAGameplayMessaging_ListenForGameplayMessages* ListenForGameModeStateChangeFinishMessage = UVAGameplayMessaging_ListenForGameplayMessages::ListenForGameplayMessagesViaChannel(this, FFishingTags::Get().Messaging_GameMode_StateChangeFinish);
+	GameModeStateChangeMessageListenerAsync = UVAGameplayMessaging_ListenForGameplayMessages::ListenForGameplayMessagesViaChannel(this, FFishingTags::Get().Messaging_GameMode_StateChangeFinish);
 
-	ListenForGameModeStateChangeFinishMessage->OnGameplayMessageReceived.AddUniqueDynamic(this, &ThisClass::OnGameModeStateChangeFinishMessageReceived);
+	GameModeStateChangeMessageListenerAsync->OnGameplayMessageReceived.AddUniqueDynamic(this, &ThisClass::OnGameModeStateChangeFinishMessageReceived);
 
-	ListenForGameModeStateChangeFinishMessage->Activate();
+	GameModeStateChangeMessageListenerAsync->Activate();
 }
 
 void UActorComponent_FishingComponent::BeginPlay()
@@ -74,6 +73,34 @@ void UActorComponent_FishingComponent::BeginPlay()
 	ListenForReelDoneNotify();
 
 	ListenForGameModeStateChangeFinish();
+}
+
+void UActorComponent_FishingComponent::CleanupMessageListeners()
+{
+	if (IsValid(NotifyMessageListenerAsync))
+	{
+		NotifyMessageListenerAsync->Cancel();
+		NotifyMessageListenerAsync = nullptr;
+	}
+
+	if (IsValid(GameModeStateChangeMessageListenerAsync))
+	{
+		GameModeStateChangeMessageListenerAsync->Cancel();
+		GameModeStateChangeMessageListenerAsync = nullptr;
+	}
+
+	if (IsValid(ReelDoneDoneNotifyMessageListenerAsync))
+	{
+		ReelDoneDoneNotifyMessageListenerAsync->Cancel();
+		ReelDoneDoneNotifyMessageListenerAsync = nullptr;
+	}
+}
+
+void UActorComponent_FishingComponent::BeginDestroy()
+{
+	CleanupMessageListeners();
+	
+	Super::BeginDestroy();
 }
 
 void UActorComponent_FishingComponent::SetupInitialVectors()
@@ -399,11 +426,11 @@ void UActorComponent_FishingComponent::ReelBack()
 
 void UActorComponent_FishingComponent::ListenForReelDoneNotify()
 {
-	UVAGameplayMessaging_ListenForGameplayMessages* ListenForReelDoneNotifyMessage = UVAGameplayMessaging_ListenForGameplayMessages::ListenForGameplayMessagesViaChannel(this, FFishingTags::Get().Messaging_Fishing_Notify_ReelDone);
+	ReelDoneDoneNotifyMessageListenerAsync = UVAGameplayMessaging_ListenForGameplayMessages::ListenForGameplayMessagesViaChannel(this, FFishingTags::Get().Messaging_Fishing_Notify_ReelDone);
 
-	ListenForReelDoneNotifyMessage->OnGameplayMessageReceived.AddUniqueDynamic(this, &ThisClass::OnReelDoneNotifyMessageReceived);
+	ReelDoneDoneNotifyMessageListenerAsync->OnGameplayMessageReceived.AddUniqueDynamic(this, &ThisClass::OnReelDoneNotifyMessageReceived);
 
-	ListenForReelDoneNotifyMessage->Activate();
+	ReelDoneDoneNotifyMessageListenerAsync->Activate();
 }
 
 void UActorComponent_FishingComponent::OnCastActionEnded(const float&)
@@ -627,7 +654,7 @@ void UActorComponent_FishingComponent::OnReelDoneNotifyMessageReceived(const FGa
 		return;
 	}
 
-	const FVAAnyUnreal Payload = static_cast<uint8>(EFishingGameLoopState::ShowFish);
+	const FVAAnyUnreal Payload = FFishingTags::Get().FishingGameLoopState_ShowFish;
 
 	UVAGameplayMessagingSubsystem::Get(this).BroadcastMessage(this, FFishingTags::Get().Messaging_GameState_StateChange, Payload);
 }
@@ -635,14 +662,19 @@ void UActorComponent_FishingComponent::OnReelDoneNotifyMessageReceived(const FGa
 void UActorComponent_FishingComponent::OnGameModeStateChangeFinishMessageReceived(const FGameplayTag& Channel,
 	const FVAAnyUnreal&                                                                               MessagePayload)
 {
-	if (!MessagePayload.Get<uint8>())
+	if (!MessagePayload.Is<FGameplayTag>())
 	{
-		UE_LOG(LogFishingFeature, Error, TEXT("Message payload is not valid, have you correctly send an enum value? Won't continue..."));
+		UE_LOG(LogFishingFeature, Error, TEXT("Message payload is not a gmeplay tag, have you correctly send the tag value? Won't continue..."));
 		return;
 	}
 
-	const uint8                 Payload = MessagePayload.Get<uint8>();
-	const EFishingGameLoopState FishingGameLoopState = static_cast<EFishingGameLoopState>(Payload);
+	const FGameplayTag Payload = MessagePayload.Get<FGameplayTag>();
+
+	if (!Payload.IsValid())
+	{
+		 UE_LOG(LogFishingFeature, Error, TEXT("Payload tag is not valid, have you correctly send the tag value? Won't continue..."));
+		 return;
+	}
 
 	if (!CurrentCatchable)
 	{
@@ -663,56 +695,58 @@ void UActorComponent_FishingComponent::OnGameModeStateChangeFinishMessageReceive
 		return;
 	}
 
-	switch (FishingGameLoopState)
+	const bool bIsFishingGameLoopState = Payload.MatchesTag(FFishingTags::Get().FishingGameLoopState_Fishing);
+
+	CurrentCatcher->ToggleCatcherVisibility(bIsFishingGameLoopState);
+	CurrentCatcher->ToggleBobberVisibility(true);
+
+	if (bIsFishingGameLoopState)
 	{
-		case EFishingGameLoopState::Fishing:
-			CurrentCatcher->ToggleCatcherVisibility(true);
+		CurrentCatcher->ToggleCatcherVisibility(true);
 
-			CatchableObject->ConditionalBeginDestroy();
-			CurrentCatchable = nullptr;
+		CatchableObject->ConditionalBeginDestroy();
+		CurrentCatchable = nullptr;
 
-			UVAGameplayMessagingSubsystem::Get(this).BroadcastMessage(this, FFishingTags::Get().Messaging_Fishing_AnimInstance_StateChange, FFishingTags::Get().AnimInstance_Fishing_State_Idling);
-			break;
-
-		case EFishingGameLoopState::ShowFish:
-			CurrentCatcher->ToggleCatcherVisibility(false);
-
-			AActor* CatchableActor = Cast<AActor>(CatchableObject);
-			if (!CatchableActor)
-			{
-				UE_LOG(LogFishingFeature, Error, TEXT("Catchable Actor is not valid, won't continue..."));
-				return;
-			}
-
-			if (!FishingComponentConfigData)
-			{
-				UE_LOG(LogFishingFeature, Error, TEXT("Fishing Component Config is not valid, have you set it up correctly in the component?"));
-				return;
-			}
-
-			const FFishingComponentConfig FishingComponentConfig = FishingComponentConfigData->GetFishingComponentConfig();
-			const FName                   CarryFishSocketName = FishingComponentConfig.CarryFishSocketName;
-
-			if (CarryFishSocketName == NAME_None)
-			{
-				UE_LOG(LogFishingFeature, Error, TEXT("Carry Fish Socket Name is not valid, have you set it up correctly in the data asset?"));
-				return;
-			}
-
-			UVAGameplayMessagingSubsystem::Get(this).BroadcastMessage(this, FFishingTags::Get().Messaging_Fishing_AnimInstance_StateChange, FFishingTags::Get().AnimInstance_Fishing_State_ShowFish);
-
-			USkeletalMeshComponent* OwnerSkeletalMeshComponent = nullptr;
-			if (!GetOwnerSkeletalMeshComponent(OwnerSkeletalMeshComponent))
-			{
-				UE_LOG(LogFishingFeature, Error, TEXT("Owner Skeletal Mesh Component is not valid, won't continue..."));
-				return;
-			}
-
-			CatchableActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-
-			CatchableActor->SetActorTransform(FTransform::Identity);
-
-			CatchableActor->AttachToComponent(OwnerSkeletalMeshComponent, FAttachmentTransformRules::SnapToTargetIncludingScale, CarryFishSocketName);
-			break;
+		UVAGameplayMessagingSubsystem::Get(this).BroadcastMessage(this, FFishingTags::Get().Messaging_Fishing_AnimInstance_StateChange, FFishingTags::Get().AnimInstance_Fishing_State_Idling);
+		return;
 	}
+
+	CurrentCatcher->ToggleCatcherVisibility(false);
+
+	AActor* CatchableActor = Cast<AActor>(CatchableObject);
+	if (!CatchableActor)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Catchable Actor is not valid, won't continue..."));
+		return;
+	}
+
+	if (!FishingComponentConfigData)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Fishing Component Config is not valid, have you set it up correctly in the component?"));
+		return;
+	}
+
+	const FFishingComponentConfig FishingComponentConfig = FishingComponentConfigData->GetFishingComponentConfig();
+	const FName                   CarryFishSocketName = FishingComponentConfig.CarryFishSocketName;
+
+	if (CarryFishSocketName == NAME_None)
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Carry Fish Socket Name is not valid, have you set it up correctly in the data asset?"));
+		return;
+	}
+
+	UVAGameplayMessagingSubsystem::Get(this).BroadcastMessage(this, FFishingTags::Get().Messaging_Fishing_AnimInstance_StateChange, FFishingTags::Get().AnimInstance_Fishing_State_ShowFish);
+
+	USkeletalMeshComponent* OwnerSkeletalMeshComponent = nullptr;
+	if (!GetOwnerSkeletalMeshComponent(OwnerSkeletalMeshComponent))
+	{
+		UE_LOG(LogFishingFeature, Error, TEXT("Owner Skeletal Mesh Component is not valid, won't continue..."));
+		return;
+	}
+
+	CatchableActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+
+	CatchableActor->SetActorTransform(FTransform::Identity);
+
+	CatchableActor->AttachToComponent(OwnerSkeletalMeshComponent, FAttachmentTransformRules::SnapToTargetIncludingScale, CarryFishSocketName);
 }

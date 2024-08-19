@@ -12,7 +12,7 @@ class UButton;
 /**
  * 
  */
-UCLASS(DefaultToInstanced)
+UCLASS()
 class STAIRWAYFISHINGGAMEUI_API UUserWidget_Button : public UUserWidget
 {
 	GENERATED_BODY()

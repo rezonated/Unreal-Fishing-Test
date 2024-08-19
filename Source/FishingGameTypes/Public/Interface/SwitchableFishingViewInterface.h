@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Enum/FishingGameLoopState.h"
+#include "GameplayTagContainer.h"
 #include "UObject/Interface.h"
 #include "SwitchableFishingViewInterface.generated.h"
 
@@ -18,5 +18,5 @@ class FISHINGGAMETYPES_API ISwitchableFishingViewInterface
 	GENERATED_BODY()
 
 public:
-	virtual void SetFishingView(const EFishingGameLoopState& InFishingGameLoopState) = 0;
+	virtual void SetFishingView(const FGameplayTag& InFishingGameLoopState) = 0;
 };

@@ -13,7 +13,10 @@ public class FishingFeature : ModuleRules
 				"VAGameplayMessaging",
 				"FishingGameTypes",
 				"VAAnyUnreal",
-				"GameplayTags"
+				"GameplayTags",
+				"StairwayFishingGameUI",
+				"UMG",
+				"Slate"
 			}
 		);
 

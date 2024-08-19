@@ -11,17 +11,16 @@
 /**
  * 
  */
-UCLASS(Blueprintable)
+UCLASS()
 class STAIRWAYFISHINGGAMEUI_API UUserWidgetButton_MessageEmittingButton : public UUserWidget_Button
 {
 	GENERATED_BODY()
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly,Category = "Message Emitting Button", meta=(ExposeOnSpawn = true))
+protected:
+	UPROPERTY()
 	FGameplayTag ChannelTag;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Message Emitting Button", meta=(ExposeOnSpawn = true))
-	FVAAnyUnreal MessagePayload;
+	UPROPERTY()
+	FVAAnyUnreal MessagePayload = FGameplayTag();
 	
-protected:
 	virtual void OnButtonClicked() override;
 };
