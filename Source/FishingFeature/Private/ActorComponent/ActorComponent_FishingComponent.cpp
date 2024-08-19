@@ -322,6 +322,8 @@ void UActorComponent_FishingComponent::OnCastAction(const float& InElapsedTime)
 			CurrentCatcher->ToggleBobberVisibility(false);
 
 			ReelBack();
+
+			MockReelInDoneDelegate.ExecuteIfBound(true);
 		}
 	}
 
@@ -409,10 +411,10 @@ void UActorComponent_FishingComponent::AttemptGetNearestCatchable()
 
 		CurrentCatchable = nullptr;
 
-		MockDoneDelegate.ExecuteIfBound(false);
+		MockAbleToCatchFishDoneDelegate.ExecuteIfBound(false);
 	}
 
-	MockDoneDelegate.ExecuteIfBound(true);
+	MockAbleToCatchFishDoneDelegate.ExecuteIfBound(true);
 }
 
 void UActorComponent_FishingComponent::ReelInCurrentCatchable()
@@ -480,6 +482,8 @@ void UActorComponent_FishingComponent::OnCastActionEnded(const float&)
 
 		ReelBack();
 
+		MockReelInDoneDelegate.ExecuteIfBound(false);
+
 		return;
 	}
 
@@ -516,6 +520,8 @@ void UActorComponent_FishingComponent::OnBobberLandsOnWater()
 	StartWaitingForFishTimer();
 
 	ReelInCurrentCatchable();
+
+	MockBobberLandsOnWaterDelegate.ExecuteIfBound(true);
 }
 
 void UActorComponent_FishingComponent::DetermineCastLocation(const float& InElapsedTime)
@@ -764,7 +770,7 @@ void UActorComponent_FishingComponent::OnGameModeStateChangeFinishMessageReceive
 	}
 
 	const FFishingComponentConfig FishingComponentConfig = FishingComponentConfigData->GetFishingComponentConfig();
-	const FName                   CarryFishSocketName = FishingComponentConfig.CarryFishSocketName;
+	const FName CarryFishSocketName = FishingComponentConfig.CarryFishSocketName;
 
 	if (CarryFishSocketName == NAME_None)
 	{

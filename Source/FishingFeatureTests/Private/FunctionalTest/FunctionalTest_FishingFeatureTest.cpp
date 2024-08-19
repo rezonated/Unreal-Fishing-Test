@@ -69,37 +69,9 @@ bool AFunctionalTest_FishingFeatureTest::PrepLookForMockableFishingComponent()
 	return bReturnValue;
 }
 
-void AFunctionalTest_FishingFeatureTest::BeginPlay()
-{
-	Super::BeginPlay();
-
-	if (!PrepLookForMockableFishingComponent())
-	{
-		return;
-	}
-
-	RandomizedMockFishingTime = FMath::FRandRange(MinMockHoldFishingTime, MaxMockHoldFishingTime);
-
-	CurrentFishingComponentToMock->OnMockDone().BindUObject(this, &ThisClass::OnMockDone);
-}
-
 void AFunctionalTest_FishingFeatureTest::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
-	if (!CurrentFishingComponentToMock)
-	{
-		return;
-	}
-
-	CurrentMockFishingTime += DeltaSeconds;
-	CurrentFishingComponentToMock->MockCast(CurrentMockFishingTime);
-	
-	if (CurrentMockFishingTime >= RandomizedMockFishingTime)
-	{
-		CurrentFishingComponentToMock->MockCastEnd();
-		CurrentMockFishingTime = 0.0f;
-	}
 }
 
 void AFunctionalTest_FishingFeatureTest::FinishTest(EFunctionalTestResult TestResult, const FString& Message)
@@ -107,24 +79,4 @@ void AFunctionalTest_FishingFeatureTest::FinishTest(EFunctionalTestResult TestRe
 	Super::FinishTest(TestResult, Message);
 
 	UKismetSystemLibrary::QuitGame(this, nullptr, EQuitPreference::Quit, false);
-}
-
-void AFunctionalTest_FishingFeatureTest::CleanupMockDelegateBinding()
-{
-	if (CurrentFishingComponentToMock)
-	{
-		CurrentFishingComponentToMock->OnMockDone().Unbind();
-		
-		CurrentFishingComponentToMock = nullptr;
-	}
-}
-
-void AFunctionalTest_FishingFeatureTest::OnMockDone(const bool& bSuccess)
-{
-	const EFunctionalTestResult FunctionalTestResult = bSuccess ? EFunctionalTestResult::Succeeded : EFunctionalTestResult::Failed;
-	const FString Message = bSuccess ? TEXT("Mocking fishing component succeeded") : TEXT("Mocking fishing component failed");
-
-	CleanupMockDelegateBinding();
-	
-	FinishTest(FunctionalTestResult, Message);
 }

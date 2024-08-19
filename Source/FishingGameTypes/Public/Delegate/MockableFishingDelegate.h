@@ -5,4 +5,4 @@
 #include "CoreMinimal.h"
 #include "Delegate/PlayerActionInputDelegate.h"
 
-DECLARE_DELEGATE_OneParam(FOnMockDone, const bool& /*bSuccess*/);
+DECLARE_DELEGATE_OneParam(FOnMockFishing, const bool& /*bSuccess*/);

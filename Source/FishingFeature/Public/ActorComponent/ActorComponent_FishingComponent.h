@@ -29,7 +29,11 @@ public:
 	
 	virtual void MockCastEnd() override;
 	
-	FORCEINLINE virtual FOnMockDone& OnMockDone() override { return MockDoneDelegate; }
+	FORCEINLINE virtual FOnMockFishing& OnMockAbleToCatchFishDone() override { return MockAbleToCatchFishDoneDelegate; }
+
+	FORCEINLINE virtual FOnMockFishing& OnMockBobberLandsOnWater() override { return MockBobberLandsOnWaterDelegate; }
+
+	FORCEINLINE virtual FOnMockFishing& OnMockReelInDone() override { return MockReelInDoneDelegate; }
 
 protected:
 	virtual void BeginPlay() override;
@@ -129,5 +133,9 @@ private:
 
 	FTimerHandle CastTimerHandle;
 
-	FOnMockDone MockDoneDelegate;
+	FOnMockFishing MockAbleToCatchFishDoneDelegate;
+
+	FOnMockFishing MockBobberLandsOnWaterDelegate;
+
+	FOnMockFishing MockReelInDoneDelegate;
 };

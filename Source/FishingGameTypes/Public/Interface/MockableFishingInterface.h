@@ -21,5 +21,9 @@ public:
 
 	virtual void MockCastEnd() = 0;
 
-	virtual FOnMockDone& OnMockDone() = 0;
+	virtual FOnMockFishing& OnMockAbleToCatchFishDone() = 0;
+
+	virtual FOnMockFishing& OnMockBobberLandsOnWater() = 0;
+
+	virtual FOnMockFishing& OnMockReelInDone() = 0;
 };
