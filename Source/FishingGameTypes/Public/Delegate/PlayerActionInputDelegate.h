@@ -4,4 +4,4 @@
 
 #include "CoreMinimal.h"
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerActionInput, const float& /*ElapsedTime*/);
+DECLARE_DELEGATE_OneParam(FOnPlayerActionInput, const float& /*ElapsedTime*/);

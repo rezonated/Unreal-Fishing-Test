@@ -166,7 +166,7 @@ void AActor_FishingRod::OnThrowReelInFinished()
 {
 	ClearTimeline(&ThrowReelInFloatUpdate, &ThrowReelInFinishedEvent);
 
-	bool bExecuteDelegate = CatchableLandsOnWaterDelegate.ExecuteIfBound();
+	CatchableLandsOnWaterDelegate.ExecuteIfBound();
 }
 
 void AActor_FishingRod::OnPullReelOutUpdate(float InAlpha)

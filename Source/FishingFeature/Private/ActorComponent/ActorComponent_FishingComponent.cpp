@@ -23,6 +23,16 @@ UActorComponent_FishingComponent::UActorComponent_FishingComponent()
 	CurrentFishingState = FFishingTags::Get().FishingComponent_State_Idling;
 }
 
+void UActorComponent_FishingComponent::MockCast(const float& InElapsedTime)
+{
+	OnCastAction(InElapsedTime);
+}
+
+void UActorComponent_FishingComponent::MockCastEnd()
+{
+	OnCastActionEnded(0.f);
+}
+
 void UActorComponent_FishingComponent::RequestLoadFishingRodSoftClass()
 {
 	if (!FishingComponentConfigData)
@@ -96,9 +106,30 @@ void UActorComponent_FishingComponent::CleanupMessageListeners()
 	}
 }
 
+void UActorComponent_FishingComponent::CleanupCatcherAndControllerDelegateBindings()
+{
+	if (CurrentCatcher)
+	{
+		CurrentCatcher->OnLandsOnWater().Unbind();
+
+		CurrentCatcher = nullptr;
+	}
+
+	if (OwnerControllerAsPlayerActionInput)
+	{
+		OwnerControllerAsPlayerActionInput->OnCastActionStarted().Unbind();
+		OwnerControllerAsPlayerActionInput->OnCastActionTriggered().Unbind();
+		OwnerControllerAsPlayerActionInput->OnCastActionCompleted().Unbind();
+
+		OwnerControllerAsPlayerActionInput = nullptr;
+	}
+}
+
 void UActorComponent_FishingComponent::BeginDestroy()
 {
 	CleanupMessageListeners();
+
+	CleanupCatcherAndControllerDelegateBindings();
 	
 	Super::BeginDestroy();
 }
@@ -259,16 +290,18 @@ void UActorComponent_FishingComponent::BindToPlayerActionInputDelegates()
 		return;
 	}
 
-	IPlayerActionInputInterface* OwnerControllerAsPlayerActionInput = Cast<IPlayerActionInputInterface>(OwnerController);
+	OwnerControllerAsPlayerActionInput = Cast<IPlayerActionInputInterface>(OwnerController);
 	if (!OwnerControllerAsPlayerActionInput)
 	{
 		UE_LOG(LogFishingFeature, Error, TEXT("Owner Controller does not implement Player Action Input Interface, won't continue binding to player action input delegates..."));
+
+		OwnerControllerAsPlayerActionInput = nullptr;
 		return;
 	}
 
-	OwnerControllerAsPlayerActionInput->OnCastActionStarted().AddUObject(this, &ThisClass::OnCastAction);
-	OwnerControllerAsPlayerActionInput->OnCastActionTriggered().AddUObject(this, &ThisClass::OnCastAction);
-	OwnerControllerAsPlayerActionInput->OnCastActionCompleted().AddUObject(this, &ThisClass::OnCastActionEnded);
+	OwnerControllerAsPlayerActionInput->OnCastActionStarted().BindUObject(this, &ThisClass::OnCastAction);
+	OwnerControllerAsPlayerActionInput->OnCastActionTriggered().BindUObject(this, &ThisClass::OnCastAction);
+	OwnerControllerAsPlayerActionInput->OnCastActionCompleted().BindUObject(this, &ThisClass::OnCastActionEnded);
 }
 
 void UActorComponent_FishingComponent::OnCastAction(const float& InElapsedTime)
@@ -375,7 +408,11 @@ void UActorComponent_FishingComponent::AttemptGetNearestCatchable()
 		UE_LOG(LogFishingFeature, Error, TEXT("Random Catchable is not valid, won't continue..."));
 
 		CurrentCatchable = nullptr;
+
+		MockDoneDelegate.ExecuteIfBound(false);
 	}
+
+	MockDoneDelegate.ExecuteIfBound(true);
 }
 
 void UActorComponent_FishingComponent::ReelInCurrentCatchable()

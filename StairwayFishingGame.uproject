@@ -64,6 +64,11 @@
 			"Name": "FishingFeatureEditor",
 			"Type": "Editor",
 			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "FishingFeatureTests",
+			"Type": "EditorNoCommandlet",
+			"LoadingPhase": "Default"
 		}
 	],
 	"Plugins": [
