@@ -6,30 +6,45 @@
 #include "GameplayTagContainer.h"
 #include "Components/ActorComponent.h"
 #include "Engine/StreamableManager.h"
+#include "Interface/MockableFishingInterface.h"
 #include "Runtime/VAAnyUnreal.h"
 #include "ActorComponent_FishingComponent.generated.h"
 
 
+class IPlayerActionInputInterface;
 class UVAGameplayMessaging_ListenForGameplayMessages;
 class ICatcherInterface;
 class ICatchableInterface;
 class UDataAsset_FishingComponentConfig;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class FISHINGFEATURE_API UActorComponent_FishingComponent : public UActorComponent
+class FISHINGFEATURE_API UActorComponent_FishingComponent : public UActorComponent, public IMockableFishingInterface
 {
 	GENERATED_BODY()
 
 public:
 	UActorComponent_FishingComponent();
-	void RequestLoadFishingRodSoftClass();
+
+	virtual void MockCast(const float& InElapsedTime) override;
+	
+	virtual void MockCastEnd() override;
+	
+	FORCEINLINE virtual FOnMockFishing& OnMockAbleToCatchFishDone() override { return MockAbleToCatchFishDoneDelegate; }
+
+	FORCEINLINE virtual FOnMockFishing& OnMockBobberLandsOnWater() override { return MockBobberLandsOnWaterDelegate; }
+
+	FORCEINLINE virtual FOnMockFishing& OnMockReelInDone() override { return MockReelInDoneDelegate; }
 
 protected:
 	virtual void BeginPlay() override;
-	void CleanupMessageListeners();
-
+	
 	virtual void BeginDestroy() override;
+	
+	void CleanupMessageListeners();
+	void CleanupCatcherAndControllerDelegateBindings();
 
+	void RequestLoadFishingRodSoftClass();
+	
 	void SetupInitialVectors();
 
 	void InitializeDecalActor();
@@ -112,7 +127,15 @@ private:
 
 	ICatcherInterface* CurrentCatcher = nullptr;
 
+	IPlayerActionInputInterface* OwnerControllerAsPlayerActionInput = nullptr;
+
 	TSharedPtr<FStreamableHandle> FishingRodAssetHandle = nullptr;
 
 	FTimerHandle CastTimerHandle;
+
+	FOnMockFishing MockAbleToCatchFishDoneDelegate;
+
+	FOnMockFishing MockBobberLandsOnWaterDelegate;
+
+	FOnMockFishing MockReelInDoneDelegate;
 };

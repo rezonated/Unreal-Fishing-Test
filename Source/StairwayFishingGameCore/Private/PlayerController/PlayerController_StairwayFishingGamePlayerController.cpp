@@ -87,7 +87,7 @@ void APlayerController_StairwayFishingGamePlayerController::BroadcastCastDelegat
 
 	const float TriggeredTime = InInputActionInstance.GetElapsedTime();
 
-	InDelegate.Broadcast(TriggeredTime);
+	InDelegate.ExecuteIfBound(TriggeredTime);
 }
 
 bool APlayerController_StairwayFishingGamePlayerController::GetEnhancedInputLocalPlayerSubsystem(UEnhancedInputLocalPlayerSubsystem*& OutEnhancedInputLocalPlayerSubsystem) const
